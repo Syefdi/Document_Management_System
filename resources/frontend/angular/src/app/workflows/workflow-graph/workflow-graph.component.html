@@ -1,0 +1,95 @@
+<div class="d-flex">
+  <span mat-dialog-title class="dialog-title">{{data.workflowName | limitTo : '100'}} </span>
+  <button mat-icon-button class="ms-auto" (click)="onDocumentCancel()">
+    <mat-icon class="close-icon" color="warn">close</mat-icon>
+  </button>
+</div>
+<mat-dialog-content>
+  <div class="row">
+    <div class="col">
+      <div class="graph-container" style="width: 100%;">
+        <ngx-graph [nodes]="nodes" [links]="links" [view]="[1000, 300]" [autoCenter]="true"
+          [customColors]="customColors" [curve]="curve" [layout]="'dagreCluster'" class="ngx-graph-container">
+          <ng-template #defsTemplate>
+            <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4"
+              orient="auto">
+              <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+            </svg:marker>
+          </ng-template>
+          <ng-template #nodeTemplate let-node>
+            <svg:g class="node">
+              <svg:rect [attr.width]="node.dimension?.width || 100" [attr.height]="node.dimension?.height || 50"
+                [attr.fill]="node.data?.color || '#ccc'">
+              </svg:rect>
+              <svg:text alignment-baseline="central" [attr.fill]="'#fff'" [attr.x]="10"
+                [attr.y]="(node.dimension?.height || 50) / 2">
+                {{node.label}}
+              </svg:text>
+            </svg:g>
+          </ng-template>
+          <ng-template #linkTemplate let-link>
+            <svg:g class="edge" *ngIf="link.source && link.target">
+              <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+              <svg:text class="edge-label" text-anchor="middle">
+                <textPath [attr.fill]="link.status === 1 ? 'green' : 'black'" class="text-path"
+                  [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline" startOffset="50%">
+                  {{link.label}}
+                </textPath>
+              </svg:text>
+            </svg:g>
+          </ng-template>
+        </ngx-graph>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card shadow mt-2">
+        <div class="card-header">
+          <span class="px-2 h5 font-weight-bold mb-0">{{"WORKFLOW_DETAILS" | translate}}</span>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              <p class="h6"><strong>{{"NAME" | translate}}:</strong> {{data.workflowName}}</p>
+              <p *ngIf="data.workflowDescription" class="h6"><strong>{{"DESCRIPTION" | translate}}:</strong>
+                {{data.workflowDescription}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6" *ngIf="data?.pendingWorkflowTransitions.length > 0">
+      <div class="row">
+        <div class="col">
+          <span class="px-2 h5 font-weight-bold mb-0">{{"TRANSITIONS" | translate}}</span>
+        </div>
+      </div>
+      <div class="card shadow  mt-2" *ngFor="let transition of data?.pendingWorkflowTransitions">
+        <div class="card-header d-flex align-items-center">
+          <i-feather class="text-primary" name="clock"></i-feather>
+          <div>
+            <span class="px-2 h6 font-weight-bold mb-0">{{transition.name}}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-left mb-2">
+            <div class="text-center me-3">
+              <span class="h6 mb-1">{{transition.fromStepName}}</span>
+            </div>
+            <div class="text-center me-3">
+              <i-feather class="black" name="arrow-right"></i-feather>
+            </div>
+            <div class="text-center">
+              <span class="h6 mb-1">{{transition.toStepName}}</span>
+            </div>
+          </div>
+          <p class="h6" *ngIf="transition?.assignRoles">{{"ASSIGNED_TO_ROLES" | translate}}: {{ transition.assignRoles }}
+          </p>
+          <p class="h6" *ngIf="transition?.assignUsers">{{"ASSIGNED_TO_USERS" | translate}}: {{ transition.assignUsers }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

@@ -1,0 +1,49 @@
+::ng-deep .mat-button-toggle.approved {
+    color: #28a745 !important;
+    background-color: #28a745 !important; // success green
+  }
+  
+  ::ng-deep .mat-button-toggle.rejected {
+    color: #dc3545 !important;
+    background-color: #dc3545 !important; // secondary gray
+  }
+  
+  ::ng-deep .mat-button-toggle.pending {
+    color: #ffc107 !important;
+    background-color: #ffc107 !important; // secondary gray
+  }
+  
+  ::ng-deep .mat-button-toggle.inprogress {
+    color: #6777ef !important;
+    background-color: #6777ef !important; // secondary gray
+  }
+  
+  ::ng-deep .mat-button-toggle.onhold {
+    color: #6c757d !important;
+    background-color: #6c757d !important; // secondary gray
+  }
+  
+  ::ng-deep .mat-button-toggle.cancelled {
+    color: #343a40 !important;
+    background-color: #343a40 !important; // secondary gray
+  }
+  
+  ::ng-deep .mat-button-toggle.escalated {
+    color: #fd7e14 !important;
+    background-color: #fd7e14 !important; // secondary gray
+  }
+  
+  ::ng-deep .mat-button-toggle.completed {
+    color: #198754 !important;
+    background-color: #198754 !important; // secondary gray
+  }
+  
+  ::ng-deep .custom-toggle-group mat-button-toggle {
+    min-width: 60px;
+    height: 30px;
+    font-size: 8px;
+  }
+  
+  ::ng-deep .mat-button-toggle .mat-pseudo-checkbox {
+    margin-top: -20px !important;
+  }

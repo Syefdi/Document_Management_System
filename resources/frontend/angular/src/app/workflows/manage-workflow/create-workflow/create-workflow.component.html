@@ -1,0 +1,52 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-2">
+        <span *ngIf="!currentWorkflow?.id" class="mb-0 page-title">{{ "ADD_WORKFLOW" | translate
+          }}<app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text></span>
+        <span *ngIf="currentWorkflow?.id" class="mb-0 page-title">{{ "EDIT_WORKFLOW" | translate
+          }}<app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="body">
+        <form [formGroup]="workFormGroup">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label for="name" class="form-label">{{"NAME" | translate}}</label>
+                <input class="form-control" placeholder="{{'WORKFLOW_NAME' | translate }}" formControlName="name"
+                  type="text" required />
+                <div *ngIf="workFormGroup.get('name').touched && workFormGroup.get('name').errors">
+                  <div class="text-danger" *ngIf="workFormGroup.get('name').errors?.['required']">
+                    {{'NAME_IS_REQUIRED' | translate}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group ">
+                <label for="description" class="form-label">{{"DESCRIPTION" | translate}}</label>
+                <input class="form-control" placeholder="{{'DESCRIPTION' | translate }}" formControlName="description"
+                  type="text" required />
+                <div *ngIf="workFormGroup.get('description').touched && workFormGroup.get('description').errors">
+                  <div class="text-danger" *ngIf="workFormGroup.get('description').errors?.['required']">
+                    {{'DESCRIPTION_IS_REQUIRED' | translate}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="m-top-10 col-md-12">
+            <button class="btn btn-success btn-sm me-2" (click)="saveWorkflow()" cdkFocusInitial>
+              <i-feather name="arrow-right" class="small-icon"></i-feather> {{'NEXT' | translate}}
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" [routerLink]="['/workflow-settings']">
+              <i-feather name="x-circle" class="small-icon"></i-feather> {{'CANCEL' | translate}}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

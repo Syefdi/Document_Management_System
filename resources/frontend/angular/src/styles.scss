@@ -1,0 +1,40 @@
+  /* You can add global styles to this file, and also import other style files */
+  @import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+  @import 'node_modules/ng-pick-datetime-ex/assets/style/picker.min.css';
+  @import '../node_modules/angular-calendar/css/angular-calendar.css';
+  @import "@ng-select/ng-select/themes/default.theme.css";
+  @import "assets/scss/variables.scss";
+
+  .badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+}
+
+.badge-success {
+  color: #28a745; // Hijau
+}
+
+.badge-info {
+  color: #17a2b8; // Biru
+}
+
+.badge-warning {
+  color: #ffc107; // Kuning
+
+}
+
+.badge-danger {
+  color: #dc3545; // Merah
+}
+
+.badge-secondary {
+  color: #6c757d; // Abu-abu
+}

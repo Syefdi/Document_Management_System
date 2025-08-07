@@ -1,0 +1,51 @@
+.transition-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px; // Adjust the spacing between items as needed
+}
+
+.transition-item {
+  background-color: #f1f1f1; // Optional: Add background color for better visibility
+  padding: 4px 8px; // Optional: Add padding for better spacing
+  border-radius: 4px; // Optional: Add border radius for rounded corners
+}
+
+.workflow_approved {
+  color: #000 !important;
+  background-color: #28a745 !important; // success green
+}
+
+.workflow_rejected {
+  color: #fff !important;
+  background-color: #dc3545 !important; // secondary gray
+}
+
+.workflow_pending {
+  color: #000 !important;
+  background-color: #ffc107 !important; // secondary gray
+}
+
+.workflow_inprogress {
+  color: #fff !important;
+  background-color: #6777ef !important; // secondary gray
+}
+
+.workflow_onhold {
+  color: #000 !important;
+  background-color: #6c757d !important; // secondary gray
+}
+
+.workflow_cancelled {
+  color: #fff !important;
+  background-color: #343a40 !important; // secondary gray
+}
+
+.workflow_escalated {
+  color: #fff !important;
+  background-color: #fd7e14 !important; // secondary gray
+}
+
+.workflow_completed {
+  color: #fff !important;
+  background-color: #198754 !important; // secondary gray
+}
