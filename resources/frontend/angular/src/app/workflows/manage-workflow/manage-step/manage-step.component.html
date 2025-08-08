@@ -43,6 +43,13 @@
                                                 <ng-option value="Approved">Approved</ng-option>
                                                 <ng-option value="Rejected">Rejected</ng-option>
                                             </ng-select>
+
+                                            <div *ngIf="step.get('name').touched && step.get('name').errors">
+                                                <div class="text-danger" *ngIf="step.get('name').errors?.['required']">
+                                                    {{ "End Step Name is required." | translate }}
+                                                </div>
+
+                                            </div>
                                         </div>
                                     </div>
                                 </ng-container>
