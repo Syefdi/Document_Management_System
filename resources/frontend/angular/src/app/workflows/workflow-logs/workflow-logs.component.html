@@ -1,0 +1,156 @@
+<section class="content">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-2">
+                <span class="mb-0 page-title">{{ "WORKFLOW_LOGS" | translate }}
+                    <app-page-help-text [code]="'WORKFLOW_LOGS'"></app-page-help-text>
+                </span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="body">
+                <div class="table-responsive">
+                    <div class="grid-height-large">
+                        <table mat-table [dataSource]="dataSource" matSortDisableClear class="w-100" matSort
+                            matSortActive="createdDate" matSortDirection="desc">
+                            <ng-container matColumnDef="detail">
+                                <th class="table-column-30" mat-header-cell *matHeaderCellDef>
+                                    {{ "ACTION" | translate }}
+                                </th>
+                                <td class="table-column-30" mat-cell *matCellDef="let workflowLog">
+                                    <button class="btn btn-sm btn-primary" (click)="viewVisualWorkflow(workflowLog)">
+                                        <i-feather name="eye" class="small-icon"></i-feather>
+                                    </button>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="workflowName">
+                                <th class="table-column-200" mat-header-cell *matHeaderCellDef mat-sort-header>
+                                    {{ "WROKFLOW" | translate }}
+                                </th>
+                                <td class="table-column-200" mat-cell *matCellDef="let workflowLog">
+                                    {{ workflowLog?.workflowName }}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="createdByName">
+                                <th class="table-column-150" mat-header-cell *matHeaderCellDef mat-sort-header>
+                                    {{ "PERFORM_BY" | translate }}
+                                </th>
+                                <td class="table-column-150" mat-cell *matCellDef="let workflowLog">
+                                    {{ workflowLog?.createdByName }}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="createdDate">
+                                <th class="table-column-150" mat-header-cell *matHeaderCellDef mat-sort-header>
+                                    {{ "PERFORM_DATE" | translate }}
+                                </th>
+                                <td class="table-column-150" mat-cell *matCellDef="let workflowLog">
+                                    {{ workflowLog?.createdDate | utcToLocalTime:'full' }}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="documentName">
+                                <th class="table-column-150" mat-header-cell *matHeaderCellDef mat-sort-header>
+                                    {{ "DOCUMENT" | translate }}
+                                </th>
+                                <td class="table-column-150" mat-cell *matCellDef="let workflowLog">
+                                    <ng-container *ngIf="workflowLog.isDocumentDeleted === false; else deletedTemplate">
+                                        <a class="doc-link"> {{ workflowLog?.documentName }}</a>
+                                    </ng-container>
+                                    <ng-template #deletedTemplate>
+                                        {{workflowLog?.documentName}}
+                                    </ng-template>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="transitionName">
+                                <th class="table-column-150" mat-header-cell *matHeaderCellDef>
+                                    {{ "TRANSITION" | translate }}
+                                </th>
+                                <td class="table-column-150" mat-cell *matCellDef="let workflowLog">
+                                    @if(workflowLog?.type === 'Transition') {
+                                    {{ workflowLog?.transitionName }}
+                                    } @else if(workflowLog?.type === 'Initiated') {
+                                    <span class="badge bg-success">{{ workflowLog?.type }}</span>
+                                    }
+                                    @else {
+                                    <span class="badge bg-danger"> {{ workflowLog?.type }}</span>
+                                    }
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="fromStepName">
+                                <th class="table-column-150" mat-header-cell *matHeaderCellDef>
+                                    {{ "STEPS" | translate }}
+                                </th>
+                                <td class="table-column-150" mat-cell *matCellDef="let workflowLog">
+                                    @if(workflowLog?.type === 'Transition') {
+                                    {{ workflowLog?.fromStepName }} -> {{workflowLog?.toStepName}}
+                                    }
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="comment">
+                                <th class="table-column-150" mat-header-cell *matHeaderCellDef>
+                                    {{ "REMARK" | translate }}
+                                </th>
+                                <td class="table-column-150" mat-cell *matCellDef="let workflowLog">
+                                    {{ workflowLog?.comment | limitTo: '100' }}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="detail-search">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                            </ng-container>
+                            <ng-container matColumnDef="workflowname-search">
+                                <th mat-header-cell *matHeaderCellDef>
+                                    <input placeholder="{{'WORKFLOW_NAME' | translate}}" type="text"
+                                        class="form-control" [(ngModel)]="WorkflowFilter">
+                                </th>
+                            </ng-container>
+                            <ng-container matColumnDef="initiatedUser-search">
+                                <th mat-header-cell *matHeaderCellDef>
+                                </th>
+                            </ng-container>
+                            <ng-container matColumnDef="initiateddate-search">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                            </ng-container>
+                            <ng-container matColumnDef="documentname-search">
+                                <th mat-header-cell *matHeaderCellDef>
+                                    <input placeholder="{{'DOCUMENT_NAME' | translate}}" type="text"
+                                        class="form-control w-90" [(ngModel)]="DocNameFilter">
+                                </th>
+                            </ng-container>
+                            <ng-container matColumnDef="transitionname-search">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                            </ng-container>
+                            <ng-container matColumnDef="workflowsteps-search">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                            </ng-container>
+                            <ng-container matColumnDef="comment-search">
+                                <th mat-header-cell *matHeaderCellDef></th>
+                            </ng-container>
+                            <ng-container matColumnDef="footer">
+                                <td mat-footer-cell colspan="9" *matFooterCellDef>
+                                    <mat-paginator [length]="workflowLogResource.totalCount"
+                                        [pageSize]="workflowLogResource.pageSize"
+                                        [pageSizeOptions]="[10, 20, 30]"></mat-paginator>
+                                </td>
+                            </ng-container>
+                            <tr *matNoDataRow>
+                                <td colspan="9">
+                                    <div class="m-2">
+                                        <b> {{ "NO_DATA_FOUND" | translate }}</b>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                            <tr mat-header-row *matHeaderRowDef="displayFilteredColumns"></tr>
+                            <tr mat-footer-row *matFooterRowDef="['footer']; sticky: true"></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="spinner-container" *ngIf="dataSource.loading$ | async">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>

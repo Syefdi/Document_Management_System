@@ -1,0 +1,89 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-2">
+        <span class="mb-0 page-title">
+          {{ "MY_WORKFLOWS" | translate }}
+          <app-page-help-text code="CURRENT_WORKFLOWS"></app-page-help-text>
+        </span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="body">
+        @if (workflowInstances?.length === 0) {
+        <div class="text-left mt-1">
+          <h6 class="text-muted">{{ "NO_WORKFLOW_ASSIGNED" | translate }}</h6>
+        </div>
+        } @else {
+        <div class="card p-2 mb-1" style="border: 1px solid #d3d4d6;"
+          *ngFor="let workflowinstance of workflowInstances; let i = index;">
+          <div class="card-header">
+            <span class="fw-bold">
+              {{i + 1}} {{')'}} &nbsp; {{ "WORKFLOW_NAME" | translate }} - {{ workflowinstance?.workflowName }}
+            </span>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="form-group">
+                  <label class="fw-bold"> {{ "DOCUMENT" | translate }}</label>
+                  <a class="doc-link form-control-plaintext form-control-sm"
+                    (click)="onDocumentView(workflowinstance.documentId)">
+                    {{ workflowinstance?.documentName }}
+                  </a>
+                </div>
+              </div>
+              <div class="col-sm-2">
+                <div class="form-group">
+                  <label class="fw-bold"> {{ "WORKFLOW_STATUS" | translate }}</label>
+                  <span class="form-control-plaintext form-control-sm" [workflowstatuscolor]="workflowinstance.status">
+                    {{ workflowinstance?.status }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label class="fw-bold"> {{ "INITIATED_BY" | translate }}</label>
+                  <span class="form-control-plaintext form-control-sm">
+                    {{ workflowinstance?.initiatedBy }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label class="fw-bold"> {{ "WORKFLOW_INITIATED_AT" | translate }}
+                  </label>
+                  <span class="form-control-plaintext form-control-sm">
+                    {{ workflowinstance?.createdDate | utcToLocalTime : "short" }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="form-group">
+                  <label class="fw-bold"> {{ "PERFORM_TRANSITION" | translate }}</label>
+                  <div class="d-flex flex-column flex-md-row gap-2">
+                    <button class="btn  btn-sm mb-1 mt-1 btn-primary" (click)="viewVisualWorkflow(workflowinstance)">
+                      <i-feather name="eye" class="small-icon"></i-feather>
+                      {{ "VIEW_WORKFLOW" | translate }}
+                    </button>
+                    <ng-container>
+                      <ng-container *ngFor="let transition of workflowinstance.nextTransitions">
+                        <button (click)="performTransition(transition, workflowinstance)"
+                          ngClass="workflow_{{transition.color}}" class="btn  btn-sm mb-1 mt-1">
+                          {{ transition.name }} ({{ transition.fromToStepName}})
+                        </button>
+                      </ng-container>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,239 @@
+<section class="content">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-2">
+                <span *ngIf="!(workflowTransitions?.length > 0)" class="mb-0 page-title">{{ "ADD_WORKFLOW_TRANSITIONS" |
+                    translate }}
+                    <app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text>
+                </span>
+                <span *ngIf="workflowTransitions?.length > 0" class="mb-0 page-title">{{ "EDIT_WORKFLOW_TRANSITIONS" |
+                    translate}}
+                    <app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text>
+                </span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="body">
+                <div class="row">
+                    <div class="col-sm-9">
+                        <form [formGroup]="transitionFormGroup">
+                            <div formArrayName="transitions">
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div *ngFor="let step of transitions.controls; let i = index"
+                                            [formGroupName]="i">
+                                            <div class="card p-2 mb-1" style="border: 1px solid #d3d4d6;">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label> {{ "TRANSITION_NAME" | translate }}</label>
+                                                            <input formControlName="name"
+                                                                (blur)="onTransitionChange($event)" class="form-control"
+                                                                type="text"
+                                                                placeholder="{{'WORKFLOW_TRANSITION_NAME' | translate }}"
+                                                                (blur)="checkUniqueTransitionName(i)" />
+                                                            <div
+                                                                *ngIf="step.get('name').touched && step.get('name').errors">
+                                                                <div class="text-danger"
+                                                                    *ngIf="step.get('name').errors?.['required']">
+                                                                    {{ "TRANSITION_NAME_REQUIRED" | translate }}
+                                                                </div>
+                                                                <div class="text-danger"
+                                                                    *ngIf="step.get('name').hasError('notUnique')">
+                                                                    {{ "TRANSITION_NAME_MUST_BE_UNIQUE" | translate }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            @let filterWorkFlowsteps = workflowSteps |
+                                                            filter_workflow_step : transitions.value : i;
+                                                            <label>{{ "FROM_STEP" | translate }}</label>
+                                                            <mat-select panelClass="mat-select-control"
+                                                                class="form-control" formControlName="fromStepId"
+                                                                placeholder="{{ 'SELECT_FROM_STEP' | translate }}"
+                                                                (selectionChange)="filterSteps(i)">
+                                                                <mat-option *ngFor="let step of filterWorkFlowsteps"
+                                                                    [value]="step.id"> {{ step.name }}
+                                                                </mat-option>
+                                                            </mat-select>
+                                                            <div
+                                                                *ngIf="step.get('fromStepId').touched && step.get('fromStepId').errors">
+                                                                <div class="text-danger"
+                                                                    *ngIf="step.get('fromStepId').errors?.['required']">
+                                                                    {{ "FROM_STEP_REQUIRED" | translate }}
+                                                                </div>
+                                                                <mat-error *ngIf="step?.hasError('sameStep')">
+                                                                    {{ 'FROM_TO_STEP_NOT_SAME' | translate }}
+                                                                </mat-error>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label>{{ "TO_STEP" | translate }}</label>
+                                                            <mat-select panelClass="mat-select-control"
+                                                                formControlName="toStepId" class="form-control"
+                                                                placeholder="{{ 'SELECT_TO_STEP' | translate }}"
+                                                                (selectionChange)="filterSteps(i)">
+                                                                <mat-option *ngFor="let step of workflowSteps"
+                                                                    [value]="step.id">{{ step.name }}
+                                                                </mat-option>
+                                                            </mat-select>
+                                                            <div
+                                                                *ngIf="step.get('toStepId').touched && (step.get('toStepId').errors || step.errors) ">
+                                                                <div class="text-danger"
+                                                                    *ngIf="step.get('toStepId').errors?.['required']">
+                                                                    {{ "TO_STEP_REQUIRED" | translate }}
+                                                                </div>
+                                                                <div class="text-danger"
+                                                                    *ngIf="step.hasError('sameStep')">
+                                                                    {{ "FROM_TO_STEP_NOT_SAME" | translate }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label> {{ "ROLES" | translate }}</label>
+                                                            <mat-select panelClass="mat-select-control"
+                                                                class="form-control" multiple formControlName="roleIds"
+                                                                name="role"
+                                                                placeholder="{{'SELECT_ROLE' | translate }}">
+                                                                <mat-option *ngFor="let role of workflowStore.roles()"
+                                                                    [value]="role.id"> {{ role.name }}
+                                                                </mat-option>
+                                                            </mat-select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label> {{ "USERS" | translate }}</label>
+                                                            <mat-select panelClass="mat-select-control"
+                                                                class="form-control" multiple formControlName="userIds"
+                                                                name="user"
+                                                                placeholder="{{ 'SELECT_USERS' | translate }}">
+                                                                <mat-option *ngFor="let user of workflowStore.users()"
+                                                                    [value]="user.id">
+                                                                    {{ user.firstName }} {{ user.lastName}}
+                                                                </mat-option>
+                                                            </mat-select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="d-flex flex-column">
+                                                            <label>{{ "COLOR_OF_TRANSITON_BUTTON" | translate}}</label>
+                                                            <mat-button-toggle-group class="custom-toggle-group"
+                                                                appearance="standard" formControlName="color">
+                                                                <mat-button-toggle class="approved"
+                                                                    value="approved">{{'APPROVED' | translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="rejected"
+                                                                    value="rejected">{{'REJECTED'| translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="pending"
+                                                                    value="pending">{{'PENDING' | translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="inprogress"
+                                                                    value="inprogress">{{'INPROGRESS' | translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="onhold"
+                                                                    value="onhold">{{'ONHOLD' | translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="cancelled"
+                                                                    value="cancelled">{{'CANCELLED' | translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="escalated"
+                                                                    value="escalated">{{'ESCALATED' | translate}}
+                                                                </mat-button-toggle>
+                                                                <mat-button-toggle class="completed"
+                                                                    value="completed">{{'COMPLETED' | translate}}
+                                                                </mat-button-toggle>
+                                                            </mat-button-toggle-group>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group">
+                                                            <button type="button" mat-icon-button color="warn"
+                                                                *ngIf="!(workflowTransitions?.length > 0)"
+                                                                (click)="removeTransition(i)">
+                                                                <mat-icon>delete</mat-icon>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <mat-error class="text-danger"
+                                                        *ngIf="( step.get('roleIds').touched ||  step.get('userIds').touched) && step?.hasError('atLeastOneRequired')">
+                                                        {{ 'AT_LEAST_ONE_REQUIRED' | translate }}
+                                                    </mat-error>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex mb-2"
+                                            *ngIf="!(workflowTransitions?.length > 0)">
+                                            <button type="button" (click)="addTransition(true)"
+                                                class="btn btn-success btn-sm me-2">
+                                                <i-feather name="plus" class="small-icon"></i-feather>
+                                                {{ "ADD_ANOTHER_TRANSITION" | translate }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="m-top-10 col-md-12">
+                                <button class="btn btn-success btn-sm me-2" (click)="saveTransition()" cdkFocusInitial>
+                                    <i-feather name="save" class="small-icon"></i-feather> {{'SAVE' | translate}}
+                                </button>
+                                <button type="button" class="btn btn-danger btn-sm" (click)="onPreviousClick()">
+                                    <i-feather name="arrow-left" class="small-icon"></i-feather> {{'PREVIOUS' |
+                                    translate}}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-sm-3">
+                        <ngx-graph #graph class="chart-container" [layoutSettings]="{ orientation: 'TB' }"
+                            [links]="links" [nodes]="nodes" [layout]="'dagre'" [curve]="curve" [panOnZoom]="true"
+                            [autoCenter]="true" [autoZoom]="true">
+                            [layout]="'dagreCluster'">
+                            <ng-template #defsTemplate>
+                                <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4"
+                                    markerHeight="4" orient="auto">
+                                    <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+                                </svg:marker>
+                            </ng-template>
+                            <ng-template #nodeTemplate let-node>
+                                <svg:g class="node">
+                                    <svg:rect [attr.width]="node.dimension.width" [attr.height]="node.dimension.height"
+                                        [attr.fill]="node.data.color" />
+                                    <svg:text alignment-baseline="central" [attr.x]="10"
+                                        [attr.y]="node.dimension.height / 2">
+                                        {{node.label}}
+                                    </svg:text>
+                                </svg:g>
+                            </ng-template>
+                            <ng-template #linkTemplate let-link>
+                                <svg:g class="edge">
+                                    <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+                                    <svg:text class="edge-label" text-anchor="middle">
+                                        <textPath class="text-path" [attr.href]="'#' + link.id"
+                                            [style.dominant-baseline]="link.dominantBaseline" startOffset="50%">
+                                            {{link.label}}
+                                        </textPath>
+                                    </svg:text>
+                                </svg:g>
+                            </ng-template>
+                        </ngx-graph>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
