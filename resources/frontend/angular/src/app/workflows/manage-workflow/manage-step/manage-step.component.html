@@ -8,6 +8,7 @@
                     }}<app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text></span>
             </div>
         </div>
+<<<<<<< HEAD
         <div class="card">
             <div class="body">
                 <div class="row">
@@ -19,13 +20,27 @@
                             <div *ngFor="let step of steps.controls; let i = index;let last = last;"
                                 [formGroupName]="i">
                                 <div class="row">
+=======
+
+        <div class="card">
+            <div class="body">
+                <form [formGroup]="stepFormGroup">
+                    <div formArrayName="steps">
+                        <div *ngFor="let step of steps.controls; let i = index; let last = last;" [formGroupName]="i">
+                            <div class="row mb-3 align-items-center">
+
+                                <ng-container *ngIf="!last">
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
                                     <div class="col-md-4 col-sm-12">
                                         <div class="form-group">
                                             <label> {{ "STEP_NAME" | translate }}</label>
                                             <input formControlName="name" class="form-control" type="text"
                                                 placeholder="{{'WORKFLOW_STEP_NAME' | translate }}"
                                                 (blur)="checkUniqueStepName(i)" />
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
                                             <div *ngIf="step.get('name').touched && step.get('name').errors">
                                                 <div class="text-danger" *ngIf="step.get('name').errors?.['required']">
                                                     {{ "STEP_NAME_IS_REQUIRED" | translate }}
@@ -35,6 +50,7 @@
                                                 </div>
                                             </div>
                                         </div>
+<<<<<<< HEAD
                                         <button *ngIf="!this.currentWorkflow?.isWorkflowSetup && last"
                                             (click)="addStep(false)" class="btn btn-success btn-sm mt-2">
                                             <i-feather name="plus" class="small-icon"></i-feather>
@@ -65,3 +81,59 @@
         </div>
     </div>
 </section>
+=======
+                                    </div>
+                                </ng-container>
+
+                                <ng-container *ngIf="last">
+                                    <div class="col-md-4 col-sm-12">
+                                        <div class="form-group">
+                                            <label>End Step Name</label>
+                                            <ng-select formControlName="name" placeholder="Select final status">
+                                                <ng-option value="Approved">Approved</ng-option>
+                                                <ng-option value="Rejected">Rejected</ng-option>
+                                            </ng-select>
+
+                                            <div *ngIf="step.get('name').touched && step.get('name').errors">
+                                                <div class="text-danger" *ngIf="step.get('name').errors?.['required']">
+                                                    {{ "End Step Name is required." | translate }}
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+
+                                <div class="col-md-3 align-self-center">
+                                    <button *ngIf="!this.currentWorkflow?.isWorkflowSetup && !last"
+                                        (click)="addStep(false)" class="btn btn-success btn-sm">
+                                        <i-feather name="plus" class="small-icon"></i-feather>
+                                        {{ "ADD_ANOTHER_STEP" | translate }}
+                                    </button>
+                                </div>
+
+                                <div class="col-md-1 align-self-center">
+                                    <button *ngIf="steps.length > 2 && !last"
+                                        type="button" mat-icon-button color="warn" (click)="removeStep(i)">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            <hr *ngIf="!last">
+                        </div>
+                    </div>
+
+                    <div class="m-top-10 col-md-12">
+                        <button class="btn btn-success btn-sm me-2" (click)="saveWorkflowSteps()" cdkFocusInitial>
+                            {{'NEXT' | translate}} <i-feather name="arrow-right" class="small-icon"></i-feather>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" (click)="onPreviousClick()">
+                            <i-feather name="arrow-left" class="small-icon"></i-feather> {{'PREVIOUS' | translate}}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc

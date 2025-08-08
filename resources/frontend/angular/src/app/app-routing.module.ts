@@ -27,11 +27,14 @@ const routes: Routes = [
         loadComponent: () => import('./error-msg/error-msg.component').then((m) => m.ErrorMsgComponent),
       },
       {
+<<<<<<< HEAD
         path: 'activate-license',
         loadComponent: () =>
           import('./activate-license/activate-license.component').then((m) => m.ActivateLicenseComponent),
       },
       {
+=======
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
         path: 'file-requests/preview/:code',
         resolve: { fileRequest: FileRequestLinkPreviewResolver },
         component: FileRequestLinkPreviewComponent,

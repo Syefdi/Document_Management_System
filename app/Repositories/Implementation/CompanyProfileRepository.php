@@ -351,6 +351,7 @@ class CompanyProfileRepository extends BaseRepository implements CompanyProfileR
             file_put_contents($path, $fileContents);
         }
     }
+<<<<<<< HEAD
 
     public function updateLicense($attribute)
     {
@@ -381,4 +382,6 @@ class CompanyProfileRepository extends BaseRepository implements CompanyProfileR
 
         return response()->json([], 200);
     }
+=======
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
 }

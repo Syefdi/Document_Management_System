@@ -52,6 +52,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     {
 
         $query = Documents::select([
+<<<<<<< HEAD
             'documents.id',
             'documents.name',
             'documents.url',
@@ -73,14 +74,44 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
             DB::raw('(SELECT COUNT(*) FROM documentComments WHERE documentComments.documentId = documents.id) as commentCount'),
             DB::raw('(SELECT COUNT(*) FROM documentVersions WHERE documentVersions.documentId = documents.id) as versionCount')
+=======
+    'documents.id',
+    'documents.name',
+    'documents.url',
+    'documents.createdDate',
+    'documents.description',
+    'documents.location',
+    'documents.clientId',
+    'documents.statusId',
+    'documents.isIndexed',
+    'categories.id as categoryId',
+    'categories.name as categoryName',
+    'clients.companyName as companyName',
+    'documentStatus.name as statusName',
+    'documentStatus.colorCode as colorCode',
+    'documents.documentWorkflowId',
+    'workflows.name as workflowName',
+    'documentWorkflow.status as documentWorkflowStatus',
+    DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
+    DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
+    DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
+    DB::raw('(SELECT COUNT(*) FROM documentComments WHERE documentComments.documentId = documents.id) as commentCount'),
+    DB::raw('(SELECT COUNT(*) FROM documentVersions WHERE documentVersions.documentId = documents.id) as versionCount')
+
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
         ])->join('categories', 'documents.categoryId', '=', 'categories.id')
             ->join('users', 'documents.createdBy', '=', 'users.id')
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
             ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
+<<<<<<< HEAD
             ->leftJoin('workflows', 'documentWorkflow.workflowId', '=', 'workflows.id');
 
         $orderByArray =  explode(' ', $attributes->orderBy);
+=======
+            ->leftJoin('workflows', 'documentWorkflow.workflowId', '=', 'workflows.id')
+            ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id');        $orderByArray =  explode(' ', $attributes->orderBy);
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
         $orderBy = $orderByArray[0];
         $direction = $orderByArray[1] ?? 'asc';
 
@@ -449,7 +480,11 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             'documents.documentWorkflowId',
             'workflows.name as workflowName',
             'documentWorkflow.status as documentWorkflowStatus',
+<<<<<<< HEAD
             DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
+=======
+            DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),            DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
             DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
             DB::raw("(SELECT max(documentUserPermissions.endDate) FROM documentUserPermissions
                      WHERE documentUserPermissions.documentId = documents.id and documentUserPermissions.isTimeBound =1
@@ -466,7 +501,11 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
             ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
             ->leftJoin('workflows', 'documentWorkflow.workflowId', '=', 'workflows.id')
+<<<<<<< HEAD
             ->where(function ($query) use ($userId, $userRoles) {
+=======
+            ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id')            ->where(function ($query) use ($userId, $userRoles) {
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
                 $query->whereExists(function ($query) use ($userId) {
                     $query->select(DB::raw(1))
                         ->from('documentUserPermissions')
@@ -727,6 +766,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             'clients.companyName as companyName',
             'documentStatus.name as statusName',
             'documentStatus.colorCode as colorCode',
+<<<<<<< HEAD
+=======
+            DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
             DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
             DB::raw("CONCAT(modifier.firstName,' ', modifier.lastName) as updatedByName")
         ])->join('categories', 'documents.categoryId', '=', 'categories.id')
@@ -734,6 +777,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('users as modifier', 'documents.modifiedBy', '=', 'modifier.id')
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
+<<<<<<< HEAD
+=======
+            ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id')
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
             ->where('documents.id',  '=', $id);
 
         $document = $query->first();

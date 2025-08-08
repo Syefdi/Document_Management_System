@@ -38,7 +38,10 @@ class DatabaseSeeder extends Seeder
             'accessFailedCount' => 0,
             'resetPasswordCode' => null,
         ]);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
         $this->call([
             RoleSeeder::class,
             PermissionSeeder::class,
