@@ -61,10 +61,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     'categoryName',
     'createdDate',
     'workflowName',
-<<<<<<< HEAD
-=======
     'workflowStatus',
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
     'location',
     'companyName',
     'statusName',

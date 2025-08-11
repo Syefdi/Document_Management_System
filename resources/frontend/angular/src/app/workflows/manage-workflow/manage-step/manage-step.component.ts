@@ -18,10 +18,7 @@ import { TranslationService } from '@core/services/translation.service';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SharedModule } from '@shared/shared.module';
 import { WorkflowStore } from '../workflow-store';
-<<<<<<< HEAD
-=======
 import { NgSelectModule } from '@ng-select/ng-select';
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
 
 @Component({
   selector: 'app-manage-step',
@@ -41,10 +38,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
     MatSelectModule,
     MatCheckboxModule,
     SharedModule,
-<<<<<<< HEAD
-=======
     NgSelectModule,
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
   ],
   templateUrl: './manage-step.component.html',
   styleUrl: './manage-step.component.scss',
@@ -127,22 +121,6 @@ export class ManageStepComponent implements OnInit {
   }
 
   addStep(isDisabled: boolean, workflowStep?: WorkflowStep): void {
-<<<<<<< HEAD
-    const stepForm = this.fb.group(
-      {
-        id: [workflowStep?.id],
-        name: [
-          { value: workflowStep?.name, disabled: false },
-          [Validators.required],
-        ],
-        workflowId: [workflowStep?.workflowId],
-      },
-      // { validators: atLeastOneRequiredValidator() }
-    );
-    this.steps.push(stepForm);
-  }
-
-=======
       const stepForm = this.fb.group(
         {
           id: [workflowStep?.id],
@@ -155,7 +133,6 @@ export class ManageStepComponent implements OnInit {
       );
       this.steps.push(stepForm);
     }
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
   removeStep(index: number): void {
     this.steps.removeAt(index);
   }
