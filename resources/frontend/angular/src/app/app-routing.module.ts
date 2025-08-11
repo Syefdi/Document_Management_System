@@ -15,7 +15,7 @@ import { documentDetailsResolver } from './document/document-details.resolver';
 const routes: Routes = [
   {
     path: '',
-    component: AppComponents,
+    component: AppComponent,
     resolve: { profile: CompanyProfileResolver },
     children: [
       {
