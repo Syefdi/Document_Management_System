@@ -1,0 +1,67 @@
+<section class="content">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-2">
+                <span *ngIf="!(workflowSteps?.length > 0)" class="mb-0 page-title">{{ "ADD_WORKFLOW_STEP" | translate
+                    }}<app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text></span>
+                <span *ngIf="workflowSteps?.length > 0" class="mb-0 page-title">{{ "EDIT_WORKFLOW_STEP" | translate
+                    }}<app-page-help-text code="MANAGE_WORKFLOW"></app-page-help-text></span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="body">
+                <div class="row">
+                    <form [formGroup]="stepFormGroup">
+                        <div formArrayName="steps">
+                            <div class="d-flex justify-content-end mb-2">
+
+                            </div>
+                            <div *ngFor="let step of steps.controls; let i = index;let last = last;"
+                                [formGroupName]="i">
+                                <div class="row">
+                                    <div class="col-md-4 col-sm-12">
+                                        <div class="form-group">
+                                            <label> {{ "STEP_NAME" | translate }}</label>
+                                            <input formControlName="name" class="form-control" type="text"
+                                                placeholder="{{'WORKFLOW_STEP_NAME' | translate }}"
+                                                (blur)="checkUniqueStepName(i)" />
+
+                                            <div *ngIf="step.get('name').touched && step.get('name').errors">
+                                                <div class="text-danger" *ngIf="step.get('name').errors?.['required']">
+                                                    {{ "STEP_NAME_IS_REQUIRED" | translate }}
+                                                </div>
+                                                <div class="text-danger" *ngIf="step.get('name').errors?.['notUnique']">
+                                                    {{ "STEP_NAME_MUST_BE_UNIQUE" | translate }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button *ngIf="!this.currentWorkflow?.isWorkflowSetup && last"
+                                            (click)="addStep(false)" class="btn btn-success btn-sm mt-2">
+                                            <i-feather name="plus" class="small-icon"></i-feather>
+                                            {{ "ADD_ANOTHER_STEP" | translate }}
+                                        </button>
+                                    </div>
+                                    <div class="col-md-1" *ngIf="steps.length > 2">
+                                        <div class="form-group">
+                                            <button type="button" mat-icon-button color="warn" (click)="removeStep(i)">
+                                                <mat-icon>delete</mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-top-10 col-md-12">
+                            <button class="btn btn-success btn-sm me-2" (click)="saveWorkflowSteps()" cdkFocusInitial>
+                                {{'NEXT' | translate}} <i-feather name="arrow-right" class="small-icon"></i-feather>
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" (click)="onPreviousClick()">
+                                <i-feather name="arrow-left" class="small-icon"></i-feather> {{'PREVIOUS' | translate}}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

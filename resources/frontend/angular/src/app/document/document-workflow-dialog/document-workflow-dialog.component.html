@@ -1,0 +1,49 @@
+<div class="d-flex">
+    <span mat-dialog-title class="dialog-title">
+        {{'START_WORKFLOW' | translate}}
+        <app-page-help-text [code]="'MANAGE_WORKFLOW'"></app-page-help-text>
+    </span>
+    <button mat-icon-button class="ms-auto" (click)="closeDialog()">
+        <i-feather class="close-icon text-danger" name="x"></i-feather>
+    </button>
+</div>
+<mat-dialog-content>
+    <form [formGroup]="documentworkflowForm">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="form-label">{{ 'WORKFLOW' | translate }}
+                        <i-feather name="refresh-cw" title="Refresh" (click)="workflowStore.loadWorkflows()"
+                            class="ms-1 cursor-pointer text-primary medium-icon"></i-feather></label>
+                    <!-- <ng-select formControlName="workflowId" [searchable]="true" placeholder="{{ 'NONE' | translate }}">
+                        <ng-option *ngFor="let workflow of workflowStore.activeWorkflows()" [value]="workflow.id">
+                            <span> {{ workflow.name }} </span>
+                        </ng-option>
+                    </ng-select> -->
+                    <input type="text" class="form-control" placeholder="{{ 'NONE' | translate }}" aria-label="Number"
+                        matInput formControlName="workflowName" [matAutocomplete]="auto">
+                    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete"
+                        (optionSelected)="onWorkflowSelected($event.option.value)">
+                        @for (option of filteredWorkflows | async; track option) {
+                        <mat-option [value]="option.name">{{option.name}}</mat-option>
+                        }
+                    </mat-autocomplete>
+                    <div
+                        *ngIf="documentworkflowForm.get('workflowId').touched && documentworkflowForm.get('workflowId').errors">
+                        <div class="text-danger" *ngIf="documentworkflowForm.get('workflowId').errors?.['required']">
+                            {{'SELECT_WORKFLOW' | translate}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 col-md-12">
+                <button type="button" class="btn btn-success btn-sm me-2" (click)="saveWorkflowInstance()"
+                    cdkFocusInitial><i-feather name="save" class="small-icon"></i-feather> {{'SAVE' | translate}}
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="closeDialog()">
+                    <i-feather name="x-circle" class="small-icon"></i-feather>{{'CANCEL' | translate}}
+                </button>
+            </div>
+        </div>
+    </form>
+</mat-dialog-content>
