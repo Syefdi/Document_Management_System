@@ -34,7 +34,8 @@ import {
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SharableLinkComponent } from './sharable-link/sharable-link.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { DocumentDeepSearchComponent } from './document-deep-search/document-deep-search.component';
+import { DocumentDeepSearchComponent } from './document-deep-search/document-deep-search.component'
+import { DocumentWorkflowStatusColorDirective } from './document-workflow-status-color.directive';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { DocumentDeepSearchComponent } from './document-deep-search/document-dee
     DocumentVersionHistoryComponent,
     SharableLinkComponent,
     DocumentDeepSearchComponent,
+    DocumentWorkflowStatusColorDirective,
   ],
   imports: [
     CommonModule,
@@ -76,4 +78,4 @@ import { DocumentDeepSearchComponent } from './document-deep-search/document-dee
     ClipboardModule,
   ],
 })
-export class DocumentModule { }
+export class DocumentModule {}

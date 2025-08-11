@@ -12,4 +12,5 @@ interface CompanyProfileRepositoryInterface extends BaseRepositoryInterface
     public function getStorage();
     public function saveOpenAiKey($request);
     public function geteOpenAiKey();
+    public function updateLicense($attribute);
 }

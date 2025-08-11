@@ -44,4 +44,9 @@ class CompanyProfileController extends Controller
     {
         return $this->companyProfileRepository->geteOpenAiKey();
     }
+
+    public function updateLicense(Request $request)
+    {
+        return response()->json($this->companyProfileRepository->updateLicense($request));
+    }
 }

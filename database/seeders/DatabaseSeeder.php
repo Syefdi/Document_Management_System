@@ -4,6 +4,9 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,6 +17,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        DB::table('users')->insert([
+            'id' => (string) Str::uuid(), // generate UUID
+            'firstName' => 'admin',
+            'lastName' => '',
+            'isDeleted' => 0,
+            'userName' => 'admin',
+            'normalizedUserName' => 'ADMIN',
+            'email' => 'admin@admin.com',
+            'normalizedEmail' => 'ADMIN@ADMIN.COM',
+            'emailConfirmed' => 1,
+            'password' => Hash::make('123456'),
+            'securityStamp' => (string) Str::uuid(),
+            'concurrencyStamp' => (string) Str::uuid(),
+            'phoneNumber' => null,
+            'phoneNumberConfirmed' => 0,
+            'twoFactorEnabled' => 0,
+            'lockoutEnd' => null,
+            'lockoutEnabled' => 0,
+            'accessFailedCount' => 0,
+            'resetPasswordCode' => null,
+        ]);
         $this->call([
             RoleSeeder::class,
             PermissionSeeder::class,

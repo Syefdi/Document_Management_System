@@ -1,0 +1,8 @@
+
+> document-management@1.0.0 build
+> ng build --configuration=production && cp ../../../public/assets/angular/browser/index.html ../../views/angular.blade.php
+
+❯ Building...
+✔ Building...
+Application bundle generation failed. [78.264 seconds]
+

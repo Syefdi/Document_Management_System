@@ -65,6 +65,7 @@ export class ManageCurrentWorkflowComponent extends BaseComponent
     'updatedAt',
     'workflowname',
     'workflowstatus',
+    'workflowStatus',
     'workflowInitiatedDate',
     'initiatedUser',
     'documentname',
@@ -165,5 +166,4 @@ export class ManageCurrentWorkflowComponent extends BaseComponent
       });
     });
     }
-  
 }

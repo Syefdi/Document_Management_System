@@ -99,7 +99,6 @@ class Documents extends Model
     {
         return $this->hasMany(DocumentUserPermissions::class, 'documentId');
     }
-    
     public function documentRolePermissions()
     {
         return $this->hasMany(DocumentRolePermissions::class, 'documentId');
@@ -113,6 +112,10 @@ class Documents extends Model
     public function documentWorkflow()
     {
         return $this->belongsTo(DocumentWorkflow::class, 'documentWorkflowId', 'id');
+    }
+    public function currentStep()
+    {
+    return $this->belongsTo(WorkflowStep::class, 'currentStepId');
     }
 
     protected static function boot()

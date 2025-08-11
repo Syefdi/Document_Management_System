@@ -351,4 +351,34 @@ class CompanyProfileRepository extends BaseRepository implements CompanyProfileR
             file_put_contents($path, $fileContents);
         }
     }
+
+    public function updateLicense($attribute)
+    {
+        $model = $this->model->first();
+
+        $user = Users::first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Installation is pending'], 404);
+        }
+
+        if ($model == null) {
+            CompanyProfiles::create([
+                'logoUrl' =>  '',
+                'title' => 'Document Management System',
+                'location' =>  'local',
+                'smallLogoUrl' => '',
+                'createdBy' => $user->id,
+                'licenseKey' => $attribute['licenseKey'],
+                'purchaseCode' => $attribute['purchaseCode'],
+            ]);
+            return response()->json([], 200);
+        }
+
+        $model->licenseKey = $attribute['licenseKey'];
+        $model->purchaseCode = $attribute['purchaseCode'];
+        $model->save();
+
+        return response()->json([], 200);
+    }
 }

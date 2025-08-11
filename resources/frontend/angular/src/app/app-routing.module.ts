@@ -27,6 +27,11 @@ const routes: Routes = [
         loadComponent: () => import('./error-msg/error-msg.component').then((m) => m.ErrorMsgComponent),
       },
       {
+        path: 'activate-license',
+        loadComponent: () =>
+          import('./activate-license/activate-license.component').then((m) => m.ActivateLicenseComponent),
+      },
+      {
         path: 'file-requests/preview/:code',
         resolve: { fileRequest: FileRequestLinkPreviewResolver },
         component: FileRequestLinkPreviewComponent,

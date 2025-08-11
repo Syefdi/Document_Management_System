@@ -72,6 +72,7 @@ export class DocumentListComponent
     'categoryName',
     'createdDate',
     'workflowName',
+    'workflowStatus',
     'location',
     'companyName',
     'statusName',

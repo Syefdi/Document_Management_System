@@ -38,4 +38,6 @@ export interface DocumentInfo {
   documentWorkflowId?:string;
   isWorkflowCompleted?:boolean;
   html_content?: string; // Added for AI-generated documents
+  workflowStatus?: string;
+
 }

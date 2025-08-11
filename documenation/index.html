@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document Management System - Docs</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      scroll-behavior: smooth;
+      background-color: #f8f9fa;
+    }
+
+    header {
+      background-color: #0d6efd;
+      padding: 1rem 2rem;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 80px;
+      height: calc(100vh - 80px);
+      overflow-y: auto;
+      background: #ffffff;
+      padding-top: 1rem;
+      border-right: 1px solid #dee2e6;
+    }
+
+    .sidebar .nav-link {
+      padding: 0.75rem 1rem;
+      border-left: 4px solid transparent;
+      font-weight: 500;
+      color: #333;
+      transition: all 0.2s;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background-color: #f1f3f5;
+      border-left: 4px solid #0d6efd;
+      color: #0d6efd;
+    }
+
+    .doc-section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 100px;
+      /* Fixed header height buffer */
+    }
+
+    .doc-section h2 {
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 0.5rem;
+    }
+
+    .card {
+      border: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .content-inner {
+      padding: 2rem;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 4px;
+    }
+
+    .section-block {
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+
+    img {
+      border: 1px #0d6efd solid;
+    }
+
+    /* Base code block styling */
+    pre,
+    code {
+      font-family: 'Courier New', monospace;
+      background-color: #f5f5f5;
+      color: #2d2d2d;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: block;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* Specific XML tag styling */
+    .language-xml .tag {
+      color: #008080;
+      /* Teal for tags */
+      font-weight: bold;
+    }
+
+    .language-xml .attr {
+      color: #795548;
+      /* Brown for attributes */
+    }
+
+    .language-xml .value {
+      color: #d63384;
+      /* Pink for attribute values */
+    }
+
+    /* Base styling */
+    pre.language-nginx,
+    code.language-nginx {
+      font-family: 'Courier New', monospace;
+      background-color: #f8f9fa;
+      color: #212529;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: block;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Simulated syntax coloring */
+    .language-nginx .directive {
+      color: #0d6efd;
+      /* Bootstrap blue */
+      font-weight: bold;
+    }
+
+    .language-nginx .value {
+      color: #795548;
+      /* brownish */
+    }
+
+    .language-nginx .comment {
+      color: #6c757d;
+      /* muted gray */
+      font-style: italic;
+    }
+
+    /* Base styling for YAML blocks */
+    pre.language-yaml,
+    code.language-yaml {
+      font-family: 'Courier New', monospace;
+      background-color: #f8f9fa;
+      color: #212529;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      display: block;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    /* Syntax-like classes */
+    .language-yaml .key {
+      color: #0d6efd;
+      /* blue for keys */
+      font-weight: 600;
+    }
+
+    .language-yaml .value {
+      color: #6f42c1;
+      /* purple for values */
+    }
+
+    .language-yaml .string {
+      color: #d63384;
+      /* pink for quoted strings */
+    }
+
+    .language-yaml .number {
+      color: #198754;
+      /* green for numbers */
+    }
+
+    .language-yaml .comment {
+      color: #6c757d;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body data-bs-spy="scroll" data-bs-target="#sidebarNav" data-bs-offset="100" tabindex="0">
+
+  <!-- Header -->
+  <header>
+    <div class="d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">📄 Document Management System</h4>
+      <span class="text-white fw-light fs-6">
+        Last Updated: <strong>June 18, 2025</strong>
+      </span>
+    </div>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav id="sidebarNav" class="col-md-3 col-lg-2 sidebar">
+        <ul class="nav flex-column">
+          <li class="nav-item"><a class="nav-link active" href="#gettingStarted"><i
+                class="fa fa-rocket me-2"></i>Getting Started</a></li>
+          <li class="nav-item"><a class="nav-link" href="#requirements"><i class="fa fa-cogs me-2"></i>Requirements</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#installation"><i
+                class="fa fa-download me-2"></i>Installation</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="#license"><i class="fa fa-key me-2"></i>
+              Activate License
+            </a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#update"><i class="fa fa-sync-alt me-2"></i>Update</a></li>
+          <li class="nav-item"><a class="nav-link" href="#cron-job"><i class="fa fa-clock me-2"></i>Cron Job <small
+                class="badge text-warning">Important</small></a></li>
+          <li class="nav-item"><a class="nav-link" href="#storage-settings"><i
+                class="fa fa-database me-2"></i>Storage</a></li>
+          <li class="nav-item"><a class="nav-link" href="#open-ai-settings">
+              <i class="fa-solid fa-microchip me-2"></i>OpenAI </a></li>
+          <li class="nav-item"><a class="nav-link" href="#troubleshooting"><i
+                class="fa fa-tools me-2"></i>Troubleshooting</a></li>
+          <li class="nav-item"><a class="nav-link" href="#run-locally"><i class="fa fa-play me-2"></i>Run Locally</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#deployment"><i
+                class="fa fa-cloud-upload-alt me-2"></i>Deploy</a></li>
+          <li class="nav-item"><a class="nav-link" href="#rate-us">
+              <i class="fas fa-star me-2"></i>Rate Us on CodeCanyon
+            </a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="#changelog"><i class="fa fa-history me-2"></i>Changelog</a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 content-inner">
+        <div class="container">
+          <!-- Sections -->
+          <section id="gettingStarted" class="doc-section">
+            <div class="card p-4">
+              <h2>Getting Started</h2>
+              <p>
+                Welcome to the official documentation for the AI-powered Document Management System. This guide is
+                designed to help you navigate every aspect of the platform — from initial installation to ongoing
+                updates, configuration, and deployment. You'll find step-by-step instructions for setting up the system,
+                managing file storage (including Amazon S3 integration), enabling advanced features like OpenAI-powered
+                document generation, and customizing your environment for development or production use. Whether you're
+                a system administrator or a developer, this documentation will serve as your go-to resource for
+                installing, configuring, maintaining, and scaling the platform efficiently and securely.
+              </p>
+              <p>
+                The <strong>AI-powered Document Management System</strong> is a powerful, all-in-one platform designed
+                to simplify how
+                organizations <strong>handle</strong>, <strong>store</strong>, and <strong>share documents</strong>. It
+                supports
+                a wide range of file types including <strong>Microsoft Office documents</strong>, <strong>PDFs</strong>,
+                <strong>images</strong>, <strong>audio</strong>, <strong>video</strong>, and more, with <strong>built-in
+                  preview
+                  capabilities</strong>. Seamlessly integrated with <strong>Amazon S3</strong> and <strong>local
+                  storage</strong>, it ensures <strong>flexibility</strong> and <strong>scalability</strong> in document
+                storage. Users can <strong>categorize documents</strong>, manage <strong>metadata</strong>, track
+                <strong>versions</strong>, <strong>archive</strong> inactive files, and even <strong>request documents
+                  securely</strong> from external parties. The system also includes <strong>detailed audit
+                  trails</strong> to
+                maintain transparency across all actions such as <strong>creation</strong>, <strong>updates</strong>,
+                <strong>sharing</strong>, <strong>downloads</strong>, and more.
+              </p>
+              <p>
+                Built with <strong>productivity</strong> and <strong>compliance</strong> in mind, the platform offers
+                <strong>OpenAI-powered document generation</strong>, <strong>deep text-based search</strong>,
+                <strong>secure
+                  sharing</strong> via <strong>encrypted links</strong>, and <strong>automated reminders</strong> for
+                important deadlines. With <strong>role-based access control</strong>, <strong>email
+                  integration</strong>,
+                <strong>multilingual support</strong>, and a fully <strong>customizable interface</strong>, it adapts to
+                diverse
+                organizational needs. Whether you're <strong>generating content</strong>, <strong>managing
+                  compliance</strong>,
+                or <strong>collaborating across departments</strong>, this system provides the tools and automation
+                needed to
+                streamline your entire <strong>document lifecycle</strong>—<strong>securely</strong> and
+                <strong>efficiently</strong>.
+              </p>
+            </div>
+          </section>
+
+          <section id="requirements" class="doc-section">
+            <div class="card p-4">
+              <h2>Requirements</h2>
+              <h4>PHP Version</h4>
+              <div class="section-block">
+                Document Management System <strong> minimum required PHP </strong> version:<strong>
+                  >=
+                  8.2.</strong>
+              </div>
+
+              <h4>MySQL</h4>
+              <div class="section-block">
+                Document Management System requires MySQL version: <strong> >= 5.6.</strong> <br>
+                Recommended MySQL version:<strong> >= 5.7.</strong>
+              </div>
+
+              <h4>PHP Extensions</h4>
+              <div class="section-block">
+                <ul>
+                  <li>pdo_mysql</li>
+                  <li>json</li>
+                  <li>ctype</li>
+                  <li>filter</li>
+                  <li>hash</li>
+                  <li>mbstring</li>
+                  <li>openssl</li>
+                  <li>session</li>
+                  <li>tokenizer</li>
+                  <li>fileinfo</li>
+                  <li>date</li>
+                  <li>pcre</li>
+                  <li>spl</li>
+                  <li>dom</li>
+                  <li>xml</li>
+                  <li>phar</li>
+                  <li>xmlwriter</li>
+                  <li>curl</li>
+                  <li>pdo_mysql</li>
+                  <li>pdo_sqlite</li>
+                  <li>sqlite3</li>
+                </ul>
+              </div>
+
+              <h4>Recommended PHP Extensions</h4>
+              <div class="section-block">
+                The extensions listed below are not required during installation, however, if you
+                want to use specific features after installation, you will need to enable them, for
+                example the "zip" extension gives you the ability to perform 1 click update and
+                apply patches.
+                <br>
+
+              </div>
+              <ul>
+                <li> zip</li>
+              </ul>
+              <h4>PHP Memory Limit</h4>
+              <div class="section-block">
+                Document Management System requires at least <strong> 128 MB</strong> PHP memory
+                limit.
+              </div>
+
+              <h4>Browser Support</h4>
+              <div class="section-block">
+                Document Management System supports the <strong> most recent versions</strong> of
+                the following
+                browsers:
+              </div>
+              <ul>
+                <li>Google Chrome</li>
+                <li>Apple Safari</li>
+                <li>Microsoft Edge</li>
+                <li>Mozilla Firefox</li>
+              </ul>
+
+              <h4>Cron Job</h4>
+              <div class="section-block">
+                cron is a Linux utility that schedules a command or script on your server to run
+                automatically at a specified time and date. A cron job is the scheduled task itself.
+                Cron jobs can be very useful to automate repetitive tasks.
+              </div>
+              <div class="section-block">
+                Your web server must support configuring cron jobs, in order, Document Management
+                System features
+                to work properly, after installation, please make sure to check the cron job guide
+                to get familiar on how to configure the cron job required by the application.
+              </div>
+              <div class="section-block">
+                See the cron job setup guide for more info.
+              </div>
+
+              <h4>Domain Name</h4>
+              <div class="section-block">
+                Your server where you will be installing Document Management System must have domain
+                name, you
+                can't use the server IP-address to access your Document Management System
+                installation, it must be
+                accessed via the domain name.
+              </div>
+            </div>
+          </section>
+
+          <section id="installation" class="doc-section">
+            <div class="card p-4">
+              <h2>Installation</h2>
+              <div class="section-block">
+                <p>Document Management System has its own web installer that will help you to
+                  perform the
+                  installation
+                  in a few steps without touching any code or modifying any files.
+                </p>
+              </div>
+              <div class="section-block">
+                <p>
+                  As Document Management System is using Laravel, and Laravel requires the root of
+                  Document Management System to
+                  be
+                  pointed at the /public path, in this case,<strong> the easiest way to install
+                    Document Management System is
+                    on a subdomain </strong> that points to subdomain folder
+                  <code>/public</code>
+                  path.
+                </p>
+              </div>
+              <div class="alert alert-warning">
+                Make sure that you checked the requirements page before installation.
+              </div>
+              <div class="section-block">
+                <p> Below, you can find installation video for cPanel, watch the
+                  video
+                  tutorials to get familiar with the installation steps and learn how easy is to
+                  install
+                  Document Management System.</p>
+              </div>
+              <div class="embed-container pb-4">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/zuCuvlBdOvA" title="Installation"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen></iframe>
+              </div>
+              <h4>Create Subdomain</h4>
+              <div class="section-block">
+                <p>You will need to create a subdomain for your installation, for example,</p>
+              </div>
+              <strong><a href="https://docs.yourdomain.com">https://docs.yourdomain.com</a></strong>
+              <div class="section-block">
+                <p>
+                <ul>
+                  <li>Login to cPanel.</li>
+                  <li>Find the Subdomains section.</li>
+                  <li>
+                    Create a subdomain, for example, docs.yourdomain.com and <strong> make sure
+                      to set the
+                      Document Root option to path <code> public.</code></strong>
+                  </li>
+                </ul>
+                </p>
+              </div>
+              <div class="section-block mb-3">
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets/images/subdomain-public.png" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>
+              <div
+                class="fixed inset-0 z-50 w-screen h-screen px-4 py-12 flex flex-col bg-gray-800 bg-opacity-75 sm:px-12 place-items-center --overlay"
+                style="display: none;"><!----><button
+                  class="text-white hover:text-gray-200 absolute top-2 right-2 focus:outline-none"
+                  aria-label="Close"><svg class="w-8 h-8 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                  </svg></button></div>
+              </p>
+
+              <h4>Upload Files</h4>
+              <div class="section-block">
+                <div class="alert alert-danger">
+                  If you did not created subdomain as explained in the previous step and you want
+                  to install Document Management System on a subfolder it won't work, you will
+                  need to consult
+                  with your hosting provider create a virtual host pointing the the root path to
+                  <code>subfolder</code>
+                </div>
+              </div>
+              <div class="section-block">
+                <p>In order to proceed with the web installer, you will first need to download the
+                  <!-- <a href="">  -->
+                  release archive files
+                  <!-- </a>  -->
+                  from your Document Management System
+                  account releases
+                  page or your Envato
+                  account
+                  <!-- <a href="">  -->
+                  downloads
+                  <!-- </a> -->
+                  page.
+                </p>
+              </div>
+              <div class="section-block">
+                <p>
+                  For the sake of this example, assuming that you created subdomain with name
+                  "docmgt" and the path is <code> public_html/docmgt/</code> <strong> upload the
+                    files
+                    to the <code> public_html/docmgt </code></strong>
+                  folder.
+                </p>
+              </div>
+
+              <h4>Create Database</h4>
+              <div class="section-block">
+                <div class="alert alert-primary">
+                  For additional information on how to create a database, see the installation
+                  video above.
+                </div>
+              </div>
+              <div class="section-block">
+                <p>Create a brand new database that will be used only for the Document Management
+                  System
+                  installation.
+                </p>
+              </div>
+              <div class="section-block">
+                <ol>
+                  <li><strong> Login to cPanel</strong> by accessing www.yourdomain.com/<strong>
+                      cpanel.</strong></li>
+                  <li>
+                    Look for the Databases section, then click <strong> MySQL
+                      Databases,</strong> note that this
+                    step may vary and in some hosting providers can be different.
+                  </li>
+                  <li>
+                    Click <strong>Create Database,</strong> the new database will appear in the
+                    Current Databases
+                    section.
+                  </li>
+                  <li>
+                    <strong> Create user</strong> and set up the user password. (write down the
+                    username and the
+                    password because needs to be added later in the installer)
+                  </li>
+                  <li>
+                    <strong> Add the user to the database</strong> by selecting the database and
+                    the username,
+                    make sure you have checked <strong> All privileges </strong> when adding the
+                    user to the
+                    database.
+                  </li>
+                </ol>
+              </div>
+              <h4>Perform Install</h4>
+              <div class="section-block">
+                <p>
+                  Assuming that you have created the subdomain, database and uploaded the files as
+                  explained in the previous steps, follow the steps below to begin with the
+                  installation process.
+                </p>
+              </div>
+              <div class="section-block">
+                <div class="alert alert-danger">
+                  wait for couple of minute to update your sub domain if you are not able to
+                  access <strong>docs.yourdomain.com/install</strong> URL.
+                </div>
+              </div>
+              <div class="section-block">
+                <ul>
+                  <li>
+                    In your browser navigate to e.q. <strong> docs.yourdomain.com/install –
+                    </strong> Make sure to
+                    update yourdomain.com according to your domain.
+                  </li>
+                  <li>
+                    If all server requirements passed click <strong> Next </strong> otherwise
+                    consult with your
+                    hosting provider to fix/enable them.
+                  </li>
+                  <li>
+                    If all permissions are passed click <strong> Next </strong> to set up the
+                    application data,
+                    otherwise you need to set <strong> 755 permissions</strong>for the given
+                    folders, in cases
+                    where you are managing the server.
+                  </li>
+                </ul>
+              </div>
+              <h4>General Config</h4>
+              <div class="section-block">
+                <ul>
+                  <li><strong>App Url </strong> </li>
+                  <p> Document Management System will automatically try to guess the URL where the
+                    application
+                    will be installed, in our case now from, this example, the URL is
+                    <a href=""> https://docs.yourdomain.com/</a> ,if the URL is wrong, please
+                    adjust it
+                    accordingly.
+                  </p>
+
+                  <li><strong>Application Name </strong> </li>
+                  <p>You can leave it as default or you can write your own name, for example,
+                    "Document Management"</p>
+                </ul>
+              </div>
+              <h4>Configure Database</h4>
+              <h5>Add the database config in the installer</h5>
+              <div class="section-block">
+                <ul>
+                  <li><strong>Hostname </strong> </li>
+                  <p> Enter database hostname, in most cases, the default hostname is <strong>
+                      localhost,</strong>
+                    however, if it's different in your case, make sure to set the correct
+                    hostname.
+                  </p>
+                  <li><strong>Port </strong> </li>
+                  <p>In most cases, this value will be 3306 as this port is MySQL default port, if
+                    you are not familiar with this option for your server, leave it as it is and
+                    continue to the next field, where you will need to configure the database
+                    name and user you created in the previous step.</p>
+                  <li><strong>Database Name </strong> </li>
+                  <p>Enter the database name.</p>
+                  <li><strong>Database User </strong> </li>
+                  <p>Enter the database username.</p>
+                  <li><strong>Database Password </strong> </li>
+                  <p>Enter the database user password, for local installations and database users
+                    without password, leave it empty.</p>
+                </ul>
+                <ol>
+                  <li>
+                    Click <strong> Test Connection & Configure </strong> and if the database
+                    connection is
+                    successful you will be passed to the latest step otherwise please re-check
+                    your credentials and hostname.
+                  </li>
+                  <li>On the next page, configure administrator user and perform the installation.
+                  </li>
+                </ol>
+              </div>
+
+              <h4>Configure administrator User</h4>
+              <h5>in order to login into system create the administrator user.</h5>
+              <div class="section-block">
+                <ul>
+                  <li><strong>First Name </strong> </li>
+                  <p> Enter the first name
+                  </p>
+                  <li><strong>Last Name </strong> </li>
+                  <p>Enter the last name.</p>
+                  <li><strong>Email Address </strong> </li>
+                  <p>Enter the email address.</p>
+                  <li><strong>Password </strong> </li>
+                  <p>Enter the user password.</p>
+                </ul>
+                <ol>
+                  <li>
+                    Click <strong> Install </strong> and the admin user will be created.
+                  </li>
+                </ol>
+              </div>
+
+              <h4>Installation Finished Page</h4>
+              <div class="section-block">
+                <p>
+                  After you finish all the installation steps you will be presented with a
+                  installation successful screen where there will be information on
+                  <a href="#cron-job">how to configure cron job</a> as well the guessed <strong>
+                    command </strong> and the <strong> path </strong>for the cron job.
+                </p>
+              </div>
+              <div class="section-block">
+                <p>
+                  Don't forget to <strong> copy the command/path </strong> so you can
+                  <strong>configure a cron job</strong> as
+                  explained <a href="#cron-job">here.</a>
+                </p>
+              </div>
+
+              <div class="section-block">
+                <div class="alert alert-primary">
+                  The <strong> installation success page will be available for 1 hour after
+                    installation,</strong>
+                  after 1 hour, when you visit the same URL, a 404 error will be shown.
+                </div>
+              </div>
+              <div class="section-block mb-3">
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets/images/installation-success.png" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h4>Nginx Config</h4>
+              <div class="section-block">
+                <p>
+                  If you are managing the server and you are already familiar with Laravel,
+                  probably you will know that for Nginx you will need to create separate
+                  configuration file so Document Management System can be served.
+                </p>
+              </div>
+              <div class="section-block">
+                <p>
+                  The examples below are for installation on the root domain, but feel free to
+                  adjust the paths for the subdomain if you want to perform an installation on a
+                  subdomain.
+                </p>
+              </div>
+              <pre class="language-nginx"><code class="language-nginx">
+<span class="directive">server</span> {
+    <span class="directive">listen</span> <span class="value">80</span>;
+    <span class="directive">server_name</span> <span class="value">example.com</span>;
+    <span class="directive">root</span> <span class="value">/example.com/public</span>;
+
+    <span class="directive">add_header</span> <span class="value">X-Frame-Options "SAMEORIGIN"</span>;
+    <span class="directive">add_header</span> <span class="value">X-XSS-Protection "1; mode=block"</span>;
+    <span class="directive">add_header</span> <span class="value">X-Content-Type-Options "nosniff"</span>;
+
+    <span class="directive">index</span> <span class="value">index.html index.htm index.php</span>;
+    <span class="directive">charset</span> <span class="value">utf-8</span>;
+
+    <span class="directive">location</span> / {
+        <span class="directive">try_files</span> <span class="value">$uri $uri/ /index.php?$query_string</span>;
+    }
+
+    <span class="directive">location</span> = /favicon.ico {
+        <span class="directive">access_log</span> <span class="value">off</span>;
+        <span class="directive">log_not_found</span> <span class="value">off</span>;
+    }
+
+    <span class="directive">location</span> = /robots.txt {
+        <span class="directive">access_log</span> <span class="value">off</span>;
+        <span class="directive">log_not_found</span> <span class="value">off</span>;
+    }
+
+    <span class="directive">error_page</span> <span class="value">404 /index.php</span>;
+
+    <span class="directive">location</span> ~ \.php$ {
+        <span class="directive">fastcgi_pass</span> <span class="value">unix:/var/run/php/php8.1-fpm.sock</span>;
+        <span class="directive">fastcgi_index</span> <span class="value">index.php</span>;
+        <span class="directive">fastcgi_param</span> <span class="value">SCRIPT_FILENAME $realpath_root$fastcgi_script_name</span>;
+        <span class="directive">include</span> <span class="value">fastcgi_params</span>;
+    }
+
+    <span class="directive">location</span> ~ /\.(?!well-known).* {
+        <span class="directive">deny</span> <span class="value">all</span>;
+    }
+}
+</code></pre>
+
+
+              <h4 class="pt-4">Permissions, User And Group</h4>
+
+              <div class="section-block">
+                <p>
+                  If you are managing the server, you will need to make sure that the proper
+                  permissions are applied to all files and folders and also the files and folders
+                  belong to the user and group responsible for managing the web server, in most
+                  cases is <code> www-data</code> .
+                </p>
+
+                <p>
+                  Keep in mind that <strong> you won't need to apply the commands below if your
+                    server is
+                    managed by your server provider,</strong> for example, shared hosting as the
+                  permissions
+                  and the group will be already configured for you.
+                </p>
+              </div>
+              <h4>Change all the directories to 755 (drwxr-xr-x):</h4>
+              <div class="section-block">
+                <p>
+                  <code>find /var/www/example.com -type d -exec chmod 755 {} \;</code>
+                </p>
+              </div>
+
+              <h4>Change all the files to 644 (-rw-r--r--):</h4>
+              <div class="section-block">
+                <p>
+                  <code>find /var/www/example.com -type f -exec chmod 644 {} \;</code>
+                </p>
+              </div>
+
+              <h4>Change the files and folders user and group</h4>
+              <div class="section-block">
+                <p>
+                  <code>sudo chown www-data:www-data -R /var/www/example.com</code>
+                </p>
+              </div>
+              <div class="alert alert-primary">
+                Don't forget to adjust the values in the <strong> example codes </strong>according
+                to your setup.
+              </div>
+            </div>
+          </section>
+
+          <section id="license" class="doc-section">
+            <div class="card p-4">
+              <h2>Activate License</h2>
+              <p class="card-text font-bold">To activate your Production license, please follow the instructions below:
+              </p>
+              <ul class="list-group mb-3">
+                <li class="list-group-item">Please enter the purchase code from your CodeCanyon account for this item.
+                  <a href="https://help.market.envato.com/hc/en-us/articles/202822600-Where-Is-My-Purchase-Code"
+                    target="_blank" class="text-primary text-bold">Click here to find your purchase code.</a>
+                </li>
+                <li class="list-group-item">
+                  Click on the "Activate License" button below.</li>
+                <li class="list-group-item">Login with codecanyon purchase account or already login then click on
+                  approve.
+                </li>
+                <li class="list-group-item">A token has been generated.
+                </li>
+                <li class="list-group-item">The system will redirect you to the login page. Kindly login again to
+                  continue.
+                </li>
+                <li class="list-group-item">Enjoy full access to all features of <strong>AI-Powered Document
+                    Management</strong>.</li>
+                <li class="list-group-item">
+                  <span class="text-danger text-bold">
+                    Important: After activating the production license for a specific domain or sub-domain, token
+                    regeneration for another domain or sub-domain will not be permitted.
+                  </span>
+                </li>
+              </ul>
+              <iframe width="560" height="315" src="https://www.youtube.com/embed/TwwKAlwfIac" title="Activate License"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
+            </div>
+          </section>
+
+          <section id="update" class="doc-section">
+            <div class="card p-4">
+              <h2>Update to New Version</h2>
+              <div class="embed-container pb-4 pt-4">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/jbJtDEK8G0E"
+                  title="Update to New Version" frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen></iframe>
+              </div>
+              <div class="section-block">
+                <ul>
+                  <li>
+                    Download the latest version from
+                    <a target="_blank" href="https://codecanyon.net/downloads">CodeCanyon</a>.
+                  </li>
+                  <li>
+                    Double click the downloaded file to extract it.
+                  </li>
+                  <li>
+                    Copy <strong>document-management.zip</strong> file to the root of your
+                    server (same place where files were uploaded during installation).
+                  </li>
+                  <li>
+                    Delete "vendor" directory from your server (So there are no old unused files
+                    left from previous versions).
+                  </li>
+                  <li>
+                    Extract the <strong>document-management.zip</strong> file into the root
+                    directory and overwrite old files.
+                  </li>
+                  <li>
+                    Visit www.yourdomain.com/update url and click Update Now button.
+                  </li>
+                  <li>
+                    Once update is completed you will be redirected back to homepage.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="cron-job" class="doc-section">
+            <div class="card p-4">
+              <h2>Cron Job</h2>
+              <div class="section-block">
+                <p>cron is a Linux utility that schedules a command or script on your server to run
+                  automatically at a specified time and date. A cron job is the scheduled task
+                  itself. Cron jobs can be very useful to automate repetitive tasks.
+                </p>
+
+                <p>Every modern application with decent features must have cron job configured in
+                  order tasks to be executed in the background.
+                </p>
+
+                <p>
+                  Document Management System requires a properly configured cron job, follow the
+                  steps explained
+                  below to configure cron job for your installation.
+                </p>
+              </div>
+              <div class="alert alert-warning">
+                For the examples below, make sure to replace <code>/path/to/docmgt/</code> with the
+                path to your
+                installation. <br> <br>
+                On some shared hosting you may need to specify the full path to the PHP executable
+                (for example, <code> /usr/local/bin/php81</code> or
+                <code> /opt/alt/php81/usr/bin/php</code> instead of <code> php</code>)
+              </div>
+
+              <div class="section-block">
+                <h4>Setup Cron Job Via cPanel</h4>
+                <p>
+                  Login to cPanel and search for "Cron Job", and add the following cron job
+                  command as shown below:
+                </p>
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets//images/cronjob.jpg" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="section-block mb-3">
+                <h5>
+                  Click on Common Settings and select Once Per Five Minute
+                </h5>
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets//images/cpanel-cron-job.png" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+                <p class="mt-3">
+                  <code>php /path/to/docmgt/artisan schedule:run >> /dev/null 2>&1</code>
+                </p>
+              </div>
+              <h4>Setup Cron Job Via SSH</h4>
+              <div class="section-block">
+                <p>
+                  If you are managing the server via SSH, you will need to configure the cron job
+                  from the command line, the cron job must be configured for the user responsible
+                  for managing the web server, in most cases, it's the www-data user.
+                </p>
+                <p class="mt-4">
+                  <code>
+                    sudo crontab -u www-data -e  * * * * * php /path/to/docmgt/artisan schedule:run >> /dev/null 2>&1
+                  </code>
+                </p>
+              </div>
+
+              <h4>Setup Cron Job Via Plesk</h4>
+              <div class="section-block">
+                <ul>
+                  <li>
+                    Click <strong> Websites & Domains</strong>.
+                  </li>
+                  <li>
+                    Click the domain/subdomain you installed Document Management System.
+                  </li>
+                  <li>
+                    Click <strong> Scheduled Tasks</strong>.
+                  </li>
+                  <li>
+                    Click <strong> Add Task</strong>.
+                  </li>
+                  <li>
+                    Choose <strong> Run a PHP script</strong>.
+                  </li>
+                  <li>
+                    In the script path enter your Document Management System installation path
+                    and append
+                    <strong> artisan</strong>, for example:
+                    /path/to/docmgt/<strong>artisan</strong>.
+                  </li>
+                  <li>
+                    In the <strong> with arguments</strong> field enter: <strong>
+                      schedule:run</strong>
+                  </li>
+                  <li>
+                    Use PHP version: 8.2
+                  </li>
+                  <li>
+                    Cron Style: * * * * *
+
+                  </li>
+                </ul>
+              </div>
+
+              <div class="section-block">
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets//images/plesk-cron-job.png" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h4>Common Cron Job Commands</h4>
+              <div class="section-block">
+                <p>
+                  Below you can find common cron job commands that are confirmed to work for
+                  commonly used hosting providers, in most cases the commands are confirmed by our
+                  customers and if your hosting provider is listed below, they should work in your
+                  environment as well.
+                </p>
+              </div>
+              <div class="alert alert-primary">
+                Are you hosting Document Management System on a commonly used hosting provider and
+                you can confirm
+                that the cron job command works perfectly fine? Send us the command via our support
+                area so we can add it here and other customers can benefit from it.
+              </div>
+              <h4>SiteGround</h4>
+              <code>
+                                    /usr/local/php81/bin/php-cli /path/to/docmgt/artisan schedule:run >> /dev/null 2>&1
+                                </code>
+            </div>
+          </section>
+
+          <section id="storage-settings" class="doc-section">
+            <div class="card p-4">
+              <h2>Storage Settings</h2>
+              <div class="section-block">
+                <p>
+
+                  We're excited to announce the latest upgrade to our Document Management system:
+                  seamless integration with Amazon S3 storage. With this new feature, users can
+                  now enjoy enhanced flexibility and reliability in storing their documents. By
+                  leveraging Amazon S3, one of the most trusted cloud storage solutions available,
+                  users can upload their documents with confidence, knowing that their data is
+                  securely stored and easily accessible whenever they need it. This integration
+                  opens up a world of possibilities for efficient document management, allowing
+                  users to take advantage of Amazon's scalable infrastructure to handle their
+                  growing document storage needs.
+                </p>
+
+                <p>
+                  In order to configure the Amazon S3 storage, you will need to setup the S3
+                  bucket, and then configure the Document Management System to use the Amazon S3
+                  storage.
+                </p>
+                <h4>Configure Storage(Settings -> Company Profile -> Storage)</h4>
+                <div class="section-block">
+                  <ul>
+                    <li><strong>Amazon S3 key </strong> </li>
+                    <li><strong>Amazon S3 secret </strong> </li>
+                    <li><strong>Amazon S3 region</strong> </li>
+                    <li><strong>Amazon S3 bucket </strong> </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="alert alert-danger">
+                When transitioning from Local Storage to Amazon S3, all existing files will remain
+                available only on Local Storage. Once Amazon S3 storage is configured, all new files
+                will be stored on Amazon S3. If you decide to change the Amazon S3 settings, the old
+                storage settings files will no longer be accessible.
+              </div>
+              <div class="section-block mb-3">
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets//images/storage-settings.png" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="open-ai-settings" class="doc-section">
+            <div class="card p-4">
+              <h2>Open AI Settings</h2>
+              <div class="section-block">
+                <h4>Configure Storage(Settings -> Company Profile -> Open AI API Key)</h4>
+              </div>
+              <div class="section-block mb-3">
+                <div class="row simplelightbox-gallery-1">
+                  <div class="col-sm-12">
+                    <div class="screenshot-holder">
+                      <img class="img-fluid" src="./assets//images/open-ai.png" alt="screenshot">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="troubleshooting" class="doc-section">
+            <div class="card p-4">
+              <h2>Troubleshooting</h2>
+              <div class="section-block">
+                <h4>PDF preview</h4>
+                <p>
+                  Failed to load module script: Expected a JavaScript module script but the server
+                  responded with a MIME type of "application/octet-stream". Strict MIME type
+                  checking is enforced for module scripts per HTML spec.
+                </p>
+                <p>
+                  This error is caused by the server not serving the PDF file with the correct
+                  MIME type. To fix this issue, you will need to add the following code to your
+                  server configuration file.
+                </p>
+
+                <h5>IIS (web.config):</h5>
+                <pre class="language-xml" tabindex="0">
+<code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>configuration</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>system.webServer</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>staticContent</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mimeMap</span> <span class="token attr-name">fileExtension</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>.mjs<span class="token punctuation">"</span></span> <span class="token attr-name">mimeType</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>text/javascript<span class="token punctuation">"</span></span> <span class="token punctuation">/&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mimeMap</span> <span class="token attr-name">fileExtension</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>.ftl<span class="token punctuation">"</span></span> <span class="token attr-name">mimeType</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>text/plain<span class="token punctuation">"</span></span> <span class="token punctuation">/&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>staticContent</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>system.webServer</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>configuration</span><span class="token punctuation">&gt;</span></span>
+</code>
+</pre>
+
+                <h5>NGINX requires this configuration:</h5>
+                <pre class="language-nginx" tabindex="0">
+<code class="language-nginx"><span class="token directive"><span class="token keyword">http</span> </span> <span class="token punctuation">{</span>
+        ...
+            <span class="token directive"><span class="token keyword">types</span></span> <span class="token punctuation">{</span>
+                    <span class="token directive"><span class="token keyword">text/javascript</span> mjs</span><span class="token punctuation">;</span>
+                    <span class="token directive"><span class="token keyword">text/plain</span> ftl</span><span class="token punctuation">;</span>
+					<span class="token directive"><span class="token keyword">text/javascript</span> js</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+	  <span class="token punctuation">}</span>
+</code>
+</pre>
+
+                <h5>APPACHE requires this configuration:</h5>
+                <p>.htaccess file or extend your Apache config file with the following htaccess </p>
+                <pre class="language-xml">
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>IfModule mod_mime.c</span><span class="token punctuation">&gt;</span></span>
+        <span class="token comment"> AddType text/javascript mjs</span>
+        <span class="token comment"> AddType text/plain ftl</span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>IfModule</span><span class="token punctuation">&gt;</span></span>
+</pre>
+
+                <h5> AWS amplify requires this configuration in the amplify.yaml file:</h5>
+                <pre class="language-yaml" tabindex="0"><code class="language-yaml"><span class="token key atrule">customHeaders</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">pattern</span><span class="token punctuation">:</span> <span class="token string">'*.mjs'</span>
+      <span class="token key atrule">headers</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> <span class="token string">'Content-Type'</span>
+          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">'application/javascript'</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">pattern</span><span class="token punctuation">:</span> <span class="token string">'*.ftl'</span>
+      <span class="token key atrule">headers</span><span class="token punctuation">:</span>
+          <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> <span class="token string">'Content-Type'</span>
+            <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">'text/plain'</span>
+  </code></pre>
+              </div>
+
+              <div class="section-block">
+                <h4>Laravel Error Logs</h4>
+                <p>
+                  All backend system errors and exceptions are logged in the following file:
+                  <code>storage/logs/laravel.log</code>
+                </p>
+                <p>
+                  You can open this file to review recent errors. The log is especially helpful when
+                  debugging issues related to:
+                </p>
+                <ul>
+                  <li>Database connection problems</li>
+                  <li>File permission issues</li>
+                  <li>Environment configuration errors (.env)</li>
+                  <li>Uncaught exceptions in controllers, services, or middleware</li>
+                </ul>
+              </div>
+
+              <div class="section-block">
+                <h4>Enable Debug Mode</h4>
+                <p>
+                  During development or while troubleshooting, you can enable debug mode in your <code>.env</code> file:
+                </p>
+                <code>APP_DEBUG=true</code>
+                <p><strong>Note:</strong> Never enable debug mode on a live production server.</p>
+              </div>
+
+              <div class="section-block">
+                <h4>Shared Hosting Issues</h4>
+                <p>
+                  If you're using shared hosting, ensure:
+                </p>
+                <ul>
+                  <li>The PHP version meets minimum requirements (>= 8.2)</li>
+                  <li>You have pointed the domain or subdomain to the <code>/public</code> directory</li>
+                  <li>Required PHP extensions are enabled (see requirements section)</li>
+                  <li>Cron jobs are configured correctly via your hosting panel</li>
+                </ul>
+                <p>
+                  Check for common shared hosting limitations like disabled symlink support or file permission
+                  restrictions.
+                </p>
+              </div>
+
+              <div class="section-block">
+                <h4>Apache Logs</h4>
+                <p>
+                  Apache errors (including permission errors or misconfigured virtual hosts) are typically found in:
+                </p>
+                <code>/var/log/apache2/error.log</code>
+                <p>
+                  Ensure <code>mod_rewrite</code> is enabled and your virtual host configuration allows overriding with
+                  `.htaccess`.
+                </p>
+              </div>
+
+              <div class="section-block">
+                <h4> Nginx Logs</h4>
+                <p>
+                  Nginx error logs (useful for Laravel routing or permission issues) are located at:
+                </p>
+                <code>/var/log/nginx/error.log</code>
+                <p>
+                  Make sure your Nginx server block (site config) points to the <code>/public</code> folder and the
+                  correct PHP version is referenced in the <code>fastcgi_pass</code>
+                </p>
+              </div>
+
+              <div class="section-block">
+                <h4> Angular Development Errors</h4>
+                <p>
+                  When developing the frontend (Angular), open your browser’s developer console (F12) to see errors and
+                  warnings.
+                  These usually help with:
+                </p>
+                <ul>
+                  <li>Missing modules or dependencies</li>
+                  <li>API request errors (check network tab)</li>
+                  <li>Routing or component loading issues</li>
+                </ul>
+                <p>
+                  If errors occur during development build, run:
+                </p>
+                <code>npm install</code>
+                <code>npm start</code>
+              </div>
+
+              <div class="alert alert-info">
+                Still stuck? <a href="https://codecanyon.net/item/document-management/45290510/support" target="_blank">
+                  Contact support </a> or check <strong>storage/logs/laravel.log</strong> for detailed error
+                messages.
+              </div>
+            </div>
+          </section>
+
+
+          <!-- <section id="troubleshooting" class="doc-section">
+            <div class="card p-4">
+              <h2>Troubleshooting</h2>
+              <div class="section-block">
+                <p>
+                  If you are encountering some issues, first the best is to check the server and
+                  application logs. e.q <code> /var/log/apache2/error.log</code> and
+                  <code> storage/logs/laravel.log</code>
+                </p>
+              </div>
+
+              <div class="section-block">
+                <p>
+                  Also, it's recommended while debugging an issue, to set debug mode in the .env
+                  file, <code> APP_DEBUG=true</code>.
+                </p>
+              </div>
+            </div>
+          </section> -->
+
+          <section id="run-locally" class="doc-section">
+            <div class="card p-4">
+              <h2>Run Project Locally</h2>
+              <div class="section-block">
+                <p>
+                  Below are the steps to run the project locally.
+                </p>
+                <ul style="list-style-type: decimal;">
+                  <li>Run the Laravel API project using <strong> php artisan serve </strong> <br>
+                    &nbsp;&nbsp; which will run on <a href="http://localhost:8000/"
+                      target="_blank">http://localhost:8000/</a>
+                  </li>
+                  <li>open a
+                    <a href="http://localhost:8000/install">http://localhost:8000/install</a>
+                    and follow the installation steps as shown in <a target="_blank"
+                      href="https://youtu.be/zuCuvlBdOvA">installation video</a> .
+                  </li>
+                  <li>go to resources -> frontend -> angular </li>
+                  <li>opens a terminal </li>
+                  <li>run <strong> npm install -f </strong> command</li>
+                  <li>run <strong> npm start </strong> command. which will runs the UI at <a
+                      href="http://localhost:4200/">http://localhost:4200/</a> </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section id="deployment" class="doc-section">
+            <div class="card p-4">
+              <h2>Deploy Local Changes</h2>
+              <div class="section-block">
+                <p>
+                  Once you have made changes to the project locally, you will need to deploy the
+                  changes to the server. Below are the steps to deploy the changes to the server.
+                </p>
+                <div class="section-block">
+                  <ul style="list-style-type: decimal;">
+                    <li>
+                      remove <strong> .env </strong>file from changes made
+                    </li>
+                    <li>
+                      go to resource -> frontend -> angular
+                    </li>
+                    <li>
+                      run <strong> npm run build </strong> command which will copy your
+                      changes into respective views.
+                    </li>
+                    <li>
+                      remove <strong> .angular </strong> & <strong> node_modules </strong>
+                      from the angular directory.
+                    </li>
+                    <li>
+                      remove documents from storage -> app -> Documents
+                    </li>
+                    <li>
+                      zip everything and upload to the server.
+                    </li>
+                    <li>
+                      follow the update steps as shown in the <a href="https://youtu.be/jbJtDEK8G0E" target="_blank">
+                        video</a> .
+                    </li>
+                  </ul>
+                </div>
+              </div>
+          </section>
+
+          <section id="rate-us" class="doc-section">
+            <div class="card p-4">
+              <h2>Rate Us on CodeCanyon</h2>
+              <div class="section-block">
+                <p> We hope this documentation has helped you successfully set up and use the AI-powered Document
+                  Management
+                  System. If you’ve found this product valuable, please consider showing your support by leaving a
+                  5-star
+                  rating on CodeCanyon. ⭐⭐⭐⭐⭐
+                </p>
+                <p>
+                  Your positive feedback not only motivates us to keep improving but also helps other users make
+                  confident
+                  decisions.
+                </p>
+                <p>
+                  If you encounter any issues or need assistance, feel free to reach out through our support portal.
+                  We’re
+                  here to help!
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="changelog" class="doc-section">
+            <div class="card p-4">
+              <h2>Change Log</h2>
+              <div class="section-block">
+                <h5>2025 Jun 18 - Version 5.0.0</h5>
+                <ul>
+                  <li>New: Workflow automation. </li>
+                  <li>Improvement: Open AI PdF Generation</li>
+                  <li>Fix: Bug Fixes & UI improvements. </li>
+                </ul>
+                <h5 class="mt-4">2025 May 14 - Version 4.0.0</h5>
+                <ul>
+                  <li>New: Open AI Integration. </li>
+                  <li>New: Bulk Document Upload. </li>
+                  <li>New: Document Status module. </li>
+                  <li>New: Detailed Document View. </li>
+                  <li>Fix: Bug Fixes & UI improvements. </li>
+                </ul>
+                <h5 class="mt-4">2025 April 19 - Version 3.1.0</h5>
+                <ul>
+                  <li>New: client module </li>
+                  <li>New: request a file from non system user. </li>
+                  <li>New: update laravel version </li>
+                  <li>New: option to allow dynamicaly document type. </li>
+                  <li>New: operation filter in audit trial </li>
+                  <li>Fix: deep search permission issue </li>
+                  <li>Fix: Email Smtp Setting issue. </li>
+                  <li>New: all the permission to assign documents. </li>
+                  <li>Fix: enable signed pdf preview </li>
+                  <li>Fix: UI improvements. </li>
+                  <li>Fix: skip indexing in case of file size more than 3 mb. </li>
+                </ul>
+                <h5 class="mt-4">2024 Oct 24 - Version 3.0.0</h5>
+                <ul>
+                  <li>New: Deep Document Content Search </li>
+                  <li>New: Page help text for each pages </li>
+                  <li>Fix: Ofice Viewer with public sharing </li>
+                  <li>Fix: Reminder notification </li>
+                  <li>Update: UI Design and responsiveness </li>
+                  <li>Update: Improve system security</li>
+                </ul>
+                <h5 class="mt-4">2024 Spet 22 - Version 2.0.4</h5>
+                <ul>
+                  <li>New: Secure Link Sharing with Advanced Access Controls </li>
+                  <li>New: Forgot password feature </li>
+                </ul>
+                <h5 class="mt-4">2024 May 10 - Version 2.0.3</h5>
+                <ul>
+                  <li>New: Archive Document Support </li>
+                  <li>New: RTL support </li>
+                </ul>
+                <h5 class="mt-4">2024 Mar 27 - Version 2.0.2</h5>
+                <ul>
+                  <li>New: Amazon S3 Support </li>
+                  <li>New: Language support for reminder frequecy and document audit trail </li>
+                  <li>Fix: extension issue while uploading he document </li>
+                  <li>Fix: the pagination issue </li>
+                  <li>Fix: Parent child category issue in edit document </li>
+                  <li>Fix: document audit trail on delete documents </li>
+                  <li>Fix: Time zone issue in login audit </li>
+                  <li>Fix: document search on Parent Category </li>
+                </ul>
+                <h5 class="mt-4">2023 Oct 27 - Version 2.0.1</h5>
+                <ul>
+                  <li>Bug Fixes and UI improvements.</li>
+                </ul>
+                <h5 class="mt-4">2023 Aug 04 - Version 2.0.0</h5>
+                <ul>
+                  <li>New: Add new language support.</li>
+                  <li>New: Change Logo, Login Banner Image and title support.</li>
+                  <li>Fix: date formate issue.</li>
+                  <li>Fix(breaking): fixed the email sending issue. Please make sure you update
+                    the smtp setting after finishing the update.</li>
+                  <li>Fix: delete user issue.</li>
+                </ul>
+                <h5 class="mt-4">June 23 - Initial Release</h5>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
