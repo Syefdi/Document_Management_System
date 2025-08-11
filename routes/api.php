@@ -60,10 +60,7 @@ Route::get('/user/getResetinfo/{id}', [UserController::class, 'getUserInfoForRes
 Route::post('user/recoverPassword', [UserController::class, 'resetPassword']);
 Route::get('document/{id}/officeviewer', [DocumentController::class, 'officeviewer']);
 Route::get('/companyprofile', [CompanyProfileController::class, 'getCompanyProfile']);
-<<<<<<< HEAD
 Route::post('/companyprofile/activate_license', [CompanyProfileController::class, 'updateLicense']);
-=======
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
 
 
 Route::middleware(['auth'])->group(function () {

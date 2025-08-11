@@ -99,11 +99,6 @@ class Documents extends Model
     {
         return $this->hasMany(DocumentUserPermissions::class, 'documentId');
     }
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
     public function documentRolePermissions()
     {
         return $this->hasMany(DocumentRolePermissions::class, 'documentId');
@@ -118,13 +113,10 @@ class Documents extends Model
     {
         return $this->belongsTo(DocumentWorkflow::class, 'documentWorkflowId', 'id');
     }
-<<<<<<< HEAD
-=======
     public function currentStep()
     {
     return $this->belongsTo(WorkflowStep::class, 'currentStepId');
     }
->>>>>>> 6895172fd2f31385a5c656d4e4aa7daeb185abfc
 
     protected static function boot()
     {
