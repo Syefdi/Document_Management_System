@@ -39,6 +39,7 @@ use App\Http\Controllers\FileRequestDocumentController;
 use App\Http\Controllers\OpenAIController;
 use App\Http\Controllers\WorkflowLogController;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -80,6 +81,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/workflow/{id}/visualWorkflow', [WorkflowController::class, 'visualWorkflow']);
     Route::get('/documentWorkflow/{id}/visualWorkflow', [DocumentWorkflowController::class, 'visualWorkflow']);
     Route::post('/documentWorkflow/performNextTransition', [DocumentWorkflowController::class, 'performNextTransition']);
+    Route::get('/workflows', [WorkflowController::class, 'getWorkflows']);
 
     Route::middleware('hasToken:ARCHIVE_DOCUMENT_VIEW_DOCUMENTS')->group(function () {
         Route::get('/archived-documents', [ArchiveDocumentController::class, 'getDocuments']);

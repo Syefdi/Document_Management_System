@@ -10,6 +10,8 @@ use App\Models\Documents;
 use App\Models\DocumentUserPermissions;
 use App\Models\UserNotifications;
 use App\Models\UserRoles;
+use App\Models\DocumentWorkflow;
+use App\Models\Workflow;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -380,6 +382,32 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
                     'isAllowDownload' => true
                 ));
             }
+
+        if ($request->has('workflowId') && !empty($request->workflowId)) {
+            // 1. Cari definisi workflow yang dipilih
+            $workflowToStart = Workflow::with('workflowSteps')->find($request->workflowId);
+
+            if ($workflowToStart) {
+                // 2. Tentukan langkah pertama
+                $firstStep = $workflowToStart->workflowSteps()->orderBy('id')->first();
+
+                if ($firstStep) {
+                    // 3. Buat instance workflow untuk dokumen ini
+                    $docWorkflowInstance = DocumentWorkflow::create([
+                        'documentId'    => $result->id,
+                        'workflowId'    => $workflowToStart->id,
+                        'currentStepId' => $firstStep->id,
+                        'status'        => 'InProgress',
+                        'createdBy'     => $userId // Menggunakan $userId yang sudah diambil sebelumnya
+                    ]);
+
+                    // 4. Update dokumen dengan ID instance workflow
+                    $model->documentWorkflowId = $docWorkflowInstance->id;
+                    $model->save();
+                }
+            }
+        }
+
             DB::commit();
             $result->id = (string)$result->id;
             return response()->json($result);
@@ -469,6 +497,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
             ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
             ->leftJoin('workflows', 'documentWorkflow.workflowId', '=', 'workflows.id')
+            ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id')
             ->where(function ($query) use ($userId, $userRoles) {
                 $query->whereExists(function ($query) use ($userId) {
                     $query->select(DB::raw(1))
@@ -738,6 +767,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('users as modifier', 'documents.modifiedBy', '=', 'modifier.id')
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
+            ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
             ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id')
             ->where('documents.id',  '=', $id);
 
