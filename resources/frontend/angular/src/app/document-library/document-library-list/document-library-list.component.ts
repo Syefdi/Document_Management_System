@@ -493,6 +493,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
         next: (data: VisualWorkflowInstance) => {
           data.documentId = workflowInstance.id;
           data.documentName = workflowInstance.name;
+          (data as any).workflowStatus = workflowInstance.workflowStatus;
           this.dialog.open(VisualWorkflowGraphComponent, {
             minWidth: '90vw',
             data: Object.assign({}, data),

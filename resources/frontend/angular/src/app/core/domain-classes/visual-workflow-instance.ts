@@ -21,6 +21,7 @@ export interface VisualWorkflowInstance {
   comment?: string;
   createdBy?: string;
   initiatedDate?: Date;
+  workflowStatus?: string;
 }
 
 export interface MyWorkflow {
