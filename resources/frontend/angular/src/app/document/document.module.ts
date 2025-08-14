@@ -36,6 +36,7 @@ import { SharableLinkComponent } from './sharable-link/sharable-link.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DocumentDeepSearchComponent } from './document-deep-search/document-deep-search.component'
 import { DocumentWorkflowStatusColorDirective } from './document-workflow-status-color.directive';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @NgModule({
   declarations: [
@@ -71,11 +72,12 @@ import { DocumentWorkflowStatusColorDirective } from './document-workflow-status
     MatMenuModule,
     CKEditorModule,
     MatChipsModule,
-    MatRadioModule,
+    MatRadioModule, 
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
     NgSelectModule,
     ClipboardModule,
+    MatAutocompleteModule,
   ],
 })
 export class DocumentModule {}

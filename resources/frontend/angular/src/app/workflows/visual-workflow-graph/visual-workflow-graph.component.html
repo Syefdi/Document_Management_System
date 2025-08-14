@@ -63,10 +63,17 @@
                                     </p>
                                 </div>
                                 <div class="col-6">
-                                    <p class="h6"><strong>{{"DOCUMENT" | translate}}: </strong>
-                                        <a class="doc-link" (click)="onDocumentView()">{{data.documentName}}</a>
-                                    </p>
-                                    @if(data.initiatedDate) {
+                                  <p class="h6"><strong>{{"DOCUMENT" | translate}}: </strong>
+                                      <ng-container *ngIf="data.workflowStatus === 'Approved'; else nonClickableInDialog">
+                                          <a class="doc-link" (click)="onDocumentView()" style="cursor: pointer;">
+                                            {{ data.documentName }}
+                                          </a>
+                                      </ng-container>
+                                      <ng-template #nonClickableInDialog>
+                                          <span>{{ data.documentName }}</span>
+                                      </ng-template>
+                                  </p>
+                                  @if(data.initiatedDate) {
                                     <p class="h6"><strong>{{"INITIATED_DATE" | translate}}:</strong>
                                         {{data.initiatedDate | utcToLocalTime:'full' }}
                                     </p> }

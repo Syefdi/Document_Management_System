@@ -197,8 +197,17 @@
                       <ng-container matColumnDef="name">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'NAME' | translate}} </th>
                         <td mat-cell *matCellDef="let document">
-                          <a class="doc-link" (click)="onDocumentView(document)">{{document.name}}</a>
-                        </td>
+
+                          <ng-container *ngIf="isDocumentAccessible(document); else nonClickableName">
+                            <a class="doc-link" (click)="onDocumentView(document)" style="cursor: pointer;">
+                              {{ document.name }}
+                            </a>
+                          </ng-container>
+
+                          <ng-template #nonClickableName>
+                            <span>{{ document.name }}</span>
+                          </ng-template>
+                          </td>
                       </ng-container>
                       <ng-container matColumnDef="categoryName">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'CATEGORY_NAME' | translate}} </th>

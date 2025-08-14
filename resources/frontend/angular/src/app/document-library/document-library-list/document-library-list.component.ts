@@ -158,6 +158,22 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
       .subscribe();
   }
 
+  /**
+   * Memeriksa apakah nama dokumen bisa diklik.
+   * Akses diberikan jika status workflow adalah 'Approved' ATAU jika tidak ada workflow.
+   * @param document Objek dokumen dari baris tabel.
+   * @returns boolean
+   */
+  isDocumentAccessible(document: DocumentInfo): boolean {
+    // Pastikan string 'Approved' cocok dengan data dari server
+    const isApproved = document.workflowStatus === 'Approved';
+
+    // Dokumen dianggap tidak punya workflow jika properti workflowName-nya kosong
+    const hasNoWorkflow = !document.workflowName;
+
+    return isApproved || hasNoWorkflow;
+  }
+
   onCategoryChange(filtervalue: string) {
     if (filtervalue) {
       this.documentResource.categoryId = filtervalue;
@@ -477,6 +493,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
         next: (data: VisualWorkflowInstance) => {
           data.documentId = workflowInstance.id;
           data.documentName = workflowInstance.name;
+          (data as any).workflowStatus = workflowInstance.workflowStatus;
           this.dialog.open(VisualWorkflowGraphComponent, {
             minWidth: '90vw',
             data: Object.assign({}, data),
