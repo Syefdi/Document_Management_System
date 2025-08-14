@@ -19,7 +19,6 @@ import {
 } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { AllowFileExtension } from '@core/domain-classes/allow-file-extension';
-import { Category } from '@core/domain-classes/category';
 import { DocumentInfo } from '@core/domain-classes/document-info';
 import { DocumentMetaData } from '@core/domain-classes/documentMetaData';
 import { FileInfo } from '@core/domain-classes/file-info';
@@ -32,6 +31,10 @@ import { BaseComponent } from 'src/app/base.component';
 import { CategoryStore } from 'src/app/category/store/category-store';
 import { ClientStore } from 'src/app/client/client-store';
 import { DocumentStatusStore } from 'src/app/document-status/store/document-status.store';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { Workflow } from '@core/domain-classes/workflow';
+import { WorkflowStore } from 'src/app/workflows/manage-workflow/workflow-store';
 
 @Component({
   selector: 'app-document-manage-presentation',
@@ -46,7 +49,6 @@ export class DocumentManagePresentationComponent
   documentForm: UntypedFormGroup;
   extension = '';
   documentSource: string;
-  // eslint-disable-next-line @angular-eslint/no-output-on-prefix
   @Output() onSaveDocument: EventEmitter<DocumentInfo> =
     new EventEmitter<DocumentInfo>();
   progress = 0;
@@ -63,6 +65,11 @@ export class DocumentManagePresentationComponent
   clientStore = inject(ClientStore);
   documentstatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
+  workflowStore = inject(WorkflowStore);
+
+  // PERBAIKAN #1: Deklarasikan properti filteredWorkflows$
+  filteredWorkflows$: Observable<Workflow[]>;
+
   get documentMetaTagsArray(): FormArray {
     return <FormArray>this.documentForm.get('documentMetaTags');
   }
@@ -86,8 +93,123 @@ export class DocumentManagePresentationComponent
     this.getCompanyProfile();
     this.getLangDir();
     this.getAllAllowFileExtension();
+
+    this.workflowStore.loadWorkflows();
+    this.filteredWorkflows$ = this.documentForm.get('workflowName').valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || ''))
+    );
   }
 
+  createDocumentForm() {
+    this.documentForm = this.fb.group({
+      name: ['', [Validators.required]],
+      description: [''],
+      categoryId: ['', [Validators.required]],
+      url: ['', [Validators.required]],
+      extension: ['', [Validators.required]],
+      documentMetaTags: this.fb.array([]),
+      selectedRoles: [],
+      selectedUsers: [],
+      location: [''],
+      clientId: [''],
+      statusId: [''],
+
+      // PERBAIKAN #2: Tambahkan form control untuk workflow
+      workflowId: [''],
+      workflowName: [''],
+
+      rolePermissionForm: this.fb.group({
+        isTimeBound: new UntypedFormControl(false),
+        startDate: [''],
+        endDate: [''],
+        isAllowDownload: new UntypedFormControl(false),
+      }),
+      userPermissionForm: this.fb.group({
+        isTimeBound: new UntypedFormControl(false),
+        startDate: [''],
+        endDate: [''],
+        isAllowDownload: new UntypedFormControl(false),
+      }),
+    });
+    this.companyProfileSubscription();
+  }
+
+private _filter(value: string | Workflow): Workflow[] {
+    const filterValue = (typeof value === 'string' ? value : '').toLowerCase();
+
+    if (!filterValue) {
+        this.documentForm.get('workflowId').setValue('');
+    }
+
+    // PERBAIKAN UTAMA ADA DI SINI
+    return this.workflowStore.activeWorkflows().filter(option =>
+        // Pastikan option.name ada sebelum menjalankan toLowerCase
+        option.name && option.name.toLowerCase().includes(filterValue)
+    );
+}
+  onWorkflowSelected(workflow: Workflow): void {
+    if (workflow) {
+      this.documentForm.get('workflowId').setValue(workflow.id);
+    }
+  }
+
+  displayWorkflowName(workflow: Workflow): string {
+    return workflow && workflow.name ? workflow.name : '';
+  }
+
+  buildDocumentObject(): DocumentInfo {
+    const documentMetaTags = this.documentMetaTagsArray.getRawValue();
+    const document: DocumentInfo = {
+      categoryId: this.documentForm.get('categoryId').value,
+      description: this.documentForm.get('description').value,
+      statusId: this.documentForm.get('statusId').value,
+      name: this.documentForm.get('name').value,
+      url: this.fileData.fileName,
+      documentMetaDatas: [...documentMetaTags],
+      fileData: this.fileData,
+      extension: this.extension,
+      location: this.documentForm.get('location').value,
+      clientId: this.documentForm.get('clientId').value ?? '',
+
+      // PERBAIKAN #3: Tambahkan workflowId di sini
+      workflowId: this.documentForm.get('workflowId').value,
+    };
+    const selectedRoles: Role[] =
+      this.documentForm.get('selectedRoles').value ?? [];
+    if (selectedRoles?.length > 0) {
+      document.documentRolePermissions = selectedRoles.map((role) => {
+        return Object.assign(
+          {},
+          {
+            id: '',
+            documentId: '',
+            roleId: role.id,
+          },
+          this.rolePermissionFormGroup.value
+        );
+      });
+    }
+
+    const selectedUsers: User[] =
+      this.documentForm.get('selectedUsers').value ?? [];
+    if (selectedUsers?.length > 0) {
+      document.documentUserPermissions = selectedUsers.map((user) => {
+        return Object.assign(
+          {},
+          {
+            id: '',
+            documentId: '',
+            userId: user.id,
+          },
+          this.userPermissionFormGroup.value
+        );
+      });
+    }
+    return document;
+  }
+
+  // Sisa kode di bawah ini tidak ada perubahan...
   getLangDir() {
     this.sub$.sink = this.translationService.lanDir$.subscribe(
       (c: Direction) => (this.direction = c)
@@ -164,36 +286,6 @@ export class DocumentManagePresentationComponent
     return allowTypeExtenstion ? true : false;
   }
 
-
-  createDocumentForm() {
-    this.documentForm = this.fb.group({
-      name: ['', [Validators.required]],
-      description: [''],
-      categoryId: ['', [Validators.required]],
-      url: ['', [Validators.required]],
-      extension: ['', [Validators.required]],
-      documentMetaTags: this.fb.array([]),
-      selectedRoles: [],
-      selectedUsers: [],
-      location: [''],
-      clientId: [''],
-      statusId: [''],
-      rolePermissionForm: this.fb.group({
-        isTimeBound: new UntypedFormControl(false),
-        startDate: [''],
-        endDate: [''],
-        isAllowDownload: new UntypedFormControl(false),
-      }),
-      userPermissionForm: this.fb.group({
-        isTimeBound: new UntypedFormControl(false),
-        startDate: [''],
-        endDate: [''],
-        isAllowDownload: new UntypedFormControl(false),
-      }),
-    });
-    this.companyProfileSubscription();
-  }
-
   companyProfileSubscription() {
     this.securityService.companyProfile.subscribe((profile) => {
       if (profile) {
@@ -242,54 +334,6 @@ export class DocumentManagePresentationComponent
     } else {
       this.documentForm.markAllAsTouched();
     }
-  }
-
-  buildDocumentObject(): DocumentInfo {
-    const documentMetaTags = this.documentMetaTagsArray.getRawValue();
-    const document: DocumentInfo = {
-      categoryId: this.documentForm.get('categoryId').value,
-      description: this.documentForm.get('description').value,
-      statusId: this.documentForm.get('statusId').value,
-      name: this.documentForm.get('name').value,
-      url: this.fileData.fileName,
-      documentMetaDatas: [...documentMetaTags],
-      fileData: this.fileData,
-      extension: this.extension,
-      location: this.documentForm.get('location').value,
-      clientId: this.documentForm.get('clientId').value ?? '',
-    };
-    const selectedRoles: Role[] =
-      this.documentForm.get('selectedRoles').value ?? [];
-    if (selectedRoles?.length > 0) {
-      document.documentRolePermissions = selectedRoles.map((role) => {
-        return Object.assign(
-          {},
-          {
-            id: '',
-            documentId: '',
-            roleId: role.id,
-          },
-          this.rolePermissionFormGroup.value
-        );
-      });
-    }
-
-    const selectedUsers: User[] =
-      this.documentForm.get('selectedUsers').value ?? [];
-    if (selectedUsers?.length > 0) {
-      document.documentUserPermissions = selectedUsers.map((user) => {
-        return Object.assign(
-          {},
-          {
-            id: '',
-            documentId: '',
-            userId: user.id,
-          },
-          this.userPermissionFormGroup.value
-        );
-      });
-    }
-    return document;
   }
 
   onAddAnotherMetaTag() {

@@ -1,3 +1,12 @@
+// BARU: Impor untuk RxJS, Workflow, dan servicenya
+import { Observable, of } from 'rxjs';
+import { map, startWith, switchMap } from 'rxjs/operators';
+import { Workflow } from '@core/domain-classes/workflow';
+import { WorkflowStore } from 'src/app/workflows/manage-workflow/workflow-store';
+import { DocumentWorkflowService } from 'src/app/workflows/manage-workflow/document-workflow.service';
+import { DocumentWorkflow } from '@core/domain-classes/document-workflow';
+
+// Impor yang sudah ada
 import { Direction } from '@angular/cdk/bidi';
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import {
@@ -11,7 +20,6 @@ import {
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 import { AllowFileExtension } from '@core/domain-classes/allow-file-extension';
-import { Category } from '@core/domain-classes/category';
 import { DocumentAuditTrail } from '@core/domain-classes/document-audit-trail';
 import { DocumentInfo } from '@core/domain-classes/document-info';
 import { DocumentOperation } from '@core/domain-classes/document-operation';
@@ -44,7 +52,6 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
   message = '';
   fileInfo: FileInfo;
   isFileUpload = false;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fileData: any;
   users: User[];
   roles: Role[];
@@ -53,11 +60,15 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
   direction: Direction;
   documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
+  clientStore = inject(ClientStore);
+
+  // BARU: Properti dan injeksi untuk workflow
+  workflowStore = inject(WorkflowStore);
+  filteredWorkflows$: Observable<Workflow[]>;
+
   get documentMetaTagsArray(): FormArray {
     return <FormArray>this.documentForm.get('documentMetaTags');
   }
-
-  clientStore = inject(ClientStore);
 
   constructor(
     private fb: UntypedFormBuilder,
@@ -67,7 +78,9 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     private router: Router,
     private translationService: TranslationService,
     private toastrService: ToastrService,
-    private securityService: SecurityService
+    private securityService: SecurityService,
+    // BARU: Injeksi service workflow
+    private documentWorkflowService: DocumentWorkflowService
   ) {
     super();
     this.minDate = new Date();
@@ -81,8 +94,150 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     this.getCompanyProfile();
     this.getLangDir();
     this.getAllAllowFileExtension();
+
+    // BARU: Memuat daftar workflow dan menyiapkan autocomplete
+    this.workflowStore.loadWorkflows();
+    this.filteredWorkflows$ = this.documentForm.get('workflowName').valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || ''))
+    );
   }
 
+  createDocumentForm() {
+    this.documentForm = this.fb.group({
+      name: ['', [Validators.required]],
+      description: [''],
+      categoryId: ['', [Validators.required]],
+      url: ['', [Validators.required]],
+      extension: ['', [Validators.required]],
+      documentMetaTags: this.fb.array([]),
+      selectedRoles: [],
+      selectedUsers: [],
+      location: [],
+      clientId: [''],
+      statusId: [''],
+      // Form control BARU
+      workflowId: [''],
+      workflowName: [''],
+      rolePermissionForm: this.fb.group({
+        isTimeBound: new UntypedFormControl(false),
+        startDate: [''],
+        endDate: [''],
+        isAllowDownload: new UntypedFormControl(false),
+      }),
+      userPermissionForm: this.fb.group({
+        isTimeBound: new UntypedFormControl(false),
+        startDate: [''],
+        endDate: [''],
+        isAllowDownload: new UntypedFormControl(false),
+      }),
+    });
+    this.companyProfileSubscription();
+  }
+
+  // Fungsi BARU: Untuk filtering autocomplete yang aman
+  private _filter(value: string | Workflow): Workflow[] {
+    const filterValue = (typeof value === 'string' ? value : '').toLowerCase();
+    if (!filterValue) {
+        this.documentForm.get('workflowId').setValue('');
+    }
+    return this.workflowStore.activeWorkflows().filter(option =>
+        option.name && option.name.toLowerCase().includes(filterValue)
+    );
+  }
+
+  // Fungsi BARU: Untuk menangani saat workflow dipilih
+  onWorkflowSelected(workflow: Workflow): void {
+    if (workflow) {
+      this.documentForm.get('workflowId').setValue(workflow.id);
+    }
+  }
+
+  // Fungsi BARU: Untuk menampilkan nama workflow di input field
+  displayWorkflowName(workflow: Workflow): string {
+    return workflow && workflow.name ? workflow.name : '';
+  }
+
+  // MODIFIKASI TOTAL: Fungsi SaveDocument sekarang menggunakan alur berantai
+  SaveDocument() {
+    if (!this.documentForm.valid) {
+      this.documentForm.markAllAsTouched();
+      return;
+    }
+
+    const doc = this.buildDocumentObject();
+
+    this.documentService.addDocument(doc)
+      .pipe(
+        switchMap((documentInfo: DocumentInfo) => {
+          this.toastrService.success(this.translationService.getValue('DOCUMENT_SAVE_SUCCESSFULLY'));
+          const workflowId = this.documentForm.get('workflowId').value;
+
+          if (workflowId) {
+            const documentWorkflow: DocumentWorkflow = {
+              workflowId: workflowId,
+              documentId: documentInfo.id,
+            };
+            return this.documentWorkflowService.addDocumentWorkflow(documentWorkflow).pipe(
+              map(() => documentInfo)
+            );
+          }
+          return of(documentInfo);
+        }),
+        switchMap((documentInfo: DocumentInfo) => {
+          const objDocumentAuditTrail: DocumentAuditTrail = {
+            documentId: documentInfo.id,
+            operationName: DocumentOperation.Created.toString(),
+          };
+          return this.commonService.addDocumentAuditTrail(objDocumentAuditTrail);
+        })
+      )
+      .subscribe(() => {
+        this.router.navigate(['/']);
+      });
+  }
+
+  // MODIFIKASI: Menambahkan workflowId ke objek
+  buildDocumentObject(): DocumentInfo {
+    const documentMetaTags = this.documentMetaTagsArray.getRawValue();
+    const document: DocumentInfo = {
+      categoryId: this.documentForm.get('categoryId').value,
+      description: this.documentForm.get('description').value,
+      statusId: this.documentForm.get('statusId').value,
+      name: this.documentForm.get('name').value,
+      url: this.fileData.fileName,
+      documentMetaDatas: [...documentMetaTags],
+      fileData: this.fileData,
+      extension: this.extension,
+      location: this.documentForm.get('location').value,
+      clientId: this.documentForm.get('clientId').value ?? '',
+      workflowId: this.documentForm.get('workflowId').value,
+    };
+    const selectedRoles: Role[] =
+      this.documentForm.get('selectedRoles').value ?? [];
+    if (selectedRoles?.length > 0) {
+      document.documentRolePermissions = selectedRoles.map((role) => {
+        return Object.assign(
+          {}, { id: '', documentId: '', roleId: role.id },
+          this.rolePermissionFormGroup.value
+        );
+      });
+    }
+
+    const selectedUsers: User[] =
+      this.documentForm.get('selectedUsers').value ?? [];
+    if (selectedUsers?.length > 0) {
+      document.documentUserPermissions = selectedUsers.map((user) => {
+        return Object.assign(
+          {}, { id: '', documentId: '', userId: user.id },
+          this.userPermissionFormGroup.value
+        );
+      });
+    }
+    return document;
+  }
+
+  // Sisa kode di bawah ini tidak ada perubahan...
   getLangDir() {
     this.sub$.sink = this.translationService.lanDir$.subscribe(
       (c: Direction) => (this.direction = c)
@@ -141,35 +296,6 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     return allowTypeExtenstion ? true : false;
   }
 
-  createDocumentForm() {
-    this.documentForm = this.fb.group({
-      name: ['', [Validators.required]],
-      description: [''],
-      categoryId: ['', [Validators.required]],
-      url: ['', [Validators.required]],
-      extension: ['', [Validators.required]],
-      documentMetaTags: this.fb.array([]),
-      selectedRoles: [],
-      selectedUsers: [],
-      location: [],
-      clientId: [''],
-      statusId: [''],
-      rolePermissionForm: this.fb.group({
-        isTimeBound: new UntypedFormControl(false),
-        startDate: [''],
-        endDate: [''],
-        isAllowDownload: new UntypedFormControl(false),
-      }),
-      userPermissionForm: this.fb.group({
-        isTimeBound: new UntypedFormControl(false),
-        startDate: [''],
-        endDate: [''],
-        isAllowDownload: new UntypedFormControl(false),
-      }),
-    });
-    this.companyProfileSubscription();
-  }
-
   companyProfileSubscription() {
     this.securityService.companyProfile.subscribe((profile) => {
       if (profile) {
@@ -194,7 +320,6 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     return this.documentForm.get('userPermissionForm') as FormGroup;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onMetatagChange(event: any, index: number) {
     const email = this.documentMetaTagsArray.at(index).get('metatag').value;
     if (!email) {
@@ -211,81 +336,6 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
       documentId: [documentMetatag.documentId],
       metatag: [documentMetatag.metatag],
     });
-  }
-
-  SaveDocument() {
-    if (this.documentForm.valid) {
-      const doc = this.buildDocumentObject();
-      this.documentService.addDocument(doc).subscribe((documentInfo) => {
-        this.addDocumentTrail(documentInfo as DocumentInfo);
-        this.toastrService.success(
-          this.translationService.getValue('DOCUMENT_SAVE_SUCCESSFULLY')
-        );
-      });
-      this;
-    } else {
-      this.documentForm.markAllAsTouched();
-    }
-  }
-
-  addDocumentTrail(document: DocumentInfo) {
-    const objDocumentAuditTrail: DocumentAuditTrail = {
-      documentId: document.id,
-      operationName: DocumentOperation.Created.toString(),
-    };
-    this.sub$.sink = this.commonService
-      .addDocumentAuditTrail(objDocumentAuditTrail)
-      .subscribe(() => {
-        this.router.navigate(['/']);
-      });
-  }
-
-  buildDocumentObject(): DocumentInfo {
-    const documentMetaTags = this.documentMetaTagsArray.getRawValue();
-    const document: DocumentInfo = {
-      categoryId: this.documentForm.get('categoryId').value,
-      description: this.documentForm.get('description').value,
-      statusId: this.documentForm.get('statusId').value,
-      name: this.documentForm.get('name').value,
-      url: this.fileData.fileName,
-      documentMetaDatas: [...documentMetaTags],
-      fileData: this.fileData,
-      extension: this.extension,
-      location: this.documentForm.get('location').value,
-      clientId: this.documentForm.get('clientId').value ?? '',
-    };
-    const selectedRoles: Role[] =
-      this.documentForm.get('selectedRoles').value ?? [];
-    if (selectedRoles?.length > 0) {
-      document.documentRolePermissions = selectedRoles.map((role) => {
-        return Object.assign(
-          {},
-          {
-            id: '',
-            documentId: '',
-            roleId: role.id,
-          },
-          this.rolePermissionFormGroup.value
-        );
-      });
-    }
-
-    const selectedUsers: User[] =
-      this.documentForm.get('selectedUsers').value ?? [];
-    if (selectedUsers?.length > 0) {
-      document.documentUserPermissions = selectedUsers.map((user) => {
-        return Object.assign(
-          {},
-          {
-            id: '',
-            documentId: '',
-            userId: user.id,
-          },
-          this.userPermissionFormGroup.value
-        );
-      });
-    }
-    return document;
   }
 
   onAddAnotherMetaTag() {

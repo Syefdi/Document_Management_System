@@ -1,3 +1,14 @@
+// BARU: Impor untuk RxJS, Workflow, dan servicenya
+import { Observable, of } from 'rxjs';
+import { map, startWith, switchMap } from 'rxjs/operators';
+import { Workflow } from '@core/domain-classes/workflow';
+import { WorkflowStore } from 'src/app/workflows/manage-workflow/workflow-store';
+import { DocumentWorkflowService } from 'src/app/workflows/manage-workflow/document-workflow.service';
+import { DocumentWorkflow } from '@core/domain-classes/document-workflow';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
+
+// Impor yang sudah ada
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormArray, UntypedFormGroup, FormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
@@ -21,7 +32,7 @@ import { Role } from '@core/domain-classes/role';
 import { DocumentOperation } from '@core/domain-classes/document-operation';
 import { DocumentAuditTrail } from '@core/domain-classes/document-audit-trail';
 import { AllowFileExtension } from '@core/domain-classes/allow-file-extension';
-import { catchError, concatMap, from, of } from 'rxjs';
+import { catchError, concatMap, from } from 'rxjs';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Direction } from '@angular/cdk/bidi';
 import { OwlDateTimeModule, OwlNativeDateTimeModule } from 'ng-pick-datetime-ex';
@@ -49,6 +60,8 @@ import { DocumentMetaData } from '@core/domain-classes/documentMetaData';
     FormsModule,
     OwlDateTimeModule,
     OwlNativeDateTimeModule,
+    MatAutocompleteModule, // BARU: Tambahkan ini
+    MatInputModule,        // BARU: Tambahkan ini
   ],
   templateUrl: './bulk-document-upload.component.html',
   styleUrl: './bulk-document-upload.component.scss'
@@ -66,8 +79,7 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
   isS3Supported = false;
 
   @ViewChild('file') fileInput: any;
-  @Output() onSaveDocument: EventEmitter<DocumentInfo> =
-    new EventEmitter<DocumentInfo>();
+  @Output() onSaveDocument: EventEmitter<DocumentInfo> = new EventEmitter<DocumentInfo>();
   categoryStore = inject(CategoryStore);
   public clientStore = inject(ClientStore);
   private fb = inject(UntypedFormBuilder);
@@ -80,6 +92,12 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
   direction: Direction;
   document: DocumentInfo;
 
+  // BARU: Properti dan injeksi untuk workflow
+  workflowStore = inject(WorkflowStore);
+  documentWorkflowService = inject(DocumentWorkflowService);
+  filteredWorkflows$: Observable<Workflow[]>;
+
+
   constructor(private securityService: SecurityService,) {
     super();
     this.minDate = new Date();
@@ -91,22 +109,13 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
     this.getUsers();
     this.getRoles();
     this.getAllAllowFileExtension();
-  }
 
-  get fileInputs(): FormArray {
-    return (<FormArray>this.documentForm.get('files')) as FormArray;
-  }
-
-  get rolePermissionFormGroup() {
-    return this.documentForm.get('rolePermissionForm') as FormGroup;
-  }
-
-  get userPermissionFormGroup() {
-    return this.documentForm.get('userPermissionForm') as FormGroup;
-  }
-
-  get documentMetaTagsArray(): FormArray {
-    return <FormArray>this.documentForm.get('documentMetaTags');
+    // BARU: Memuat daftar workflow dan menyiapkan autocomplete
+    this.workflowStore.loadWorkflows();
+    this.filteredWorkflows$ = this.documentForm.get('workflowName').valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || ''))
+    );
   }
 
   createDocumentForm() {
@@ -123,6 +132,9 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
       selectedRoles: [],
       selectedUsers: [],
       files: this.fb.array([]),
+      // Form control BARU
+      workflowId: [''],
+      workflowName: [''],
       rolePermissionForm: this.fb.group({
         isTimeBound: new UntypedFormControl(false),
         startDate: [''],
@@ -137,6 +149,140 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
       }),
     });
     this.companyProfileSubscription();
+  }
+
+  // Fungsi BARU: Untuk filtering autocomplete
+  private _filter(value: string | Workflow): Workflow[] {
+    const filterValue = (typeof value === 'string' ? value : '').toLowerCase();
+    if (!filterValue) {
+        this.documentForm.get('workflowId').setValue('');
+    }
+    return this.workflowStore.activeWorkflows().filter(option =>
+        option.name && option.name.toLowerCase().includes(filterValue)
+    );
+  }
+
+  // Fungsi BARU: Untuk menangani saat workflow dipilih
+  onWorkflowSelected(workflow: Workflow): void {
+    if (workflow) {
+      this.documentForm.get('workflowId').setValue(workflow.id);
+    }
+  }
+
+  // Fungsi BARU: Untuk menampilkan nama workflow di input field
+  displayWorkflowName(workflow: Workflow): string {
+    return workflow && workflow.name ? workflow.name : '';
+  }
+
+  // MODIFIKASI TOTAL: Fungsi save sekarang menggunakan alur berantai
+  saveFilesAndDocument() {
+    if (!this.documentForm.valid) {
+      this.markFormGroupTouched(this.documentForm);
+      return;
+    }
+
+    this.loading = true;
+    this.counter = 0;
+    const concatObservable$ = [];
+
+    // Siapkan observable untuk setiap file
+    this.fileInputs.controls.forEach(control => {
+      if (!control.get('isSuccess').value) {
+        const documentObj = this.buildDocumentObject();
+        documentObj.url = control.get('fileName').value;
+        documentObj.name = control.get('name').value;
+        documentObj.extension = control.get('extension').value;
+        documentObj.fileData = control.get('file').value;
+        concatObservable$.push(this.documentService.addDocument({ ...documentObj }));
+      }
+    });
+
+    if (concatObservable$.length === 0) {
+      this.loading = false;
+      return;
+    }
+
+    this.resultArray = [];
+    from(concatObservable$)
+      .pipe(
+        concatMap((obs, index) => {
+          this.fileInputs.at(index).patchValue({ isLoading: true });
+
+          return obs.pipe(
+            // Setelah dokumen dibuat, jalankan workflow jika ada
+            switchMap((documentInfo: DocumentInfo) => {
+              const workflowId = this.documentForm.get('workflowId').value;
+              if (workflowId) {
+                const documentWorkflow: DocumentWorkflow = {
+                  workflowId: workflowId,
+                  documentId: documentInfo.id,
+                };
+                return this.documentWorkflowService.addDocumentWorkflow(documentWorkflow).pipe(
+                  map(() => documentInfo) // Teruskan documentInfo
+                );
+              }
+              return of(documentInfo); // Jika tidak ada workflow
+            }),
+            // Setelah workflow, buat audit trail
+            concatMap((documentInfo: DocumentInfo) => {
+              this.addDocumentTrail(documentInfo.id);
+              return of(documentInfo); // Teruskan documentInfo untuk result
+            }),
+            catchError(err => {
+              const errorMessage = typeof (err?.messages?.[0]) === 'string' ? err.messages[0] : err.friendlyMessage || 'An unknown error occurred';
+              return of(errorMessage);
+            })
+          );
+        })
+      )
+      .subscribe({
+        next: (result: DocumentInfo | string) => {
+          this.counter++;
+          this.fileInputs.at(this.counter - 1).patchValue({ isLoading: false });
+
+          if (typeof result === 'string') {
+            this.resultArray.push({
+              isSuccess: false,
+              message: result,
+              name: this.fileInputs.at(this.counter - 1).get('name').value
+            });
+          } else {
+            this.resultArray.push({
+              isSuccess: true,
+              name: result.name,
+              message: this.translationService.getValue('DOCUMENT_SAVE_SUCCESSFULLY')
+            });
+          }
+
+          if (this.counter === this.fileInputs.length) {
+            // Hapus file yang sudah berhasil diunggah
+            for (let i = this.fileInputs.controls.length - 1; i >= 0; i--) {
+                this.fileInputs.removeAt(i);
+            }
+            this.loading = false;
+            if (this.fileInput) {
+                this.fileInput.nativeElement.value = '';
+            }
+          }
+        }
+      });
+  }
+
+  // Sisa kode di bawah ini tidak banyak berubah...
+  get fileInputs(): FormArray {
+    return (<FormArray>this.documentForm.get('files')) as FormArray;
+  }
+
+  get rolePermissionFormGroup() {
+    return this.documentForm.get('rolePermissionForm') as FormGroup;
+  }
+
+  get userPermissionFormGroup() {
+    return this.documentForm.get('userPermissionForm') as FormGroup;
+  }
+
+  get documentMetaTagsArray(): FormArray {
+    return <FormArray>this.documentForm.get('documentMetaTags');
   }
 
   onMetatagChange(event: any, index: number) {
@@ -235,7 +381,6 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
     }
   }
 
-  // Remove a file from the selected list
   removeFile(index: number): void {
     this.fileInputs.removeAt(index);
   }
@@ -257,74 +402,6 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
     });
   }
 
-  saveFilesAndDocument() {
-    if (this.documentForm.valid) {
-      this.loading = true;
-      this.counter = 0;
-      const concatObservable$ = [];
-      this.fileInputs.controls.map(
-        (control) => {
-          if (!control.get('isSuccess').value) {
-            const documentObj = this.buildDocumentObject();
-            documentObj.url = control.get('fileName').value;
-            documentObj.name = control.get('name').value;
-            documentObj.extension = control.get('extension').value;
-            documentObj.fileData = control.get('file').value;
-            concatObservable$.push(this.documentService.addDocument({ ...documentObj }));
-          }
-        });
-      if (concatObservable$.length === 0) {
-        return;
-      }
-      this.resultArray = [];
-      from(concatObservable$)
-        .pipe(
-          concatMap((obs, index) => {
-            this.fileInputs.at(index).patchValue({
-              isLoading: true
-            })
-            return obs.pipe(
-              catchError(err => {
-                return of(`${typeof (err.messages[0]) == 'string' ? err.messages[0] : err.friendlyMessage}`);
-              })
-            )
-          })
-        )
-        .subscribe({
-          next: (document: DocumentInfo | string) => {
-            this.counter++;
-            this.fileInputs.at(this.counter - 1).patchValue({
-              isLoading: false
-            });
-            if (typeof document === 'string') {
-              this.resultArray.push({
-                isSuccess: false,
-                message: document,
-                name: this.fileInputs.at(this.counter - 1).get('name').value
-              })
-            } else {
-              this.addDocumentTrail(document.id);
-              this.resultArray.push({
-                isSuccess: true,
-                name: this.fileInputs.at(this.counter - 1).get('name').value,
-                message: this.translationService.getValue('DOCUMENT_SAVE_SUCCESSFULLY')
-              });
-            }
-            if (this.counter === this.fileInputs.length) {
-              while (this.fileInputs.controls.length) {
-                this.fileInputs.removeAt(0);
-              }
-              this.loading = false;
-              this.fileInput.nativeElement.value = '';
-            }
-          }
-        });
-    } else {
-      this.markFormGroupTouched(this.documentForm);
-      return;
-    }
-  }
-
   addDocumentTrail(id: string) {
     const objDocumentAuditTrail: DocumentAuditTrail = {
       documentId: id,
@@ -338,7 +415,6 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
   }
 
   buildDocumentObject(): DocumentInfo {
-    const files = this.fileInputs.getRawValue();
     const documentMetaTags = this.documentMetaTagsArray.getRawValue();
     const document: DocumentInfo = {
       categoryId: this.documentForm.get('categoryId').value ?? '',
@@ -410,5 +486,4 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
       this.userPermissionFormGroup.get('endDate').updateValueAndValidity();
     }
   }
-
 }
