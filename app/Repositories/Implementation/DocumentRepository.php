@@ -54,28 +54,28 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     {
 
         $query = Documents::select([
-    'documents.id',
-    'documents.name',
-    'documents.url',
-    'documents.createdDate',
-    'documents.description',
-    'documents.location',
-    'documents.clientId',
-    'documents.statusId',
-    'documents.isIndexed',
-    'categories.id as categoryId',
-    'categories.name as categoryName',
-    'clients.companyName as companyName',
-    'documentStatus.name as statusName',
-    'documentStatus.colorCode as colorCode',
-    'documents.documentWorkflowId',
-    'workflows.name as workflowName',
-    'documentWorkflow.status as documentWorkflowStatus',
-    DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
-    DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
-    DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
-    DB::raw('(SELECT COUNT(*) FROM documentComments WHERE documentComments.documentId = documents.id) as commentCount'),
-    DB::raw('(SELECT COUNT(*) FROM documentVersions WHERE documentVersions.documentId = documents.id) as versionCount')
+        'documents.id',
+        'documents.name',
+        'documents.url',
+        'documents.createdDate',
+        'documents.description',
+        'documents.location',
+        'documents.clientId',
+        'documents.statusId',
+        'documents.isIndexed',
+        'categories.id as categoryId',
+        'categories.name as categoryName',
+        'clients.companyName as companyName',
+        'documentStatus.name as statusName',
+        'documentStatus.colorCode as colorCode',
+        'documents.documentWorkflowId',
+        'workflows.name as workflowName',
+        'documentWorkflow.status as documentWorkflowStatus',
+        DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
+        DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
+        DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
+        DB::raw('(SELECT COUNT(*) FROM documentComments WHERE documentComments.documentId = documents.id) as commentCount'),
+        DB::raw('(SELECT COUNT(*) FROM documentVersions WHERE documentVersions.documentId = documents.id) as versionCount')
 
         ])->join('categories', 'documents.categoryId', '=', 'categories.id')
             ->join('users', 'documents.createdBy', '=', 'users.id')
@@ -257,6 +257,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
     public function saveDocument($request, $path, $fileSize)
     {
+        // dd($request->all());
         try {
             $isIndexed = $fileSize < 3000000;
             DB::beginTransaction();
