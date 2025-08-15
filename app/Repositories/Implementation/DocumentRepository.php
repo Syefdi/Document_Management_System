@@ -362,13 +362,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             }
 
 
-            $rolePermissions = array_unique($rolePermissionsArray, SORT_REGULAR);
-            foreach ($rolePermissions as $rolePermission) {
-                UserNotifications::create([
-                    'documentId' => $result->id,
-                    'userId' => $rolePermission['userId']
-                ]);
-            }
+            
 
             $userId = Auth::parseToken()->getPayload()->get('userId');
 

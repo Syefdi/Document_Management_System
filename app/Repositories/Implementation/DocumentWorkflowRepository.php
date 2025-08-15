@@ -230,7 +230,7 @@ class DocumentWorkflowRepository extends BaseRepository implements DocumentWorkf
             ]);
 
             // Send notifications if the current step is "Approved"
-            if ($nextStep && strtolower($nextStep->name) === 'approved') {
+            if ($documentWorkflow && strtolower($documentWorkflow->status) === 'completed') {
                 $this->sendApprovalNotifications($documentWorkflow->documentId);
             }
 
