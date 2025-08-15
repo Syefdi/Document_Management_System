@@ -13,7 +13,7 @@ import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { SecurityService } from '@core/security/security.service';
-import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
+// import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -23,14 +23,14 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   constructor(
     private router: Router,
     private toastrService: ToastrService,
-    private securityService: SecurityService,
-    private licenseValidatorService: LicenseValidatorService // Assuming this is the correct service for license validation
+    private securityService: SecurityService
+    // private licenseValidatorService: LicenseValidatorService // Assuming this is the correct service for license validation
   ) { }
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const token = this.licenseValidatorService.getBearerToken();
+    const token = localStorage.getItem('bearerToken');
     const baseUrl = environment.apiUrl;
     if (req.url.lastIndexOf('i18n') > -1) {
       return next.handle(req);

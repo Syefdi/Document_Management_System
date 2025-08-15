@@ -15,7 +15,7 @@ import { initializeApp } from './security/initialize-app-factory';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ToastrService } from 'ngx-toastr';
 import { SecurityService } from './security/security.service';
-import { LicenseInitializerService } from '@mlglobtech/license-validator-docphp';
+// import { LicenseInitializerService } from '@mlglobtech/license-validator-docphp';
 
 @NgModule({
   declarations: [CommonDialogComponent, CommonDialogCommentComponent],
@@ -32,15 +32,15 @@ import { LicenseInitializerService } from '@mlglobtech/license-validator-docphp'
   ],
   providers: [
     CommonDialogService,
-    LicenseInitializerService,
+    // LicenseInitializerService,
     JwtHelperService,
     ToastrService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeApp,
-      deps: [LicenseInitializerService, ToastrService, SecurityService, JwtHelperService],
-      multi: true,
-    },
+    // {
+    //   provide: APP_INITIALIZER,
+    //   useFactory: initializeApp,
+    //   deps: [LicenseInitializerService, ToastrService, SecurityService, JwtHelperService],
+    //   multi: true,
+    // },
   ],
 })
 export class CoreModule { }

@@ -10,7 +10,8 @@ import { ClonerService } from '@core/services/clone.service';
 import { environment } from '@environments/environment';
 import { CompanyProfile } from '@core/domain-classes/company-profile';
 import { User } from '@core/domain-classes/user';
-import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
+import { JwtHelperService } from '@auth0/angular-jwt';
+// import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
 
 @Injectable({ providedIn: 'root' })
 export class SecurityService {
@@ -35,7 +36,20 @@ export class SecurityService {
     if (this._token) {
       return this._token;
     }
-    this._token = this.licenseValidatorService.getJWtToken();
+    const tokenStr = localStorage.getItem('bearerToken');
+    if (tokenStr && !this.jwtHelper.isTokenExpired(tokenStr)) {
+      try {
+        const decodedToken = this.jwtHelper.decodeToken(tokenStr);
+        this._token = {
+          email: decodedToken.email,
+          userId: decodedToken.userId,
+          claims: decodedToken.claims || [],
+          iat: decodedToken.iat
+        };
+      } catch (e) {
+        this._token = null;
+      }
+    }
     return this._token;
   }
 
@@ -52,13 +66,14 @@ export class SecurityService {
     private clonerService: ClonerService,
     private commonHttpErrorService: CommonHttpErrorService,
     private router: Router,
-    private licenseValidatorService: LicenseValidatorService
+    private jwtHelper: JwtHelperService
+    // private licenseValidatorService: LicenseValidatorService
   ) { }
 
   isLogin(): boolean {
-    const authStr = this.licenseValidatorService.getAuthObject();
-    const tokenStr = this.licenseValidatorService.getBearerToken();
-    if (authStr && tokenStr) {
+    const authStr = localStorage.getItem('authObj');
+    const tokenStr = localStorage.getItem('bearerToken');
+    if (authStr && tokenStr && !this.jwtHelper.isTokenExpired(tokenStr)) {
       setTimeout(() => {
         this.refreshToken();
       }, 1000);
@@ -76,10 +91,12 @@ export class SecurityService {
         tap((resp) => {
           this.tokenTime = new Date();
           const authUser = this.clonerService.deepClone<UserAuth>(resp);
-          this.licenseValidatorService.setTokenUserValue(authUser);
-          resp.isAuthenticated = this.licenseValidatorService.getAuthObject() != null;
-          // localStorage.setItem('authObj', JSON.stringify(authUser.user));
-          // localStorage.setItem('bearerToken', authUser.authorisation.token);
+          localStorage.setItem('authObj', JSON.stringify(authUser.user));
+          localStorage.setItem('bearerToken', authUser.authorisation.token);
+          resp.isAuthenticated = localStorage.getItem('authObj') != null;
+          // Clear cached token to force refresh from storage
+          this._token = null;
+          this._claims = null;
           this.securityObject$.next(authUser.user);
           this.refreshToken();
         })
@@ -111,7 +128,11 @@ export class SecurityService {
           }
           this.tokenTime = new Date();
           const authUser = this.clonerService.deepClone<UserAuth>(userAuth);
-          this.licenseValidatorService.setTokenUserValue(authUser);
+          localStorage.setItem('authObj', JSON.stringify(authUser.user));
+          localStorage.setItem('bearerToken', authUser.authorisation.token);
+          // Clear cached token to force refresh from storage
+          this._token = null;
+          this._claims = null;
           this.securityObject$.next(authUser.user);
           this.refreshToken();
         });
@@ -128,9 +149,11 @@ export class SecurityService {
       .pipe(
         tap((resp) => {
           const authUser = this.clonerService.deepClone<UserAuth>(resp);
-          this.licenseValidatorService.setTokenUserValue(authUser);
-          // localStorage.setItem('authObj', JSON.stringify(authUser.user));
-          // localStorage.setItem('bearerToken', authUser.authorisation.token);
+          localStorage.setItem('authObj', JSON.stringify(authUser.user));
+          localStorage.setItem('bearerToken', authUser.authorisation.token);
+          // Clear cached token to force refresh from storage
+          this._token = null;
+          this._claims = null;
           this.securityObject$.next(authUser.user);
           this.isRefreshingToken = false;
         }, () => { }, () => {
@@ -158,8 +181,8 @@ export class SecurityService {
   }
 
   resetSecurityObject(): void {
-    localStorage.removeItem(this.licenseValidatorService.keyValues.authObj);
-    localStorage.removeItem(this.licenseValidatorService.keyValues.bearerToken);
+    localStorage.removeItem('authObj');
+    localStorage.removeItem('bearerToken');
     this.securityObject$.next(null);
     this._token = null;
     this._claims = null;
@@ -209,15 +232,12 @@ export class SecurityService {
   }
 
   getUserDetail(): User {
-    const userJson = this.licenseValidatorService.getAuthObject();
-    return userJson;
+    const userJson = localStorage.getItem('authObj');
+    return userJson ? JSON.parse(userJson) : null;
   }
 
   setUserDetail(user: User) {
-    this.licenseValidatorService.setTokenUserValue({
-      user: this.clonerService.deepClone<User>(user)
-    });
-    // localStorage.setItem('authObj', JSON.stringify(user));
+    localStorage.setItem('authObj', JSON.stringify(user));
   }
 }
 
