@@ -60,11 +60,12 @@ export class MyWorkflowComponent extends BaseComponent implements OnInit {
 
   performTransition(transition: WorkflowTransition, workflowInstance: MyWorkflow): void {
     this.commonDialogService
-      .deleteConfirmWithCommentDialog(
-        `${this.translationService.getValue(
-          'ARE_YOU_SURE_YOU_WANT_TO_PROCEED_WITH_THIS_WORKFLOW_TRANSITION'
-        )}:: ${transition.name} ?`
+     .deleteConfirmWithCommentDialog(
+        `${this.translationService.getValue('ARE_YOU_SURE_YOU_WANT_TO_PROCEED_WITH_THIS_WORKFLOW_TRANSITION')}`,
+        '', // note kosong atau isi sesuai kebutuhan
+        workflowInstance.documentWorkflowId
       )
+      
       .subscribe((commentFlag) => {
         if (commentFlag.flag) {
           const nextTransition: NextTransition = {

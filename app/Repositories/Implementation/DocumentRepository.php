@@ -53,29 +53,30 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     public function getDocuments($attributes)
     {
 
-        $query = Documents::select([
-    'documents.id',
-    'documents.name',
-    'documents.url',
-    'documents.createdDate',
-    'documents.description',
-    'documents.location',
-    'documents.clientId',
-    'documents.statusId',
-    'documents.isIndexed',
-    'categories.id as categoryId',
-    'categories.name as categoryName',
-    'clients.companyName as companyName',
-    'documentStatus.name as statusName',
-    'documentStatus.colorCode as colorCode',
-    'documents.documentWorkflowId',
-    'workflows.name as workflowName',
-    'documentWorkflow.status as documentWorkflowStatus',
-    DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
-    DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
-    DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
-    DB::raw('(SELECT COUNT(*) FROM documentComments WHERE documentComments.documentId = documents.id) as commentCount'),
-    DB::raw('(SELECT COUNT(*) FROM documentVersions WHERE documentVersions.documentId = documents.id) as versionCount')
+        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions', 'documentWorkflow'])->select([
+        'documents.id',
+        'documents.name',
+        'documents.url',
+        'documents.createdDate',
+        'documents.description',
+        'documents.location',
+        'documents.clientId',
+        'documents.statusId',
+        'documents.isIndexed',
+        'documents.createdBy',
+        'categories.id as categoryId',
+        'categories.name as categoryName',
+        'clients.companyName as companyName',
+        'documentStatus.name as statusName',
+        'documentStatus.colorCode as colorCode',
+        'documents.documentWorkflowId',
+        'workflows.name as workflowName',
+        'documentWorkflow.status as documentWorkflowStatus',
+        DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
+        DB::raw('IF(documentWorkflow.status = "Completed" OR documentWorkflow.status = "Cancelled", true, false) as isWorkflowCompleted'),
+        DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
+        DB::raw('(SELECT COUNT(*) FROM documentComments WHERE documentComments.documentId = documents.id) as commentCount'),
+        DB::raw('(SELECT COUNT(*) FROM documentVersions WHERE documentVersions.documentId = documents.id) as versionCount')
 
         ])->join('categories', 'documents.categoryId', '=', 'categories.id')
             ->join('users', 'documents.createdBy', '=', 'users.id')
@@ -257,6 +258,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
     public function saveDocument($request, $path, $fileSize)
     {
+        // dd($request->all());
         try {
             $isIndexed = $fileSize < 3000000;
             DB::beginTransaction();
@@ -361,13 +363,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             }
 
 
-            $rolePermissions = array_unique($rolePermissionsArray, SORT_REGULAR);
-            foreach ($rolePermissions as $rolePermission) {
-                UserNotifications::create([
-                    'documentId' => $result->id,
-                    'userId' => $rolePermission['userId']
-                ]);
-            }
+            
 
             $userId = Auth::parseToken()->getPayload()->get('userId');
 
@@ -461,10 +457,11 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         $userRoles = UserRoles::select('roleId')
             ->where('userId', $userId)
             ->get();
-        $query = Documents::select([
+        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions', 'documentWorkflow'])->select([
             'documents.id',
             'documents.name',
             'documents.url',
+            'documents.createdBy',
             'documents.createdDate',
             'documents.description',
             'documents.isIndexed',

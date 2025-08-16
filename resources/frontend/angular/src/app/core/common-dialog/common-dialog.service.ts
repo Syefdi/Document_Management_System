@@ -39,10 +39,16 @@ export class CommonDialogService {
     return dialogRef.afterClosed();
   }
 
-  deleteConfirmWithCommentDialog(message: string, note: string = ''): Observable<{ comment?: string, flag: boolean }> {
-    const dialogRef = this.dialog.open(CommonDialogCommentComponent, this.dialogConfig);
+  deleteConfirmWithCommentDialog(message: string, note: string = '', documentWorkflowId?: string): Observable<{ comment?: string, flag: boolean }> {
+    const dialogRef = this.dialog.open(CommonDialogCommentComponent, {
+      ...this.dialogConfig,
+      data: { documentWorkflowId }   // <-- kirim ID di sini
+    });
+
     dialogRef.componentInstance.primaryMessage = message;
     dialogRef.componentInstance.note = note;
+
     return dialogRef.afterClosed();
   }
+
 }

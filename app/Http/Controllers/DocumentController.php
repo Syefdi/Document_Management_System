@@ -315,6 +315,7 @@ class DocumentController extends Controller
     public function assignedDocuments(Request $request)
     {
         $queryString = (object) $request->all();
+        // dd($queryString);
 
         $count = $this->documentRepository->assignedDocumentsCount($queryString);
         return response()->json($this->documentRepository->assignedDocuments($queryString))

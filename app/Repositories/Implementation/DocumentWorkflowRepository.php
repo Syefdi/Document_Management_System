@@ -2,8 +2,12 @@
 
 namespace App\Repositories\Implementation;
 
+use App\Models\DocumentRolePermissions;
 use App\Models\Documents;
+use App\Models\DocumentUserPermissions;
 use App\Models\DocumentWorkflow;
+use App\Models\UserNotifications;
+use App\Models\UserRoles;
 use App\Models\Workflow;
 use App\Models\WorkflowLog;
 use App\Models\WorkflowStep;
@@ -182,7 +186,6 @@ class DocumentWorkflowRepository extends BaseRepository implements DocumentWorkf
 
     public function performNextTransition($request)
     {
-
         try {
             DB::beginTransaction();
 
@@ -206,6 +209,9 @@ class DocumentWorkflowRepository extends BaseRepository implements DocumentWorkf
                 return response()->json(['Message' => 'Invalid transition for the current step.'], 422);
             }
 
+            // Get the next step to check if it's "Approved"
+            $nextStep = WorkflowStep::find($transition->toStepId);
+
             // Update the document workflow with the new step
             $documentWorkflow->currentStepId = $transition->toStepId;
 
@@ -213,7 +219,7 @@ class DocumentWorkflowRepository extends BaseRepository implements DocumentWorkf
                 ->where('fromStepId', $transition->toStepId)
                 ->first();
 
-            $documentWorkflow->status = $nextTransation ?  'InProgress' : 'Completed'; // Assuming status is updated based on the transition
+            $documentWorkflow->status = $nextTransation ? 'InProgress' : 'Completed';
             $documentWorkflow->save();
 
             // Log the transition
@@ -223,12 +229,88 @@ class DocumentWorkflowRepository extends BaseRepository implements DocumentWorkf
                 'comment' => $request->comment ?? ''
             ]);
 
+            // Send notifications if the current step is "Approved"
+            if ($documentWorkflow && strtolower($documentWorkflow->status) === 'completed') {
+                $this->sendApprovalNotifications($documentWorkflow->documentId);
+            }
+
             DB::commit();
 
             return response()->json(['message' => 'Transition performed successfully.'], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['Message' => 'Error in performing transition.' . $th->getMessage()], 409);
+        }
+    }
+
+    private function sendApprovalNotifications($documentId)
+    {
+        \Log::info("Starting notification process for document: {$documentId}");
+        
+        // Gunakan transaction terpisah untuk notifikasi
+        try {
+            DB::beginTransaction();
+            
+            $userIds = [];
+
+            // Get users from document role permissions
+            $documentRolePermissions = DocumentRolePermissions::where('documentId', $documentId)->get();
+            \Log::info("Found role permissions: " . $documentRolePermissions->count());
+            
+            foreach ($documentRolePermissions as $rolePermission) {
+                $roleUserIds = UserRoles::where('roleId', $rolePermission->roleId)
+                    ->pluck('userId')
+                    ->toArray();
+                
+                \Log::info("Role {$rolePermission->roleId} has users: " . implode(',', $roleUserIds));
+                $userIds = array_merge($userIds, $roleUserIds);
+            }
+
+            // Get users from document user permissions
+            $documentUserPermissions = DocumentUserPermissions::where('documentId', $documentId)
+                ->pluck('userId')
+                ->toArray();
+            
+            \Log::info("Direct user permissions: " . implode(',', $documentUserPermissions));
+            $userIds = array_merge($userIds, $documentUserPermissions);
+
+            \Log::info("All user IDs before deduplication: " . implode(',', $userIds));
+            
+            // Remove duplicates
+            $uniqueUserIds = array_unique($userIds);
+            \Log::info("Unique user IDs: " . implode(',', $uniqueUserIds));
+            \Log::info("Total users to notify: " . count($uniqueUserIds));
+
+            $document = Documents::find($documentId);
+            $documentName = $document ? $document->name : 'Document';
+            
+            // Send notification to each unique user
+            $successCount = 0;
+            foreach ($uniqueUserIds as $userId) {
+                try {
+                    $notification = UserNotifications::create([
+                        'documentId' => $documentId,
+                        'message' => "Document '{$documentName}' has been approved and is now available for you.",
+                        'userId' => $userId,
+                        'isRead' => false,
+                        'createdDate' => now()
+                    ]);
+                    
+                    \Log::info("Notification created for user {$userId} with ID: {$notification->id}");
+                    $successCount++;
+                    
+                } catch (\Exception $e) {
+                    \Log::error("Failed to create notification for user {$userId}: " . $e->getMessage());
+                }
+            }
+            
+            // COMMIT transaction notifikasi
+            DB::commit();
+            \Log::info("All notifications committed successfully. Total: {$successCount}");
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Error in notification transaction: " . $e->getMessage());
         }
     }
 
