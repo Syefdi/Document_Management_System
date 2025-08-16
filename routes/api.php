@@ -66,6 +66,11 @@ Route::get('/companyprofile', [CompanyProfileController::class, 'getCompanyProfi
 
 Route::middleware(['auth'])->group(function () {
     //common dropdowns
+    // Tambahkan routes ini untuk debugging
+    Route::get('/debug/index-content', [DocumentController::class, 'debugIndexContent']);
+    Route::get('/debug/reindex/{documentId}', [DocumentController::class, 'forceReindexDocument']);
+    Route::post('/debug/populate-index', [DocumentController::class, 'manuallyPopulateIndex']);
+    
     Route::get('/clients', [ClientController::class, 'index']);
     Route::get('/document-status', [DocumentStatusController::class, 'index']);
     Route::get('/aIPromptTemplate', [AIPromptTemplateController::class, 'index']);

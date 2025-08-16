@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use App\Repositories\Implementation\BaseRepository;
 use App\Repositories\Contracts\DocumentRepositoryInterface;
 use App\Services\DocumentIndexer;
+use Illuminate\Support\Facades\Log;
 
 //use Your Model
 
@@ -218,14 +219,47 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         return $count;
     }
 
+   // Tambahkan methods ini di controller Anda
+
+    public function debugIndexStats()
+    {
+        $indexer = app(DocumentIndexer::class);
+        $stats = $indexer->getIndexStats();
+        
+        return response()->json([
+            'index_stats' => $stats,
+            'sample_search' => $indexer->search('test', 5)
+        ]);
+    }
+
+    public function reindexDocuments()
+    {
+        $indexer = app(DocumentIndexer::class);
+        $result = $indexer->reindexAllDocuments();
+        
+        return response()->json([
+            'success' => $result,
+            'message' => $result ? 'Documents reindexed successfully' : 'Failed to reindex documents'
+        ]);
+    }
+
+    // Modifikasi method getDeepSearchDocuments untuk debugging
     public function getDeepSearchDocuments($attributes)
     {
+        Log::info('Deep search query: ' . $attributes->searchQuery);
+        
         $results = $this->indexer->search($attributes->searchQuery, 10);
-        $documentIds = $results['ids'];
+        
+        Log::info('Search results from indexer: ' . json_encode($results));
+        
+        $documentIds = $results['ids'] ?? [];
 
-        if (!isset($results['ids']) || empty($results['ids'])) {
+        if (empty($documentIds)) {
+            Log::warning('No document IDs found in search results');
             return [];
         }
+
+        Log::info('Found document IDs: ' . implode(', ', $documentIds));
 
         $query = Documents::select([
             'documents.id',
@@ -252,6 +286,8 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         $query = $query->whereIn('documents.id', $documentIds);
 
         $results = $query->get();
+        
+        Log::info('Final query results count: ' . $results->count());
 
         return $results;
     }
