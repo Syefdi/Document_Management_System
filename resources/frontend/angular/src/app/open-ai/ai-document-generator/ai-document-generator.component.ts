@@ -20,7 +20,7 @@ import { OpenAiMsg } from '@core/domain-classes/open-ai-msg';
 import { OpenAIStreamService } from '../openai-stream.service';
 import { marked } from 'marked';
 import { environment } from '@environments/environment';
-import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
+
 
 @Component({
   selector: 'app-ai-document-generator',
@@ -53,7 +53,7 @@ export class AiDocumentGeneratorComponent {
   base64String: string | undefined;
   dialog = inject(MatDialog);
   openAIStreamService = inject(OpenAIStreamService);
-  licenseValidatorService = inject(LicenseValidatorService);
+
   isLoading = false;
   buffer = '';
 
@@ -81,7 +81,7 @@ export class AiDocumentGeneratorComponent {
   generateAiDocument($event: OpenAiMsg): void {
     this.buffer = '';
     this.isLoading = true;
-    const bearerToken = this.licenseValidatorService.getBearerToken();
+    const bearerToken = localStorage.getItem('bearerToken');
     fetch(`${environment.apiUrl}api/stream-document`, {
       method: 'POST',
       headers: {

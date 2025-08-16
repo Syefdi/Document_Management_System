@@ -28,7 +28,7 @@
     "@auth0/angular-jwt": "^5.2.0",
     "@ckeditor/ckeditor5-angular": "^8.0.0",
     "@ckeditor/ckeditor5-build-classic": "^43.0.0",
-    "@mlglobtech/license-validator-docphp": "^1.0.0",
+
     "@ng-select/ng-select": "^13.7.0",
     "@ngrx/data": "^18.0.2",
     "@ngrx/effects": "^18.0.2",

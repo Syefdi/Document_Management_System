@@ -13,7 +13,7 @@ import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { SecurityService } from '@core/security/security.service';
-// import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
+
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -24,7 +24,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     private router: Router,
     private toastrService: ToastrService,
     private securityService: SecurityService
-    // private licenseValidatorService: LicenseValidatorService // Assuming this is the correct service for license validation
+
   ) { }
   intercept(
     req: HttpRequest<any>,
