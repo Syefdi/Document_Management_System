@@ -46,6 +46,7 @@ export class DocumentService {
     formData.append('location', document.location ?? 'local');
     formData.append('statusId', document.statusId);
     formData.append('clientId', document.clientId);
+    formData.append('workflowId', document.workflowId ?? '');
     // formData.append('isAllowDownload', document.isAllowDownload.toString());
     formData.append(
       'documentMetaDatas',

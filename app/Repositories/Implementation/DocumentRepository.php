@@ -258,7 +258,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
     public function saveDocument($request, $path, $fileSize)
     {
-        // dd($request->all());
+        // dd($request->workflowId);
         try {
             $isIndexed = $fileSize < 3000000;
             DB::beginTransaction();
@@ -363,8 +363,6 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             }
 
 
-            
-
             $userId = Auth::parseToken()->getPayload()->get('userId');
 
             $array = array_filter($documentUserPermissions, function ($item) use ($userId) {
@@ -401,6 +399,14 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
                     $model->documentWorkflowId = $docWorkflowInstance->id;
                     $model->save();
                 }
+            }
+        } else {
+            $rolePermissions = array_unique($rolePermissionsArray, SORT_REGULAR);
+            foreach ($rolePermissions as $rolePermission) {
+                UserNotifications::create([
+                    'documentId' => $result->id,
+                    'userId' => $rolePermission['userId']
+                ]);
             }
         }
 
