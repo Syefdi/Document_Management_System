@@ -245,44 +245,38 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
       );
   }
 
-  getDocumentStatus(document: DocumentInfo): string {
-    document.documentUserPermissions.forEach(p => {
-      console.log('userId:', p.userId, 'createdBy:', document.createdBy, 'equal?', 
-        p.userId?.toString().trim().toLowerCase() === document.createdBy?.toString().trim().toLowerCase());
-    });
-    const createdById = document.createdBy; // string UUID
-    const userPermissions = document.documentUserPermissions.filter(
-      p => p.userId !== createdById
-    );
-    const hasUser = userPermissions.length > 0;
-    const hasRole = Array.isArray(document.documentRolePermissions) && document.documentRolePermissions.length > 0;
-    const workflow = document.documentWorkflow;
-    
-
-    const hasPermission = hasUser || hasRole;
-    // ✅ Draft: tidak ada workflow DAN tidak ada permission user/role
-    if (!workflow && !hasPermission) {
-      return 'Draft';
+  getDocumentStatus(document: DocumentInfo): { text: string, color: string } {
+      const createdById = document.createdBy; // string UUID
+      const userPermissions = (document.documentUserPermissions || []).filter(
+        p => p.userId !== createdById
+      );
+      const hasUser = userPermissions.length > 0;
+      const hasRole = Array.isArray(document.documentRolePermissions) && document.documentRolePermissions.length > 0;
+      const workflow = document.documentWorkflow;
+      const hasPermission = hasUser || hasRole;
+  
+      let statusText = 'Unknown';
+      let color = 'black';
+  
+      if (!workflow && !hasPermission) {
+        statusText = 'Draft';
+        color = 'gray';
+      } else if (workflow?.status === 'Completed') {
+        statusText = 'Completed';
+        color = 'green';
+      } else if (workflow?.status === 'Cancelled') {
+        statusText = 'Rejected';
+        color = 'red';
+      } else if (workflow) {
+        statusText = 'Progress';
+        color = 'blue';
+      } else if (!workflow && hasPermission) {
+        statusText = 'Completed';
+        color = 'green';
+      }
+  
+      return { text: statusText, color };
     }
-
-    // ✅ Completed: workflow status Completed atau Cancelled
-    if (workflow?.status === 'Completed' || workflow?.status === 'Cancelled') {
-      return 'Completed';
-    }
-
-    // ✅ Progress: ada workflow dan status bukan Completed/Cancelled
-    if (workflow) {
-      return 'Progress';
-    }
-
-    // ✅ Completed: tidak ada workflow tapi ada permission
-    if (!workflow && hasPermission) {
-      return 'Completed';
-    }
-
-    // Fallback (tidak seharusnya terjadi, tapi jaga-jaga)
-    return 'Unknown';
-  }
 
 
 
