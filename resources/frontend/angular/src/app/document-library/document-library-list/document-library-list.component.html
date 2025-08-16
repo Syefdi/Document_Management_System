@@ -224,8 +224,8 @@
                       <ng-container matColumnDef="statusName">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'STATUS' | translate}}</th>
                         <td mat-cell *matCellDef="let document">
-                          <span [ngStyle]="{'color': document?.colorCode}">
-                            {{ getDocumentStatus(document) | translate }}
+                          <span [style.color]="getDocumentStatus(document).color">
+                            {{ getDocumentStatus(document).text }}
                           </span>
                         </td>
                       </ng-container>
