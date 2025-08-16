@@ -68,7 +68,7 @@
                     <ng-option *ngIf="isS3Supported" [value]="'s3'">{{'S3' | translate}}</ng-option>
                   </ng-select>
                 </div>
-                <div class="col-md-3">
+                <!-- <div class="col-md-3">
                   <label class="form-label">{{ 'DOCUMENT_STATUS' | translate }}</label>
                   <ng-select formControlName="statusId" [searchable]="true"
                     placeholder="{{ 'NONE' | translate }}">
@@ -76,7 +76,7 @@
                       <span [ngStyle]="{'color': documentStatus?.colorCode}"> {{ documentStatus.name }} </span>
                     </ng-option>
                   </ng-select>
-                </div>
+                </div> -->
                 <div class="col-md-3">
                   <div class="form-group">
                     <label class="form-label">{{ 'CLIENT' | translate }}</label>
@@ -111,20 +111,11 @@
                     <ng-container *hasClaim="'ASSIGNED_DOCUMENTS_START_WORKFLOW'">
                         <div class="form-group">
                             <label class="form-label">Select Workflow (Optional)</label>
-                            <input type="text"
-                                class="form-control"
-                                placeholder="Type to search workflow..."
-                                aria-label="Workflow"
-                                matInput
-                                formControlName="workflowName"
-                                [matAutocomplete]="autoWorkflow">
-                            <mat-autocomplete #autoWorkflow="matAutocomplete"
-                                (optionSelected)="onWorkflowSelected($event.option.value)"
-                                [displayWith]="displayWorkflowName">
-                                @for (workflow of filteredWorkflows$ | async; track workflow.id) {
-                                    <mat-option [value]="workflow">{{ workflow.name }}</mat-option>
-                                }
-                            </mat-autocomplete>
+                            <ng-select formControlName="workflowId" placeholder="Select Workflow (Optional)" [searchable]="true" [clearable]="true">
+                              <ng-option *ngFor="let workflow of filteredWorkflows$ | async" [value]="workflow.id">
+                                {{ workflow.name }}
+                              </ng-option>
+                            </ng-select>
                         </div>
                     </ng-container>
                 </div>

@@ -11,6 +11,7 @@ export interface DocumentInfo {
   description?: string;
   createdDate?: Date;
   createdBy?: string;
+  users?: string;
   categoryId?: string;
   categoryName?: string;
   documentSource?: string;
@@ -41,6 +42,12 @@ export interface DocumentInfo {
   workflowStatus?: string;
   workflowId?:string;
   workflowName?:string;
+  colorCode?: string;
+  status?: string;
+
+
+  // Tambahan jika pakai computeStat
+  documentWorkflow?: { status: string };
 
 
 }

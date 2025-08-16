@@ -53,7 +53,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     public function getDocuments($attributes)
     {
 
-        $query = Documents::select([
+        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions', 'documentWorkflow'])->select([
         'documents.id',
         'documents.name',
         'documents.url',
@@ -63,6 +63,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         'documents.clientId',
         'documents.statusId',
         'documents.isIndexed',
+        'documents.createdBy',
         'categories.id as categoryId',
         'categories.name as categoryName',
         'clients.companyName as companyName',
@@ -456,10 +457,11 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         $userRoles = UserRoles::select('roleId')
             ->where('userId', $userId)
             ->get();
-        $query = Documents::select([
+        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions', 'documentWorkflow'])->select([
             'documents.id',
             'documents.name',
             'documents.url',
+            'documents.createdBy',
             'documents.createdDate',
             'documents.description',
             'documents.isIndexed',

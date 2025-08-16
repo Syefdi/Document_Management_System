@@ -198,6 +198,40 @@ export class DocumentListComponent
       : this.dataSource.data.forEach((row) => this.selection.select(row));
   }
 
+  getDocumentStatus(document: DocumentInfo): { text: string, color: string } {
+    const createdById = document.createdBy; // string UUID
+    const userPermissions = (document.documentUserPermissions || []).filter(
+      p => p.userId !== createdById
+    );
+    const hasUser = userPermissions.length > 0;
+    const hasRole = Array.isArray(document.documentRolePermissions) && document.documentRolePermissions.length > 0;
+    const workflow = document.documentWorkflow;
+    const hasPermission = hasUser || hasRole;
+
+    let statusText = 'Unknown';
+    let color = 'black';
+
+    if (!workflow && !hasPermission) {
+      statusText = 'Draft';
+      color = 'gray';
+    } else if (workflow?.status === 'Completed') {
+      statusText = 'Completed';
+      color = 'green';
+    } else if (workflow?.status === 'Cancelled') {
+      statusText = 'Rejected';
+      color = 'red';
+    } else if (workflow) {
+      statusText = 'Progress';
+      color = 'blue';
+    } else if (!workflow && hasPermission) {
+      statusText = 'Completed';
+      color = 'green';
+    }
+
+    return { text: statusText, color };
+  }
+
+
   onCategoryChange(filtervalue: string) {
     if (filtervalue) {
       this.documentResource.categoryId = filtervalue;
