@@ -30,8 +30,7 @@ class CompanyProfiles extends Model
         'isDeleted',
         'bannerUrl',
         'location',
-        'licenseKey',
-        'purchaseCode',
+
     ];
 
     protected $hidden = ['createdBy', 'modifiedBy', 'deletedBy', 'createdDate', 'modifiedDate', 'isDeleted', 'deleted_at'];

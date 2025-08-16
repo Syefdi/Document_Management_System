@@ -11,11 +11,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonDialogComponent } from './common-dialog/common-dialog.component';
 import { CommonDialogCommentComponent } from './common-dialog-comment/common-dialog-comment.component';
-import { initializeApp } from './security/initialize-app-factory';
+
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ToastrService } from 'ngx-toastr';
 import { SecurityService } from './security/security.service';
-// import { LicenseInitializerService } from '@mlglobtech/license-validator-docphp';
+
 
 @NgModule({
   declarations: [CommonDialogComponent, CommonDialogCommentComponent],
@@ -32,15 +32,10 @@ import { SecurityService } from './security/security.service';
   ],
   providers: [
     CommonDialogService,
-    // LicenseInitializerService,
+
     JwtHelperService,
     ToastrService,
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: initializeApp,
-    //   deps: [LicenseInitializerService, ToastrService, SecurityService, JwtHelperService],
-    //   multi: true,
-    // },
+
   ],
 })
 export class CoreModule { }

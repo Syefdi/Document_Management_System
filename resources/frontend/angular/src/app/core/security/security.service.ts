@@ -11,7 +11,7 @@ import { environment } from '@environments/environment';
 import { CompanyProfile } from '@core/domain-classes/company-profile';
 import { User } from '@core/domain-classes/user';
 import { JwtHelperService } from '@auth0/angular-jwt';
-// import { LicenseValidatorService } from '@mlglobtech/license-validator-docphp';
+
 
 @Injectable({ providedIn: 'root' })
 export class SecurityService {

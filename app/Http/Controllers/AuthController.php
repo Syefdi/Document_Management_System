@@ -75,8 +75,6 @@ class AuthController extends Controller
             'claims' => $userClaims,
             'email' => $user->email,
             'userId' => $user->id,
-            'licensekey' => $companyProfile->licenseKey ?? '',
-            'purchasecode' => $companyProfile->purchaseCode ?? '',
         ))->attempt($credentials);
 
         return response()->json([
@@ -132,8 +130,6 @@ class AuthController extends Controller
             'claims' => $userClaims,
             'email' => $user->email,
             'userId' => $user->id,
-            'licensekey' => $companyProfile->licenseKey ?? '',
-            'purchasecode' => $companyProfile->purchaseCode ?? '',
         ))->refresh($token);
 
         return response()->json([
