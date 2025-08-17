@@ -142,6 +142,7 @@ export class HeaderComponent implements OnInit {
     this.notificationService
       .getNotification()
       .subscribe((notifications: UserNotification[]) => {
+        // console.log('Notifications from API:', notifications);
         this.newNotificationCount = notifications.filter(
           (c) => !c.isRead
         ).length;
