@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AngularController;
+use App\Http\Controllers\DocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,13 @@ use App\Http\Controllers\AngularController;
 // Route::get('/', function () {
 //     return view('angular');
 // });
+    Route::get('/debug/index-content', [DocumentController::class, 'debugIndexContent']);
+    Route::get('/debug/reindex/{documentId}', [DocumentController::class, 'forceReindexDocument']);
+    Route::post('/debug/populate-index', [DocumentController::class, 'manuallyPopulateIndex']);
+    Route::get('/debug/extractor/{documentId}', [DocumentController::class, 'debugFileExtractor']);
+Route::post('/debug/fix-paths', [DocumentController::class, 'fixDocumentPaths']);
+Route::get('/debug/test-reindex/{documentId}', [DocumentController::class, 'testReindexWithCorrectPath']);
+Route::post('/debug/reindex-all', [DocumentController::class, 'reindexAllDocuments']);
 
 Route::any('/{any}', [AngularController::class, 'index'])
     ->where('any', '^(?!api).*$')
