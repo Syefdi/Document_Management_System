@@ -50,7 +50,7 @@
         <textarea formControlName="description" class="form-control">
         </textarea>
       </div> 
-      <div class="col-md-6">
+      <!-- <div class="col-md-6">
         <label class="form-label">{{ 'DOCUMENT_STATUS' | translate }}</label>
         <ng-select formControlName="statusId" [searchable]="true"
           placeholder="{{ 'NONE' | translate }}">
@@ -58,7 +58,7 @@
             <span [ngStyle]="{'color': documentStatus?.colorCode}"> {{ documentStatus.name }} </span>
           </ng-option>
         </ng-select>
-      </div>                           
+      </div>                            -->
       <div class="col-sm-6">
         <div formArrayName="documentMetaTags"
           *ngFor="let documentmetatag of documentMetaTagsArray.controls; let i=index">
