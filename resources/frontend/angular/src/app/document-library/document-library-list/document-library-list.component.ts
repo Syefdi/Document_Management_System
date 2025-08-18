@@ -58,13 +58,13 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
   displayedColumns: string[] = [
     'action',
     'name',
+    'statusName',
     'categoryName',
     'createdDate',
     'workflowName',
     'workflowStatus',
     'location',
     'companyName',
-    'statusName',
     'expiredDate',
     'createdBy',
   ];
@@ -254,10 +254,10 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
       const hasRole = Array.isArray(document.documentRolePermissions) && document.documentRolePermissions.length > 0;
       const workflow = document.documentWorkflow;
       const hasPermission = hasUser || hasRole;
-  
+
       let statusText = 'Unknown';
       let color = 'black';
-  
+
       if (!workflow && !hasPermission) {
         statusText = 'Draft';
         color = 'gray';
@@ -274,7 +274,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
         statusText = 'Completed';
         color = 'green';
       }
-  
+
       return { text: statusText, color };
     }
 

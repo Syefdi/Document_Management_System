@@ -69,13 +69,13 @@ export class DocumentListComponent
     'select',
     'action',
     'name',
+    'statusName',
     'categoryName',
     'createdDate',
     'workflowName',
     'workflowStatus',
     'location',
     'companyName',
-    'statusName',
     'createdBy',
   ];
   footerToDisplayed = ['footer'];

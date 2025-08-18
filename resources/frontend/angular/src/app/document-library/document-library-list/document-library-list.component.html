@@ -195,7 +195,7 @@
                       </ng-container>
 
                       <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'NAME' | translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'DOCUMENT_NAME' | translate}} </th>
                         <td mat-cell *matCellDef="let document">
 
                           <ng-container *ngIf="isDocumentAccessible(document); else nonClickableName">
@@ -222,7 +222,7 @@
                         <td mat-cell *matCellDef="let document"> {{document?.companyName | translate}} </td>
                       </ng-container>
                       <ng-container matColumnDef="statusName">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'STATUS' | translate}}</th>
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'DOCUMENT_STATUS' | translate}}</th>
                         <td mat-cell *matCellDef="let document">
                           <span [style.color]="getDocumentStatus(document).color">
                             {{ getDocumentStatus(document).text }}
