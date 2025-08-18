@@ -193,23 +193,20 @@
                                 </span>
                           </td>
                       </ng-container>
-
-                      <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center"> {{'DOCUMENT_NAME' | translate}} </th>
-                        <td mat-cell *matCellDef="let document">
-
-                          <ng-container *ngIf="isDocumentAccessible(document); else nonClickableName">
-                            <a class="doc-link" (click)="onDocumentView(document)" style="cursor: pointer;">
-                              {{ document.name }}
-                            </a>
-                          </ng-container>
-
-                          <ng-template #nonClickableName>
-                            <span>{{ document.name }}</span>
-                          </ng-template>
+                        <ng-container matColumnDef="name">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'DOCUMENT_NAME' | translate}} </th>
+                          <td mat-cell *matCellDef="let document">
+                            <ng-container *ngIf="getDocumentStatus(document).text === 'Completed'; else plainTextName">
+                              <a class="doc-link" (click)="onDocumentView(document)" style="cursor: pointer;">
+                                {{document.name}}
+                              </a>
+                            </ng-container>
+                            <ng-template #plainTextName>
+                              <span>{{document.name}}</span>
+                            </ng-template>
                           </td>
-                      </ng-container>
-                      <ng-container matColumnDef="categoryName">
+                        </ng-container>
+                        <ng-container matColumnDef="categoryName">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'CATEGORY_NAME' | translate}} </th>
                         <td mat-cell *matCellDef="let document"> {{document.categoryName}} </td>
                       </ng-container>
