@@ -155,15 +155,15 @@ export const ROUTES: RouteInfo[] = [
     claims: ['DOCUMENT_CATEGORY_MANAGE_DOCUMENT_CATEGORY'],
     submenu: [],
   },
-  {
-    path: 'document-status',
-    title: 'DOCUMENT_STATUS',
-    icon: 'check',
-    class: '',
-    groupTitle: false,
-    submenu: [],
-    claims: ['MANAGE_DOCUMENT_STATUS']
-  },
+  // {
+  //   path: 'document-status',
+  //   title: 'DOCUMENT_STATUS',
+  //   icon: 'check',
+  //   class: '',
+  //   groupTitle: false,
+  //   submenu: [],
+  //   claims: ['MANAGE_DOCUMENT_STATUS']
+  // },
   {
     path: 'client',
     title: 'CLIENTS',
