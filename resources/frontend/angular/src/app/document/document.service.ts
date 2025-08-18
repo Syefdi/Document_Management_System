@@ -47,6 +47,7 @@ export class DocumentService {
     formData.append('statusId', document.statusId);
     formData.append('clientId', document.clientId);
     formData.append('workflowId', document.workflowId ?? '');
+    formData.append('workflowName', document.workflowName ?? '');
     // formData.append('isAllowDownload', document.isAllowDownload.toString());
     formData.append(
       'documentMetaDatas',

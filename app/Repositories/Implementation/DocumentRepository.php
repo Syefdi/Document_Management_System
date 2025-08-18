@@ -225,7 +225,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     {
         $indexer = app(DocumentIndexer::class);
         $stats = $indexer->getIndexStats();
-        
+
         return response()->json([
             'index_stats' => $stats,
             'sample_search' => $indexer->search('test', 5)
@@ -236,7 +236,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     {
         $indexer = app(DocumentIndexer::class);
         $result = $indexer->reindexAllDocuments();
-        
+
         return response()->json([
             'success' => $result,
             'message' => $result ? 'Documents reindexed successfully' : 'Failed to reindex documents'
@@ -247,11 +247,11 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     public function getDeepSearchDocuments($attributes)
     {
         Log::info('Deep search query: ' . $attributes->searchQuery);
-        
+
         $results = $this->indexer->search($attributes->searchQuery, 10);
-        
+
         Log::info('Search results from indexer: ' . json_encode($results));
-        
+
         $documentIds = $results['ids'] ?? [];
 
         if (empty($documentIds)) {
@@ -286,7 +286,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         $query = $query->whereIn('documents.id', $documentIds);
 
         $results = $query->get();
-        
+
         Log::info('Final query results count: ' . $results->count());
 
         return $results;
@@ -413,9 +413,9 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
                 ));
             }
 
-        if ($request->has('workflowId') && !empty($request->workflowId)) {
+        if ($request->has('workflowName') && !empty($request->workflowName)) {
             // 1. Cari definisi workflow yang dipilih
-            $workflowToStart = Workflow::with('workflowSteps')->find($request->workflowId);
+            $workflowToStart = Workflow::with('workflowSteps')->find($request->workflowName);
 
             if ($workflowToStart) {
                 // 2. Tentukan langkah pertama
@@ -425,9 +425,8 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
                     // 3. Buat instance workflow untuk dokumen ini
                     $docWorkflowInstance = DocumentWorkflow::create([
                         'documentId'    => $result->id,
-                        'workflowId'    => $workflowToStart->id,
+                        'workflowName'    => $workflowToStart->id,
                         'currentStepId' => $firstStep->id,
-                        'status'        => 'InProgress',
                         'createdBy'     => $userId // Menggunakan $userId yang sudah diambil sebelumnya
                     ]);
 

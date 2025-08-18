@@ -195,7 +195,7 @@
                       </ng-container>
 
                       <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'DOCUMENT_NAME' | translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center"> {{'DOCUMENT_NAME' | translate}} </th>
                         <td mat-cell *matCellDef="let document">
 
                           <ng-container *ngIf="isDocumentAccessible(document); else nonClickableName">
