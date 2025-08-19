@@ -102,10 +102,9 @@
                         <div class="col-md-3">
                             <ng-container *hasClaim="'ASSIGNED_DOCUMENTS_START_WORKFLOW'">
                                 <div class="form-group">
-                                    <label class="form-label">Select Workflow (Optional)</label>
+                                    <label class="form-label"> {{'START_WORKFLOW' | translate}} </label>
                                     <input type="text"
                                         class="form-control"
-                                        placeholder="Type to search workflow..."
                                         aria-label="Workflow"
                                         matInput
                                         formControlName="workflowName"

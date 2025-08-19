@@ -268,7 +268,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
         statusText = 'Rejected';
         color = 'red';
       } else if (workflow) {
-        statusText = 'Progress';
+        statusText = 'InProgress';
         color = 'blue';
       } else if (!workflow && hasPermission) {
         statusText = 'Completed';

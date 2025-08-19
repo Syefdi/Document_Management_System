@@ -135,7 +135,7 @@
                 <div class="col-md-3">
                     <ng-container *hasClaim="'ASSIGNED_DOCUMENTS_START_WORKFLOW'">
                         <div class="form-group">
-                            <label class="form-label">Select Workflow (Optional)</label>
+                            <label class="form-label">{{'START_WORKFLOW' | translate}}</label>
                             <ng-select formControlName="workflowId" placeholder="Select Workflow (Optional)" [searchable]="true" [clearable]="true">
                               <ng-option *ngFor="let workflow of filteredWorkflows$ | async" [value]="workflow.id">
                                 {{ workflow.name }}
