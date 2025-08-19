@@ -29,7 +29,7 @@ import { MatDialogConfigurationModule } from './mat-dialog-config.module';
 import { JwtModule } from '@auth0/angular-jwt';
 
 export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, `${environment.apiUrl}api/i18n/`);
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
 @NgModule({
