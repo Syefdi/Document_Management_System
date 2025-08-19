@@ -246,20 +246,20 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     // Modifikasi method getDeepSearchDocuments untuk debugging
     public function getDeepSearchDocuments($attributes)
     {
-        Log::info('Deep search query: ' . $attributes->searchQuery);
+        // Log::info('Deep search query: ' . $attributes->searchQuery);
 
         $results = $this->indexer->search($attributes->searchQuery, 10);
 
-        Log::info('Search results from indexer: ' . json_encode($results));
+        // Log::info('Search results from indexer: ' . json_encode($results));
 
         $documentIds = $results['ids'] ?? [];
 
         if (empty($documentIds)) {
-            Log::warning('No document IDs found in search results');
+            // Log::warning('No document IDs found in search results');
             return [];
         }
 
-        Log::info('Found document IDs: ' . implode(', ', $documentIds));
+        // Log::info('Found document IDs: ' . implode(', ', $documentIds));
 
         $query = Documents::select([
             'documents.id',
@@ -287,7 +287,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
         $results = $query->get();
 
-        Log::info('Final query results count: ' . $results->count());
+        // Log::info('Final query results count: ' . $results->count());
 
         return $results;
     }
