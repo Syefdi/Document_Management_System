@@ -140,4 +140,44 @@ class Documents extends Model
             $builder->where('documents.isPermanentDelete', '=', 0);
         });
     }
+
+    public function scopeWithStatus(Builder $query, string $status): Builder
+    {
+
+        if ($status === 'Draft') { //tanpa w/f, tanpa role permission, tanpa user permission(termasuk createdBy)
+            $createdById = auth()->id();
+
+            $query = $query->whereDoesntHave('documentWorkflow')
+                        ->where(function ($q) use ($createdById) {
+                            $q->whereDoesntHave('documentUserPermissions', function ($sub) use ($createdById) {
+                                $sub->where('userId', '!=', $createdById);
+                            });
+                        })
+                        ->whereDoesntHave('documentRolePermissions');
+
+        } elseif ($status === 'Completed (Shared)') { //tanpa w/f, tapi ada role permission dan user permission (selain createdBy)
+            return $query->whereDoesntHave('documentWorkflow')
+                        ->where(function($permissionQuery) {
+                            $permissionQuery->whereHas('documentUserPermissions', function ($q) {
+                                $q->whereColumn('userId', '!=', 'documents.createdBy');
+                            })
+                            ->orWhereHas('documentRolePermissions');
+                        });
+
+        } elseif ($status === 'Completed (Workflow)') { // ada w/f dan yang statusnya Completed
+            return $query->whereHas('documentWorkflow', fn($workflowQuery) => $workflowQuery->where('status', 'Completed'));
+
+
+
+        } elseif ($status === 'Rejected') { // ada w/f dan yang statusnya Cancelled
+            return $query->whereHas('documentWorkflow', fn($workflowQuery) => $workflowQuery->where('status', 'Cancelled'));
+
+        } elseif ($status === 'InProgress') { // ada w/f dan yang statusnya selain Completed & Cancelled
+            return $query->whereHas('documentWorkflow', function ($workflowQuery) {
+                $workflowQuery->where('status', '!=', 'Completed')->where('status', '!=', 'Cancelled');
+            });
+        }
+
+        return $query;
+    }
 }

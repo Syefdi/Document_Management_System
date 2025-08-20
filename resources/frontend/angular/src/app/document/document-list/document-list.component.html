@@ -68,13 +68,15 @@
                 </ng-select>
               </div>
               <div class="col-md-3">
-                <ng-select (change)="onDocumentStatusChange($event)" placeholder="{{'SELECT_STATUS' | translate}}">
-                  <ng-option *ngFor="let documentStatus of documentStatusStore.statusList()"
-                    [value]="documentStatus.id">
-                    <span [ngStyle]="{'color': documentStatus?.colorCode}"> {{
-                      documentStatus.name }} </span>
+                  <ng-select
+                    (change)="onDocumentStatusChange($event)"
+                    placeholder="{{'SELECT_DOCUMENT_STATUS' | translate}}"
+                    [clearable]="true">
+                  <ng-option *ngFor="let status of statusFilterOptions" [value]="status">
+                    <span> {{ status }} </span>
                   </ng-option>
                 </ng-select>
+
               </div>
             </div>
             <div class="row">

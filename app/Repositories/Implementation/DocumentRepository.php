@@ -106,6 +106,9 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             $query = $query->orderBy('documentStatus.name', $direction);
         }
 
+        if ($attributes->status) {
+            $query->withStatus($attributes->status);
+        }
 
         if ($attributes->categoryId) {
             $query = $query->where(function ($query) use ($attributes) {
@@ -590,6 +593,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             $query = $query->orderBy('clients.companyName', $direction);
         } else if ($orderBy == 'statusName') {
             $query = $query->orderBy('documentStatus.name', $direction);
+        }
+
+        if ($attributes->status) {
+            $query->withStatus($attributes->status);
         }
 
         if ($attributes->categoryId) {

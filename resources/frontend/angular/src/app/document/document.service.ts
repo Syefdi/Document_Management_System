@@ -109,6 +109,7 @@ export class DocumentService {
       .set('id', resource.id.toString())
       .set('location', resource.location)
       .set('clientId', resource.clientId)
+      .set('status', resource.status)
       .set('statusId', resource.statusId)
     return this.httpClient
       .get<DocumentInfo[]>(url, {

@@ -506,6 +506,7 @@
   "MANAGE_OPEN_AI_API_KEY": "Kelola Kunci API Open AI",
   "BULK_DOCUMENT_UPLOADS": "Unggahan Dokumen Massal",
   "SELECT_STATUS": "Pilih Status",
+  "SELECT_DOCUMENT_STATUS": "Pilih Status Dokumen",
   "COLOR_CODE": "Kode Warna",
   "ADD_DOCUMENT_STATUS": "Tambah Status Dokumen",
   "NO_HELP_TEXT_FOUND": "Teks Bantuan Tidak Ditemukan",

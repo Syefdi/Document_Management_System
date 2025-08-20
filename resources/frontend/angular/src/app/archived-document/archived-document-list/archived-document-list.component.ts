@@ -69,8 +69,18 @@ export class ArchivedDocumentListComponent
   selection = new SelectionModel<DocumentInfo>(true, []);
   max = new Date();
   direction: Direction;
-  documentStatusStore = inject(DocumentStatusStore);
+  // documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
+  filteredDocuments: DocumentInfo[] = [];
+  sourceDocuments: DocumentInfo[] = [];
+  currentStatusFilter = '';
+  statusFilterOptions: string[] = [
+    'Draft',
+    'InProgress',
+    'Rejected',
+    'Completed (Workflow)',
+    'Completed (Shared)'
+  ];
 
   constructor(
     private archiveDocumentService: ArchiveDocumentService,
@@ -149,6 +159,40 @@ export class ArchivedDocumentListComponent
       .subscribe();
   }
 
+    getDocumentStatus(document: DocumentInfo): { text: string, color: string } {
+      const createdById = document.createdBy; // string UUID
+      const userPermissions = (document.documentUserPermissions || []).filter(
+        p => p.userId !== createdById
+      );
+      const hasUser = userPermissions.length > 0;
+      const hasRole = Array.isArray(document.documentRolePermissions) && document.documentRolePermissions.length > 0;
+      const workflow = document.documentWorkflow;
+      const hasPermission = hasUser || hasRole;
+
+      let statusText = 'Unknown';
+      let color = 'black';
+
+      if (!workflow && !hasPermission) {
+        statusText = 'Draft';
+        color = 'gray';
+      } else if (workflow?.status === 'Completed') {
+        statusText = 'Completed';
+        color = 'green';
+      } else if (workflow?.status === 'Cancelled') {
+        statusText = 'Rejected';
+        color = 'red';
+      } else if (workflow) {
+        statusText = 'InProgress';
+        color = 'blue';
+      } else if (!workflow && hasPermission) {
+        statusText = 'Completed';
+        color = 'green';
+      }
+
+      return { text: statusText, color };
+    }
+  
+
   onCategoryChange(filtervalue: string) {
     if (filtervalue) {
       this.documentResource.categoryId = filtervalue;
@@ -171,16 +215,26 @@ export class ArchivedDocumentListComponent
     this.dataSource.loadDocuments(this.documentResource);
   }
 
-  onDocumentStatusChange(filtervalue: string) {
-    if (filtervalue) {
-      this.documentResource.statusId = filtervalue;
-    } else {
-      this.documentResource.statusId = '';
-    }
+  onDocumentStatusChange(selectedStatus: string): void {
+    this.documentResource.status = selectedStatus || null;
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
   }
+
+  applyFilter(filterValue: string): void {
+    if (filterValue) {
+      // Saring data asli (sourceDocuments) berdasarkan status
+      this.filteredDocuments = this.sourceDocuments.filter(doc => {
+        const status = this.getDocumentStatus(doc).text;
+        return status === filterValue;
+      });
+    } else {
+      // Jika filter kosong, tampilkan semua data dari halaman saat ini
+      this.filteredDocuments = [...this.sourceDocuments];
+    }
+  }
+
 
   getResourceParameter() {
     this.sub$.sink = this.dataSource.responseHeaderSubject$.subscribe(

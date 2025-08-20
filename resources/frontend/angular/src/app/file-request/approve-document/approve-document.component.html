@@ -50,14 +50,14 @@
           </ng-select>
         </div>
       </div>
-      <div class="col-md-4 mt-2">
+      <!-- <div class="col-md-4 mt-2">
         <label>{{ 'DOCUMENT_STATUS' | translate }}</label>
         <ng-select formControlName="statusId" [searchable]="true" placeholder="{{ 'NONE' | translate }}">
           <ng-option *ngFor="let documentStatus of documentStatusStore.statusList()" [value]="documentStatus.id">
             <span [ngStyle]="{'color': documentStatus?.colorCode}"> {{ documentStatus.name }} </span>
           </ng-option>
         </ng-select>
-      </div>
+      </div> -->
       <div class="col-md-4 mt-2">
         <div class="form-group">
           <label>{{ 'CLIENT' | translate }}</label>

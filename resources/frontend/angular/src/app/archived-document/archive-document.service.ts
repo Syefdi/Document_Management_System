@@ -34,6 +34,7 @@ export class ArchiveDocumentService {
       .set('metaTags', resource.metaTags)
       .set('id', resource.id.toString())
       .set('location', resource.location)
+      .set('status', resource.status)
       .set('statusId', resource.statusId)
     return this.httpClient
       .get<DocumentInfo[]>(url, {

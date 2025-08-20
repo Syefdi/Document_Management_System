@@ -50,16 +50,15 @@
                                     <ng-option [value]="'s3'">{{'S3' | translate}}</ng-option>
                                 </ng-select>
                             </div>
-                            <div class="col-md-3">
-                                <ng-select (change)="onDocumentStatusChange($event)"
-                                    placeholder="{{'SELECT_STATUS' | translate}}">
-                                    <ng-option *ngFor="let documentStatus of documentStatusStore.statusList()"
-                                        [value]="documentStatus.id">
-                                        <span [ngStyle]="{'color': documentStatus?.colorCode}"> {{
-                                            documentStatus.name }} </span>
-                                    </ng-option>
-                                </ng-select>
-                            </div>
+                          <div class="col-md-3">
+                            <ng-select (change)="onDocumentStatusChange($event)"
+                                      placeholder="{{'SELECT_STATUS' | translate}}"
+                                      [clearable]="true">
+                              <ng-option *ngFor="let status of statusFilterOptions" [value]="status">
+                                <span>{{ status }}</span>
+                              </ng-option>
+                            </ng-select>
+                          </div>
                         </div>
                     </div>
                     <div class="row">
@@ -108,11 +107,12 @@
                                             translate}} </td>
                                     </ng-container>
                                     <ng-container matColumnDef="statusName">
-                                        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'STATUS' | translate}}
-                                        </th>
-                                        <td mat-cell *matCellDef="let document"> <span
-                                                [ngStyle]="{'color': document?.colorCode}"> {{document?.statusName |
-                                                translate}} </span> </td>
+                                      <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'DOCUMENT_STATUS' | translate}}</th>
+                                      <td mat-cell *matCellDef="let document">
+                                        <span [style.color]="getDocumentStatus(document).color">
+                                          {{ getDocumentStatus(document).text }}
+                                        </span>
+                                      </td>
                                     </ng-container>
                                     <ng-container matColumnDef="deletedAt">
                                         <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'ARCHIVED_DATE' |

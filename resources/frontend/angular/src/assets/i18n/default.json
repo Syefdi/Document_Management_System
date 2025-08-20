@@ -506,6 +506,7 @@
   "MANAGE_OPEN_AI_API_KEY": "Manage Open AI API Key",
   "BULK_DOCUMENT_UPLOADS": "Bulk Document Uploads",
   "SELECT_STATUS": "Select Status",
+  "SELECT_DOCUMENT_STATUS": "Select Document Status",
   "COLOR_CODE": "Color Code",
   "ADD_DOCUMENT_STATUS": "Add Document Status",
   "NO_HELP_TEXT_FOUND": "No Help Text Found",

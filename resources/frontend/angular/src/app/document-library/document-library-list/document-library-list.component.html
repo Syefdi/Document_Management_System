@@ -68,11 +68,12 @@
                 </ng-select>
               </div>
               <div class="col-md-3">
-                <ng-select (change)="onDocumentStatusChange($event)" placeholder="{{'SELECT_STATUS' | translate}}">
-                  <ng-option *ngFor="let documentStatus of documentStatusStore.statusList()"
-                    [value]="documentStatus.id">
-                    <span [ngStyle]="{'color': documentStatus?.colorCode}"> {{
-                      documentStatus.name }} </span>
+                <ng-select
+                    (change)="onDocumentStatusChange($event)"
+                    placeholder="{{'SELECT_DOCUMENT_STATUS' | translate}}"
+                    [clearable]="true">
+                  <ng-option *ngFor="let status of statusFilterOptions" [value]="status">
+                    <span> {{ status }} </span>
                   </ng-option>
                 </ng-select>
               </div>
@@ -82,7 +83,7 @@
                 <div class="table-responsive">
                   <div class="grid-height-small">
                     <table mat-table [dataSource]="dataSource" class="w-100" matSort matSortActive="createdDate"
-                      matSortDirection="desc" matSortDisableClear>
+                    matSortDirection="desc" matSortDisableClear>
                       <ng-container matColumnDef="action">
                         <th mat-header-cell *matHeaderCellDef>{{'ACTION' | translate}} </th>
                         <td class="table-column-fix-100" mat-cell *matCellDef="let document">

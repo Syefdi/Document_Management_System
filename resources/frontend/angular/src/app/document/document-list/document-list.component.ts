@@ -89,8 +89,18 @@ export class DocumentListComponent
   max = new Date();
   direction: Direction;
   public clientStore = inject(ClientStore);
-  documentStatusStore = inject(DocumentStatusStore);
+  // documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
+  filteredDocuments: DocumentInfo[] = [];
+  sourceDocuments: DocumentInfo[] = [];
+  currentStatusFilter = '';
+  statusFilterOptions: string[] = [
+    'Draft',
+    'InProgress',
+    'Rejected',
+    'Completed (Workflow)',
+    'Completed (Shared)'
+  ];
 
   constructor(
     private documentService: DocumentService,
@@ -265,16 +275,26 @@ export class DocumentListComponent
     this.dataSource.loadDocuments(this.documentResource);
   }
 
-  onDocumentStatusChange(filterValue: string) {
-    if (filterValue) {
-      this.documentResource.statusId = filterValue;
-    } else {
-      this.documentResource.statusId = '';
-    }
+  onDocumentStatusChange(selectedStatus: string): void {
+    this.documentResource.status = selectedStatus || null;
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
   }
+
+  applyFilter(filterValue: string): void {
+    if (filterValue) {
+      // Saring data asli (sourceDocuments) berdasarkan status
+      this.filteredDocuments = this.sourceDocuments.filter(doc => {
+        const status = this.getDocumentStatus(doc).text;
+        return status === filterValue;
+      });
+    } else {
+      // Jika filter kosong, tampilkan semua data dari halaman saat ini
+      this.filteredDocuments = [...this.sourceDocuments];
+    }
+  }
+
 
   getResourceParameter() {
     this.sub$.sink = this.dataSource.responseHeaderSubject$.subscribe(

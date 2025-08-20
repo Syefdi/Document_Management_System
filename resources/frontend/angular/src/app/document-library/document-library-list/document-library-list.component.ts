@@ -76,9 +76,19 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
   @ViewChild('metatag') metatag: ElementRef;
   selection = new SelectionModel<DocumentInfo>(true, []);
   direction: Direction;
-  documentStatusStore = inject(DocumentStatusStore);
+  // documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
   public clientStore = inject(ClientStore);
+  filteredDocuments: DocumentInfo[] = [];
+  sourceDocuments: DocumentInfo[] = [];
+  currentStatusFilter = '';
+  statusFilterOptions: string[] = [
+    'Draft',
+    'InProgress',
+    'Rejected',
+    'Completed (Workflow)',
+    'Completed (Shared)'
+  ];
 
   constructor(
     private documentLibraryService: DocumentLibraryService,
@@ -102,6 +112,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.dataSource = new DocumentLibraryDataSource(
       this.documentLibraryService
     );
+
     this.dataSource.loadDocuments(this.documentResource);
     this.getResourceParameter();
     this.getLangDir();
@@ -207,15 +218,24 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.dataSource.loadDocuments(this.documentResource);
   }
 
-  onDocumentStatusChange(filterValue: string) {
-    if (filterValue) {
-      this.documentResource.statusId = filterValue;
-    } else {
-      this.documentResource.statusId = '';
-    }
+  onDocumentStatusChange(selectedStatus: string): void {
+    this.documentResource.status = selectedStatus || null;
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
+  }
+
+  applyFilter(filterValue: string): void {
+    if (filterValue) {
+      // Saring data asli (sourceDocuments) berdasarkan status
+      this.filteredDocuments = this.sourceDocuments.filter(doc => {
+        const status = this.getDocumentStatus(doc).text;
+        return status === filterValue;
+      });
+    } else {
+      // Jika filter kosong, tampilkan semua data dari halaman saat ini
+      this.filteredDocuments = [...this.sourceDocuments];
+    }
   }
 
   getResourceParameter() {

@@ -32,6 +32,7 @@ export class DocumentLibraryService {
       .set('location', resource.location)
       .set('id', resource.id.toString())
       .set('clientId', resource.clientId)
+      .set('status', resource.status)
       .set('statusId', resource.statusId)
     return this.httpClient
       .get<DocumentInfo[]>(url, {
