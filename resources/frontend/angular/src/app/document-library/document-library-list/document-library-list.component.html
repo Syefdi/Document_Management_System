@@ -92,7 +92,7 @@
                               <mat-icon>more_vert</mat-icon>
                             </button>
                             <mat-menu #menu="matMenu">
-                              <button class="btn btn-light btn-sm" mat-menu-item (click)="onDocumentView(document)"
+                              <button *ngIf="getDocumentStatus(document).text === 'Completed'" class="btn btn-light btn-sm" mat-menu-item (click)="onDocumentView(document)"
                                 type="button">
                                 <mat-icon>visibility</mat-icon>
                                 {{'VIEW' | translate}}
