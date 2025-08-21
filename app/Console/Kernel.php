@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('notification:quarterly')->daily();
         $schedule->command('notification:halfYearly')->daily();
         $schedule->command('notification:yearly')->daily();
-        $schedule->command('notification:customDateReminderSchedule')->daily();
+        $schedule->command('notification:customDateReminderSchedule')->everyTenMinutes();
         $schedule->command('notification:reminderSchedule')->everyTenMinutes();
         $schedule->command('notification:sendEmailSuppliers')->everyTenMinutes();
     }
