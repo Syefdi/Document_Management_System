@@ -346,9 +346,9 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
 
         $reminders = $reminderQuery->get();
 
-        \Log::info('One-time reminders found', [
-            'count' => $reminders->count()
-        ]);
+        // \Log::info('One-time reminders found', [
+        //     'count' => $reminders->count()
+        // ]);
 
         if ($reminders != null && $reminders->count() > 0) {
             foreach ($reminders as $r) {
