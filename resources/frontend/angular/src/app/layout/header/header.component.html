@@ -87,9 +87,8 @@
                           </ng-container>
                           <ng-container *ngIf="notification.message">
                             <small class="menu-title">{{notification.message}}
-                              <ng-container *ngIf="notification.documentId">
-                                <!-- ::{{notification.documentName 
-                                  | limitTo: '25'}} -->
+                              <ng-container *ngIf="notification.documentId"> {{notification.documentName 
+                                  | limitTo: '25'}}
                               </ng-container>
                             </small>
                           </ng-container>
