@@ -330,11 +330,20 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
         }
     }
 
-    public function customDateReminderSchedule()
+   public function customDateReminderSchedule()
     {
         $currentDate = Carbon::now();
-        $todate = $currentDate->startOfDay();
-        $fromDate = $currentDate->endOfDay();
+        $todate = $currentDate->copy()->startOfDay();
+        $fromDate = $currentDate->copy()->endOfDay();
+        $today = $currentDate->toDateString(); // YYYY-MM-DD format
+
+        \Log::info('Custom date reminder started', [
+            'currentDate' => $currentDate->toDateTimeString(),
+            'todate' => $todate->toDateTimeString(),
+            'fromDate' => $fromDate->toDateTimeString(),
+            'today' => $today,
+            'oneTimeFrequencyValue' => FrequencyEnum::OneTime->value
+        ]);
 
         $reminderQuery = Reminders::select(['reminders.*'])
             ->with(['reminderUsers'])
@@ -345,25 +354,84 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
 
         $reminders = $reminderQuery->get();
 
+        \Log::info('One-time reminders found', [
+            'count' => $reminders->count()
+        ]);
+
         if ($reminders != null && $reminders->count() > 0) {
             foreach ($reminders as $r) {
+                \Log::info('Processing one-time reminder', [
+                    'id' => $r->id,
+                    'subject' => $r->subject,
+                    'startDate' => $r->startDate->toDateTimeString(),
+                    'users_count' => count($r->reminderUsers ?? [])
+                ]);
+
                 foreach ($r['reminderUsers'] as $users) {
-                    $duration = Carbon::create($currentDate->format("Y"), $currentDate->format("m"), $currentDate->format("d"),  $r['startDate']->format("h"), $r['startDate']->format("i"), $r['startDate']->format("s"));
-                    $model = ReminderSchedulers::create([
-                        'duration' => $duration,
-                        'isActive' => 1,
-                        'frequency' => $r['frequency'],
-                        'userId' => $users['userId'],
-                        'isRead' => 0,
-                        'isEmailNotification' => $r['isEmailNotification'],
-                        'subject' => $r['subject'],
-                        'message' => $r['message'],
-                        'createdDate' => Carbon::now(),
-                        'documentId' => $r['documentId'],
-                    ]);
-                    $model->save();
+                    // Cek apakah sudah ada reminder untuk user ini hari ini
+                    $existingReminder = ReminderSchedulers::where('userId', $users['userId'])
+                        ->whereDate('duration', $today)
+                        ->where('frequency', $r['frequency'])
+                        ->where('subject', $r['subject']) // tambahan filter untuk spesifik reminder
+                        ->first();
+
+                    if ($existingReminder) {
+                        // Sudah ada reminder untuk user ini hari ini, skip
+                        \Log::info('One-time reminder already exists for today', [
+                            'userId' => $users['userId'],
+                            'existing_id' => $existingReminder->id,
+                            'date' => $today,
+                            'subject' => $r['subject']
+                        ]);
+                        continue;
+                    }
+
+                    // Fix: Gunakan format 24-hour (H) bukan 12-hour (h)
+                    $duration = Carbon::create(
+                        $currentDate->format("Y"), 
+                        $currentDate->format("m"), 
+                        $currentDate->format("d"), 
+                        $r['startDate']->format("H"), // H untuk 24-hour format
+                        $r['startDate']->format("i"), 
+                        $r['startDate']->format("s")
+                    );
+
+                    try {
+                        // create() sudah menyimpan ke database, tidak perlu save() lagi
+                        $model = ReminderSchedulers::create([
+                            'duration' => $duration,
+                            'isActive' => 1,
+                            'frequency' => $r['frequency'],
+                            'userId' => $users['userId'],
+                            'isRead' => 0,
+                            'isEmailNotification' => $r['isEmailNotification'],
+                            'subject' => $r['subject'],
+                            'message' => $r['message'],
+                            'createdDate' => Carbon::now(),
+                            'documentId' => $r['documentId'],
+                        ]);
+
+                        \Log::info('One-time reminder created successfully', [
+                            'scheduler_id' => $model->id,
+                            'reminder_id' => $r->id,
+                            'userId' => $users['userId'],
+                            'date' => $today,
+                            'duration' => $duration->toDateTimeString(),
+                            'subject' => $r['subject']
+                        ]);
+
+                    } catch (\Exception $e) {
+                        \Log::error('Error creating one-time reminder scheduler', [
+                            'error' => $e->getMessage(),
+                            'userId' => $users['userId'],
+                            'reminderId' => $r->id,
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                    }
                 }
             }
+        } else {
+            \Log::info('No one-time reminders found for today', ['date' => $today]);
         }
     }
 
