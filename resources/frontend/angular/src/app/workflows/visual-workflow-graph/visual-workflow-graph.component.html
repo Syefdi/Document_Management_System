@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="col-6">
                                   <p class="h6"><strong>{{"DOCUMENT" | translate}}: </strong>
-                                      <ng-container *ngIf="data.workflowStatus === 'Approved'; else nonClickableInDialog">
+                                      <ng-container *ngIf="getDocumentStatus(data).text === 'Completed'; else nonClickableInDialog">
                                           <a class="doc-link" (click)="onDocumentView()" style="cursor: pointer;">
                                             {{ data.documentName }}
                                           </a>
