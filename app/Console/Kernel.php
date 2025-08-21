@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('notification:daily')->everyTenMinutes();
+        $schedule->command('notification:daily')->daily();
         $schedule->command('notification:weekly')->daily();
         $schedule->command('notification:monthy')->daily();
         $schedule->command('notification:quarterly')->daily();
