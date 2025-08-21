@@ -50,44 +50,77 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
     }
 
     public function dailyReminder()
-    {
-        $currentDate = Carbon::now();
-        $dayOfTheWeek = Carbon::now()->dayOfWeek;
+{
+    $currentDate = Carbon::now();
+    $dayOfTheWeek = Carbon::now()->dayOfWeek;
+    $today = $currentDate->toDateString(); // YYYY-MM-DD format
 
-        $reminders = Reminders::with('reminderUsers')
-            ->join('dailyReminders', 'reminders.id', '=', 'dailyReminders.reminderId')
-            ->where('reminders.frequency', '=', FrequencyEnum::Daily->value)
-            ->whereDate('reminders.startDate', '<=', $currentDate)
-            ->where('dailyReminders.dayOfWeek', '=', $dayOfTheWeek)
-            ->where('dailyReminders.isActive', '=', 1)
-            ->where(function ($query) use ($currentDate) {
-                $query = $query->where('reminders.endDate', '')->orWhereNull('reminders.endDate')
-                    ->orWhere(function ($query) use ($currentDate) {
-                        $query->whereDate('reminders.endDate', '>=', $currentDate);
-                    });
-            })
-            ->select('reminders.*')
-            ->get();
+    $reminders = Reminders::with('reminderUsers')
+        ->join('dailyReminders', 'reminders.id', '=', 'dailyReminders.reminderId')
+        ->where('reminders.frequency', '=', FrequencyEnum::Daily->value)
+        ->whereDate('reminders.startDate', '<=', $currentDate)
+        ->where('dailyReminders.dayOfWeek', '=', $dayOfTheWeek)
+        ->where('dailyReminders.isActive', '=', 1)
+        ->where(function ($query) use ($currentDate) {
+            $query->where('reminders.endDate', '')
+                ->orWhereNull('reminders.endDate')
+                ->orWhere(function ($query) use ($currentDate) {
+                    $query->whereDate('reminders.endDate', '>=', $currentDate);
+                });
+        })
+        ->select('reminders.*')
+        ->get();
 
-        foreach ($reminders as $r) {
-            foreach ($r['reminderUsers'] as $users) {
-                $duration = Carbon::create($currentDate->format("Y"), $currentDate->format("m"), $currentDate->format("d"),  $r['startDate']->format("h"), $r['startDate']->format("i"), $r['startDate']->format("s"));
-                $model = ReminderSchedulers::create([
-                    'duration' => $duration,
-                    'isActive' => 1,
-                    'frequency' => $r['frequency'],
+    foreach ($reminders as $r) {
+        foreach ($r['reminderUsers'] as $users) {
+            // SOLUSI 1: Cek apakah sudah ada reminder untuk user ini hari ini
+            $existingReminder = ReminderSchedulers::where('userId', $users['userId'])
+                ->whereDate('duration', $today)
+                ->where('frequency', $r['frequency'])
+                ->where('subject', $r['subject']) // tambahan filter untuk spesifik reminder
+                ->first();
+
+            if ($existingReminder) {
+                // Sudah ada reminder untuk user ini hari ini, skip
+                \Log::info('Reminder already exists for today', [
                     'userId' => $users['userId'],
-                    'isRead' => 0,
-                    'isEmailNotification' => $r['isEmailNotification'],
-                    'subject' => $r['subject'],
-                    'message' => $r['message'],
-                    'createdDate' => Carbon::now(),
-                    'documentId' => $r['documentId'],
+                    'date' => $today,
+                    'subject' => $r['subject']
                 ]);
-                $model->save();
+                continue;
             }
+
+            $duration = Carbon::create(
+                $currentDate->format("Y"), 
+                $currentDate->format("m"), 
+                $currentDate->format("d"), 
+                $r['startDate']->format("H"), // Gunakan H bukan h
+                $r['startDate']->format("i"), 
+                $r['startDate']->format("s")
+            );
+
+            $model = ReminderSchedulers::create([
+                'duration' => $duration,
+                'isActive' => 1,
+                'frequency' => $r['frequency'],
+                'userId' => $users['userId'],
+                'isRead' => 0,
+                'isEmailNotification' => $r['isEmailNotification'],
+                'subject' => $r['subject'],
+                'message' => $r['message'],
+                'createdDate' => Carbon::now(),
+                'documentId' => $r['documentId'],
+            ]);
+
+            \Log::info('New reminder created', [
+                'id' => $model->id,
+                'userId' => $users['userId'],
+                'date' => $today,
+                'subject' => $r['subject']
+            ]);
         }
     }
+}
 
     public function weeklyReminder()
     {
@@ -344,16 +377,6 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
         }
     }
 
-    public function sendEmailSuppliersSchedule()
-    {
-        $schedulerStatus = $this->connectionMappingRepository->getEmailSchedulerStatus();
-        if (!$schedulerStatus) {
-            $this->connectionMappingRepository->setEmailSchedulerStatus(true);
-            $this->sendEmailSchedulerCommand();
-            $this->connectionMappingRepository->setEmailSchedulerStatus(false);
-        }
-    }
-
     public function reminderSchedulerServiceQuery()
     {
         $currentDate = Carbon::now();
@@ -415,6 +438,18 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
             }
         }
     }
+
+    public function sendEmailSuppliersSchedule()
+    {
+        $schedulerStatus = $this->connectionMappingRepository->getEmailSchedulerStatus();
+        if (!$schedulerStatus) {
+            $this->connectionMappingRepository->setEmailSchedulerStatus(true);
+            $this->sendEmailSchedulerCommand();
+            $this->connectionMappingRepository->setEmailSchedulerStatus(false);
+        }
+    }
+
+    
 
     public function sendEmailSchedulerCommand()
     {
