@@ -330,20 +330,12 @@ class NotificationScheduleRepository extends BaseRepository implements Notificat
         }
     }
 
-   public function customDateReminderSchedule()
+    public function customDateReminderSchedule()
     {
         $currentDate = Carbon::now();
         $todate = $currentDate->copy()->startOfDay();
         $fromDate = $currentDate->copy()->endOfDay();
         $today = $currentDate->toDateString(); // YYYY-MM-DD format
-
-        \Log::info('Custom date reminder started', [
-            'currentDate' => $currentDate->toDateTimeString(),
-            'todate' => $todate->toDateTimeString(),
-            'fromDate' => $fromDate->toDateTimeString(),
-            'today' => $today,
-            'oneTimeFrequencyValue' => FrequencyEnum::OneTime->value
-        ]);
 
         $reminderQuery = Reminders::select(['reminders.*'])
             ->with(['reminderUsers'])
