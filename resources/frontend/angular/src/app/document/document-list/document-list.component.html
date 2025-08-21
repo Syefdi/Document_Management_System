@@ -70,7 +70,7 @@
               <div class="col-md-3">
                   <ng-select
                     (change)="onDocumentStatusChange($event)"
-                    placeholder="{{'SELECT_DOCUMENT_STATUS' | translate}}"
+                    placeholder="{{'SELECT_STATUS' | translate}}"
                     [clearable]="true">
                   <ng-option *ngFor="let status of statusFilterOptions" [value]="status">
                     <span> {{ status }} </span>
