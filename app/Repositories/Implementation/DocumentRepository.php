@@ -248,7 +248,8 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
     public function getDeepSearchDocuments($attributes)
     {
-        $documentIds = $this->indexer->search($attributes->searchQuery);
+        $results = $this->indexer->search($attributes->searchQuery, 10);
+        $documentIds = $results['ids'] ?? [];
 
         if (empty($documentIds)) {
             return [];
