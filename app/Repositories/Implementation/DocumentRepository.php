@@ -246,55 +246,77 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         ]);
     }
 
-    // Modifikasi method getDeepSearchDocuments untuk debugging
     public function getDeepSearchDocuments($attributes)
     {
-        // Log::info('Deep search query: ' . $attributes->searchQuery);
-
-        $results = $this->indexer->search($attributes->searchQuery, 10);
-
-        // Log::info('Search results from indexer: ' . json_encode($results));
-
-        $documentIds = $results['ids'] ?? [];
+        $documentIds = $this->indexer->search($attributes->searchQuery);
 
         if (empty($documentIds)) {
-            // Log::warning('No document IDs found in search results');
             return [];
         }
 
-        // Log::info('Found document IDs: ' . implode(', ', $documentIds));
+        $userId = Auth::parseToken()->getPayload()->get('userId');
+        $userRoles = UserRoles::where('userId', $userId)->get('roleId');
 
-        $query = Documents::select([
-            'documents.id',
-            'documents.name',
-            'documents.url',
-            'documents.createdDate',
-            'documents.description',
-            'documents.location',
-            'documents.isIndexed',
-            'categories.id as categoryId',
-            'categories.name as categoryName',
-            'documents.clientId',
-            'documents.statusId',
-            'clients.companyName as companyName',
-            'documentStatus.name as statusName',
-            'documentStatus.colorCode as colorCode',
-            DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName")
-        ])
+        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions'])
+            ->select([
+                'documents.id',
+                'documents.name',
+                'documents.url',
+                'documents.createdDate',
+                'documents.description',
+                'documents.location',
+                'documents.isIndexed',
+                'documents.createdBy',
+                'categories.name as categoryName',
+                'clients.companyName as companyName',
+                'documentStatus.name as statusName',
+                DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
+            ])
             ->join('categories', 'documents.categoryId', '=', 'categories.id')
             ->join('users', 'documents.createdBy', '=', 'users.id')
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
-            ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id');
+            ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
+            ->whereIn('documents.id', $documentIds)
+            ->where(function ($query) use ($userId, $userRoles) {
+                $query->where('documents.createdBy', '=', $userId)
+                    ->orWhereExists(function ($query) use ($userId) {
+                        $query->select(DB::raw(1))
+                            ->from('documentUserPermissions')
+                            ->whereRaw('documentUserPermissions.documentId = documents.id')
+                            ->where('documentUserPermissions.userId', '=', $userId)
+                            ->where(function ($query) {
+                                $query->where('documentUserPermissions.isTimeBound', '=', '0')
+                                    ->orWhere(function ($query) {
+                                        $date = date('Y-m-d');
+                                        $startDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+                                        $endDate = Carbon::createFromFormat('Y-m-d', $date)->endOfDay();
+                                        $query->where('documentUserPermissions.isTimeBound', '=', '1')
+                                            ->whereDate('documentUserPermissions.startDate', '<=', $startDate)
+                                            ->whereDate('documentUserPermissions.endDate', '>=', $endDate);
+                                    });
+                            });
+                    })
+                    ->orWhereExists(function ($query) use ($userRoles) {
+                        $query->select(DB::raw(1))
+                            ->from('documentRolePermissions')
+                            ->whereRaw('documentRolePermissions.documentId = documents.id')
+                            ->whereIn('documentRolePermissions.roleId', $userRoles)
+                            ->where(function ($query) {
+                                $query->where('documentRolePermissions.isTimeBound', '=', '0')
+                                    ->orWhere(function ($query) {
+                                        $date = date('Y-m-d');
+                                        $startDate = Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+                                        $endDate = Carbon::createFromFormat('Y-m-d', $date)->endOfDay();
+                                        $query->where('documentRolePermissions.isTimeBound', '=', '1')
+                                            ->whereDate('documentRolePermissions.startDate', '<=', $startDate)
+                                            ->whereDate('documentRolePermissions.endDate', '>=', $endDate);
+                                    });
+                            });
+                    });
+            });
 
-        $query = $query->whereIn('documents.id', $documentIds);
-
-        $results = $query->get();
-
-        // Log::info('Final query results count: ' . $results->count());
-
-        return $results;
+        return $query->get();
     }
-
     public function saveDocument($request, $path, $fileSize)
     {
         // dd($request->workflowId);
