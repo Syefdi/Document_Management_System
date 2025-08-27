@@ -61,6 +61,7 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
   documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
   clientStore = inject(ClientStore);
+  fileSizeError: string = null;
 
   // BARU: Properti dan injeksi untuk workflow
   workflowStore = inject(WorkflowStore);
@@ -95,7 +96,7 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     this.getLangDir();
     this.getAllAllowFileExtension();
 
-    // BARU: Memuat daftar workflow dan menyiapkan autocomplete
+
     this.workflowStore.loadWorkflows();
     this.filteredWorkflows$ = this.documentForm.get('workflowName').valueChanges.pipe(
       startWith(''),
@@ -197,7 +198,6 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
       });
   }
 
-  // MODIFIKASI: Menambahkan workflowId ke objek
   buildDocumentObject(): DocumentInfo {
     const documentMetaTags = this.documentMetaTagsArray.getRawValue();
     const document: DocumentInfo = {
@@ -237,7 +237,6 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     return document;
   }
 
-  // Sisa kode di bawah ini tidak ada perubahan...
   getLangDir() {
     this.sub$.sink = this.translationService.lanDir$.subscribe(
       (c: Direction) => (this.direction = c)
@@ -356,6 +355,16 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
 
   upload(files) {
     if (files.length === 0) return;
+    const file = files[0];
+    const fileSizeInMB = file.size / 1024 / 1024;
+    const maxSizeInMB = 10; // batas maksimal 10 MB
+
+    if (fileSizeInMB > maxSizeInMB) {
+      // Tampilkan pesan error jika file terlalu besar
+      this.toastrService.error(`File size cannot be larger than ${maxSizeInMB} MB`);
+      
+      return;
+    }
     this.extension = files[0].name.split('.').pop();
     if (!this.fileExtesionValidation(this.extension)) {
       this.fileUploadExtensionValidation('');

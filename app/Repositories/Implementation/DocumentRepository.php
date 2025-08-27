@@ -322,7 +322,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
     {
         // dd($request->workflowId);
         try {
-            $isIndexed = $fileSize < 10000000; // Batas 10 MB
+            $isIndexed = true;
             DB::beginTransaction();
             $model = $this->model->newInstance($request);
             $model->url = $path;
