@@ -35,6 +35,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Workflow } from '@core/domain-classes/workflow';
 import { WorkflowStore } from 'src/app/workflows/manage-workflow/workflow-store';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-document-manage-presentation',
@@ -79,7 +80,8 @@ export class DocumentManagePresentationComponent
     private cd: ChangeDetectorRef,
     private commonService: CommonService,
     private securityService: SecurityService,
-    private translationService: TranslationService
+    private translationService: TranslationService,
+    private toastrService: ToastrService
   ) {
     super();
     this.minDate = new Date();
@@ -355,6 +357,14 @@ private _filter(value: string | Workflow): Workflow[] {
   upload(files) {
     if (files.length === 0) return;
     this.extension = files[0].name.split('.').pop();
+    const file = files[0];
+    const fileSizeInMB = file.size / 1024 / 1024;
+    const maxSizeInMB = 5;
+
+    if (fileSizeInMB > maxSizeInMB) {
+      this.toastrService.error(`File size cannot be larger than ${maxSizeInMB} MB`);
+      return;
+    }
     if (!this.fileExtesionValidation(this.extension)) {
       this.fileUploadExtensionValidation('');
       this.cd.markForCheck();

@@ -1,4 +1,3 @@
-// BARU: Impor untuk RxJS, Workflow, dan servicenya
 import { Observable, of } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
 import { Workflow } from '@core/domain-classes/workflow';
@@ -8,7 +7,6 @@ import { DocumentWorkflow } from '@core/domain-classes/document-workflow';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 
-// Impor yang sudah ada
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormArray, UntypedFormGroup, FormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
@@ -40,6 +38,7 @@ import { SecurityService } from '@core/security/security.service';
 import { CategoryStore } from '../category/store/category-store';
 import { DocumentStatusStore } from '../document-status/store/document-status.store';
 import { DocumentMetaData } from '@core/domain-classes/documentMetaData';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-bulk-document-upload',
@@ -87,6 +86,7 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
   private commonService = inject(CommonService);
   private translationService = inject(TranslationService);
   private documentService = inject(DocumentService);
+  private toastrService = inject(ToastrService);
   documentStatusStore = inject(DocumentStatusStore);
   counter: number;
   direction: Direction;
@@ -361,8 +361,16 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
     const input = event.target as HTMLInputElement;
     if (input.files) {
       this.resultArray = [];
+      const maxSizeInMB = 5;
       for (let i = 0; i < input.files.length; i++) {
         const file = input.files[i];
+        const fileSizeInMB = file.size / 1024 / 1024;
+      if (fileSizeInMB > maxSizeInMB) {
+        // Tampilkan pesan error spesifik untuk file yang ditolak
+        this.toastrService.error(`File "${file.name}" is too large (max ${maxSizeInMB} MB)`);
+        // Lewati file ini dan lanjut ke file berikutnya
+        continue;
+      }
         this.extension = file.name.split('.').pop();
         const isValidExtension = this.fileExtesionValidation(this.extension);
         this.fileInputs.push(

@@ -357,12 +357,11 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     if (files.length === 0) return;
     const file = files[0];
     const fileSizeInMB = file.size / 1024 / 1024;
-    const maxSizeInMB = 10; // batas maksimal 10 MB
+    const maxSizeInMB = 5; // maksimal 5 MB
 
     if (fileSizeInMB > maxSizeInMB) {
-      // Tampilkan pesan error jika file terlalu besar
       this.toastrService.error(`File size cannot be larger than ${maxSizeInMB} MB`);
-      
+
       return;
     }
     this.extension = files[0].name.split('.').pop();
