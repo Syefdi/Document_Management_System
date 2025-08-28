@@ -3,11 +3,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   inject,
   Input,
   OnInit,
   Output,
+  ViewChild
 } from '@angular/core';
 import {
   UntypedFormGroup,
@@ -63,6 +65,7 @@ export class DocumentManagePresentationComponent
   minDate: Date;
   isS3Supported = false;
   direction: Direction;
+  @ViewChild('file') fileInput: ElementRef;
   clientStore = inject(ClientStore);
   documentstatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
@@ -363,6 +366,7 @@ private _filter(value: string | Workflow): Workflow[] {
 
     if (fileSizeInMB > maxSizeInMB) {
       this.toastrService.error(`File size cannot be larger than ${maxSizeInMB} MB`);
+      this.fileInput.nativeElement.value = "";
       return;
     }
     if (!this.fileExtesionValidation(this.extension)) {

@@ -8,7 +8,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, inject, OnInit, Output, ViewChild } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormArray, UntypedFormGroup, FormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
@@ -366,9 +366,7 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
         const file = input.files[i];
         const fileSizeInMB = file.size / 1024 / 1024;
       if (fileSizeInMB > maxSizeInMB) {
-        // Tampilkan pesan error spesifik untuk file yang ditolak
         this.toastrService.error(`File "${file.name}" is too large (max ${maxSizeInMB} MB)`);
-        // Lewati file ini dan lanjut ke file berikutnya
         continue;
       }
         this.extension = file.name.split('.').pop();
@@ -385,6 +383,7 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
           })
         );
       }
+      this.fileInput.nativeElement.value = '';
       this.cd.markForCheck();
     }
   }

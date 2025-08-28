@@ -6,9 +6,8 @@ import { WorkflowStore } from 'src/app/workflows/manage-workflow/workflow-store'
 import { DocumentWorkflowService } from 'src/app/workflows/manage-workflow/document-workflow.service';
 import { DocumentWorkflow } from '@core/domain-classes/document-workflow';
 
-// Impor yang sudah ada
 import { Direction } from '@angular/cdk/bidi';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import {
   UntypedFormGroup,
   FormArray,
@@ -37,6 +36,7 @@ import { DocumentService } from 'src/app/document/document.service';
 import { DocumentStatusStore } from 'src/app/document-status/store/document-status.store';
 import { CategoryStore } from 'src/app/category/store/category-store';
 
+
 @Component({
   selector: 'app-add-document',
   templateUrl: './add-document.component.html',
@@ -58,12 +58,12 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
   minDate: Date;
   isS3Supported = false;
   direction: Direction;
+  @ViewChild('file') fileInput: ElementRef;
   documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
   clientStore = inject(ClientStore);
   fileSizeError: string = null;
 
-  // BARU: Properti dan injeksi untuk workflow
   workflowStore = inject(WorkflowStore);
   filteredWorkflows$: Observable<Workflow[]>;
 
@@ -361,6 +361,7 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
 
     if (fileSizeInMB > maxSizeInMB) {
       this.toastrService.error(`File size cannot be larger than ${maxSizeInMB} MB`);
+      this.fileInput.nativeElement.value = "";
 
       return;
     }
