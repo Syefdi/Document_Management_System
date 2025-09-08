@@ -16,7 +16,7 @@
                         <div *ngFor="let step of steps.controls; let i = index; let last = last;" [formGroupName]="i">
                             <div class="row mb-3 align-items-center">
 
-                                <ng-container *ngIf="!last">
+                                <!-- <ng-container *ngIf="!last"> -->
                                     <div class="col-md-4 col-sm-12">
                                         <div class="form-group">
                                             <label> {{ "STEP_NAME" | translate }}</label>
@@ -33,7 +33,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </ng-container>
+                                <!-- </ng-container> -->
 
                                 <!-- <ng-container *ngIf="last">
                                     <div class="col-md-4 col-sm-12">
@@ -55,7 +55,7 @@
                                 </ng-container> -->
 
                                 <div class="col-md-3 align-self-center">
-                                    <button *ngIf="!this.currentWorkflow?.isWorkflowSetup && !last"
+                                    <button *ngIf="!this.currentWorkflow?.isWorkflowSetup && last"
                                         (click)="addStep(false)" class="btn btn-success btn-sm">
                                         <i-feather name="plus" class="small-icon"></i-feather>
                                         {{ "ADD_ANOTHER_STEP" | translate }}
