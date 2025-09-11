@@ -603,5 +603,9 @@
   "DELETE_WORKFLOW": "Supprimer le flux de travail",
   "VIEW_WORKFLOW_LOGS": "Voir les journaux de flux de travail",
   "VIEW_MY_WORKFLOW": "Voir mon flux de travail",
-  "MY_WORKFLOWS": "Mes flux de travail"
+  "MY_WORKFLOWS": "Mes flux de travail",
+  "LOCATION": "Emplacement",
+  "RACK": "Rangier",
+  "SELECT_LOCATION": "Sélectionner l'emplacement",
+  "SELECT_RACK": "Sélectionner le rangier"
 }

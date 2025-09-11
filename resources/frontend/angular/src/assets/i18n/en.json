@@ -606,5 +606,9 @@
   "DELETE_WORKFLOW": "Delete Workflow",
   "VIEW_WORKFLOW_LOGS": "View Workflow Logs",
   "VIEW_MY_WORKFLOW": "View My Workflow",
-  "MY_WORKFLOWS": "My Workflows"
+  "MY_WORKFLOWS": "My Workflows",
+  "LOCATION": "Location",
+  "RACK": "Rack",
+  "SELECT_LOCATION": "Select Location",
+  "SELECT_RACK": "Select Rack"
 }

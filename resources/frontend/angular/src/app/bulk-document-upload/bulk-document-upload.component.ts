@@ -22,7 +22,7 @@ import { SharedModule } from '@shared/shared.module';
 import { FeatherModule } from 'angular-feather';
 import { BaseComponent } from '../base.component';
 import { ClientStore } from '../client/client-store';
-import { CommonService } from '@core/services/common.service';
+import { CommonService, Location, Rack } from '@core/services/common.service';
 import { TranslationService } from '@core/services/translation.service';
 import { DocumentService } from '../document/document.service';
 import { User } from '@core/domain-classes/user';
@@ -71,6 +71,8 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
   users: User[];
   roles: Role[];
   allowFileExtension: AllowFileExtension[] = [];
+  locations: Location[] = [];
+  racks: Rack[] = [];
   fileData: any;
   loading: boolean = false;
   resultArray: any = [];
@@ -109,6 +111,8 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
     this.getUsers();
     this.getRoles();
     this.getAllAllowFileExtension();
+    this.getLocations();
+    this.getRacks();
 
     // BARU: Memuat daftar workflow dan menyiapkan autocomplete
     this.workflowStore.loadWorkflows();
@@ -129,6 +133,8 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
       location: [''],
       clientId: [''],
       statusId: [''],
+      physicalLocationId: [''],
+      rackId: [''],
       selectedRoles: [],
       selectedUsers: [],
       files: this.fb.array([]),
@@ -347,6 +353,22 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
       .subscribe((roles: Role[]) => (this.roles = roles));
   }
 
+  getLocations() {
+    this.sub$.sink = this.commonService.getLocations().subscribe(res => {
+        if(res){
+             this.locations = res as Location[];
+        }
+    });
+  }
+
+  getRacks() {
+    this.sub$.sink = this.commonService.getRacks().subscribe(res => {
+        if(res){
+            this.racks = res as Rack[];
+        }
+    });
+  }
+
   getAllAllowFileExtension() {
     this.commonService.allowFileExtension$.subscribe(
       (allowFileExtension: AllowFileExtension[]) => {
@@ -429,6 +451,8 @@ export class BulkDocumentUploadComponent extends BaseComponent implements OnInit
       clientId: this.documentForm.get('clientId').value ?? '',
       statusId: this.documentForm.get('statusId').value ?? '',
       description: this.documentForm.get('description').value ?? '',
+      locationId: this.documentForm.get('physicalLocationId').value,
+      rackId: this.documentForm.get('rackId').value,
       documentMetaDatas: [...documentMetaTags],
     };
     const selectedRoles: Role[] = this.documentForm.get('selectedRoles').value ?? [];

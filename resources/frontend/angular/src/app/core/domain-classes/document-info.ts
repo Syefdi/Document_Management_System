@@ -37,6 +37,8 @@ export interface DocumentInfo {
   modifiedDate?: Date;
   companyName?: string;
   documentWorkflowId?:string;
+  locationId?: string;
+  rackId?: string;
   isWorkflowCompleted?:boolean;
   html_content?: string; // Added for AI-generated documents
   workflowStatus?: string;
@@ -46,7 +48,6 @@ export interface DocumentInfo {
   status?: string;
 
 
-  // Tambahan jika pakai computeStat
   documentWorkflow?: { status: string };
 
 

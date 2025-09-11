@@ -63,6 +63,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         'documents.location',
         'documents.clientId',
         'documents.statusId',
+        'documents.locationId',
+        'documents.rackId',
+            "locations.name as locationName",
+            "racks.name as rackName",
         'documents.isIndexed',
         'documents.createdBy',
         'categories.id as categoryId',
@@ -71,6 +75,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         'documentStatus.name as statusName',
         'documentStatus.colorCode as colorCode',
         'documents.documentWorkflowId',
+        'documents.locationId',
+        'documents.rackId',
+            "locations.name as locationName",
+            "racks.name as rackName",
         'workflows.name as workflowName',
         'documentWorkflow.status as documentWorkflowStatus',
         DB::raw('COALESCE(workflowSteps.name, "Draft") as workflowStatus'),
@@ -84,6 +92,8 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
             ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
+            ->leftJoin("locations", "documents.locationId", "=", "locations.id")
+            ->leftJoin("racks", "documents.rackId", "=", "racks.id")
             ->leftJoin('workflows', 'documentWorkflow.workflowId', '=', 'workflows.id')
             ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id');
         $orderByArray =  explode(' ', $attributes->orderBy);
@@ -318,172 +328,174 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
         return $query->get();
     }
-    public function saveDocument($request, $path, $fileSize)
-    {
-        // dd($request->workflowId);
-        try {
-            $isIndexed = true;
-            DB::beginTransaction();
-            $model = $this->model->newInstance($request);
-            $model->url = $path;
-            $model->categoryId = $request->categoryId;
-            $model->clientId = $request->clientId;
-            $model->statusId = $request->statusId;
-            $model->name = $request->name;
-            $model->location = $request->location;
-            $model->description = $request->description;
-            $metaDatas = $request->documentMetaDatas;
-            $model->isIndexed = $isIndexed;
-            $model->save();
-            $this->resetModel();
-            $result = $this->parseResult($model);
+    public function saveDocument($data, $path, $fileSize)
+        {
+            // dd($data);
+            try {
+                $isIndexed = true;
+                DB::beginTransaction();
+                $model = new Documents(); 
+                $model->url = $path;
+                $model->fill($data);    
+                $model->isIndexed = $isIndexed;
+                $model->save();
 
-            foreach (json_decode($metaDatas) as $metaTag) {
-                DocumentMetaDatas::create(array(
-                    'documentId' =>   $result->id,
-                    'metatag' =>  $metaTag->metatag,
-                ));
-            }
+                $this->resetModel();
+                $result = $this->parseResult($model);
 
-            // create index of document.
-            if ($isIndexed) {
-                $this->indexer->createDocumentIndex($result->id, $path, $request->location);
-            }
-
-            $documentRolePermissions = json_decode($request->documentRolePermissions);
-            $rolePermissionsArray = array();
-            foreach ($documentRolePermissions as $docuemntrole) {
-                $startDate = '';
-                $endDate = '';
-                if ($docuemntrole->isTimeBound) {
-                    $startdate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntrole->startDate)));
-                    $enddate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntrole->endDate)));
-                    $startDate = Carbon::createFromFormat('Y-m-d', $startdate1)->startOfDay();
-                    $endDate = Carbon::createFromFormat('Y-m-d', $enddate1)->endOfDay();
+                if (isset($data['documentMetaDatas'])) {
+                    $metaDatas = json_decode($data['documentMetaDatas']);
+                    foreach ($metaDatas as $metaTag) {
+                        DocumentMetaDatas::create([
+                            'documentId' =>  $result->id,
+                            'metatag'    =>  $metaTag->metatag,
+                        ]);
+                    }
                 }
 
-                DocumentRolePermissions::create([
-                    'documentId' => $result->id,
-                    'endDate' => $endDate  ?? '',
-                    'isAllowDownload' => $docuemntrole->isAllowDownload,
-                    'isTimeBound' => $docuemntrole->isTimeBound,
-                    'roleId' => $docuemntrole->roleId,
-                    'startDate' => $startDate ?? ''
-                ]);
-
-                DocumentAuditTrails::create([
-                    'documentId' => $result->id,
-                    'createdDate' =>  Carbon::now(),
-                    'operationName' => DocumentOperationEnum::Add_Permission->value,
-                    'assignToRoleId' => $docuemntrole->roleId
-                ]);
-
-                $userIds = UserRoles::select('userId')
-                    ->where('roleId', $docuemntrole->roleId)
-                    ->get();
-
-                foreach ($userIds as $userIdObject) {
-                    array_push($rolePermissionsArray, [
-                        'documentId' => $result->id,
-                        'userId' => $userIdObject->userId
-                    ]);
+                // create index of document.
+                if ($isIndexed) {
+                    $this->indexer->createDocumentIndex($result->id, $path, $data['location']);
                 }
-            }
+                
+                $rolePermissionsArray = array();
 
-            $documentUserPermissions = json_decode($request->documentUserPermissions);
-            foreach ($documentUserPermissions as $docuemntUser) {
-                $startDate = '';
-                $endDate = '';
-                if ($docuemntUser->isTimeBound) {
-                    $startdate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntUser->startDate)));
-                    $enddate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntUser->endDate)));
-                    $startDate = Carbon::createFromFormat('Y-m-d', $startdate1)->startOfDay();
-                    $endDate = Carbon::createFromFormat('Y-m-d', $enddate1)->endOfDay();
+                if (isset($data['documentRolePermissions'])) {
+                    $documentRolePermissions = json_decode($data['documentRolePermissions']);
+                    foreach ($documentRolePermissions as $docuemntrole) {
+                        $startDate = '';
+                        $endDate = '';
+                        if ($docuemntrole->isTimeBound) {
+                            $startdate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntrole->startDate)));
+                            $enddate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntrole->endDate)));
+                            $startDate = Carbon::createFromFormat('Y-m-d', $startdate1)->startOfDay();
+                            $endDate = Carbon::createFromFormat('Y-m-d', $enddate1)->endOfDay();
+                        }
+
+                        DocumentRolePermissions::create([
+                            'documentId' => $result->id,
+                            'endDate' => $endDate  ?? '',
+                            'isAllowDownload' => $docuemntrole->isAllowDownload,
+                            'isTimeBound' => $docuemntrole->isTimeBound,
+                            'roleId' => $docuemntrole->roleId,
+                            'startDate' => $startDate ?? ''
+                        ]);
+
+                        DocumentAuditTrails::create([
+                            'documentId' => $result->id,
+                            'createdDate' =>  Carbon::now(),
+                            'operationName' => DocumentOperationEnum::Add_Permission->value,
+                            'assignToRoleId' => $docuemntrole->roleId
+                        ]);
+
+                        $userIds = UserRoles::select('userId')
+                            ->where('roleId', $docuemntrole->roleId)
+                            ->get();
+
+                        foreach ($userIds as $userIdObject) {
+                            array_push($rolePermissionsArray, [
+                                'documentId' => $result->id,
+                                'userId' => $userIdObject->userId
+                            ]);
+                        }
+                    }
                 }
 
-                DocumentUserPermissions::create([
-                    'documentId' => $result->id,
-                    'endDate' => $endDate  ?? '',
-                    'isAllowDownload' => $docuemntUser->isAllowDownload,
-                    'isTimeBound' => $docuemntUser->isTimeBound,
-                    'userId' => $docuemntUser->userId,
-                    'startDate' => $startDate ?? ''
-                ]);
+                if (isset($data['documentUserPermissions'])) {
+                    $documentUserPermissions = json_decode($data['documentUserPermissions']);
+                    foreach ($documentUserPermissions as $docuemntUser) {
+                        $startDate = '';
+                        $endDate = '';
+                        if ($docuemntUser->isTimeBound) {
+                            $startdate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntUser->startDate)));
+                            $enddate1 = date('Y-m-d', strtotime(str_replace('/', '-', $docuemntUser->endDate)));
+                            $startDate = Carbon::createFromFormat('Y-m-d', $startdate1)->startOfDay();
+                            $endDate = Carbon::createFromFormat('Y-m-d', $enddate1)->endOfDay();
+                        }
 
-                DocumentAuditTrails::create([
-                    'documentId' => $result->id,
-                    'createdDate' =>  Carbon::now(),
-                    'operationName' => DocumentOperationEnum::Add_Permission->value,
-                    'assignToUserId' => $docuemntUser->userId
-                ]);
+                        DocumentUserPermissions::create([
+                            'documentId' => $result->id,
+                            'endDate' => $endDate  ?? '',
+                            'isAllowDownload' => $docuemntUser->isAllowDownload,
+                            'isTimeBound' => $docuemntUser->isTimeBound,
+                            'userId' => $docuemntUser->userId,
+                            'startDate' => $startDate ?? ''
+                        ]);
 
+                        DocumentAuditTrails::create([
+                            'documentId' => $result->id,
+                            'createdDate' =>  Carbon::now(),
+                            'operationName' => DocumentOperationEnum::Add_Permission->value,
+                            'assignToUserId' => $docuemntUser->userId
+                        ]);
 
-                array_push($rolePermissionsArray, [
-                    'documentId' => $result->id,
-                    'userId' => $docuemntUser->userId
-                ]);
-            }
+                        array_push($rolePermissionsArray, [
+                            'documentId' => $result->id,
+                            'userId' => $docuemntUser->userId
+                        ]);
+                    }
 
+                    $userId = Auth::parseToken()->getPayload()->get('userId');
 
-            $userId = Auth::parseToken()->getPayload()->get('userId');
+                    $array = array_filter($documentUserPermissions, function ($item) use ($userId) {
+                        return $item->userId == $userId;
+                    });
 
-            $array = array_filter($documentUserPermissions, function ($item) use ($userId) {
-                return $item->userId == $userId;
-            });
-
-            if (count($array) == 0) {
-                DocumentUserPermissions::create(array(
-                    'documentId' =>   $result->id,
-                    'userId' =>  $userId,
-                    'isAllowDownload' => true
-                ));
-            }
-
-        if ($request->has('workflowName') && !empty($request->workflowName)) {
-            // 1. Cari definisi workflow yang dipilih
-            $workflowToStart = Workflow::with('workflowSteps')->find($request->workflowName);
-
-            if ($workflowToStart) {
-                // 2. Tentukan langkah pertama
-                $firstStep = $workflowToStart->workflowSteps()->orderBy('id')->first();
-
-                if ($firstStep) {
-                    // 3. Buat instance workflow untuk dokumen ini
-                    $docWorkflowInstance = DocumentWorkflow::create([
-                        'documentId'    => $result->id,
-                        'workflowName'    => $workflowToStart->id,
-                        'currentStepId' => $firstStep->id,
-                        'createdBy'     => $userId // Menggunakan $userId yang sudah diambil sebelumnya
-                    ]);
-
-                    // 4. Update dokumen dengan ID instance workflow
-                    $model->documentWorkflowId = $docWorkflowInstance->id;
-                    $model->save();
+                    if (count($array) == 0) {
+                        DocumentUserPermissions::create(array(
+                            'documentId' =>  $result->id,
+                            'userId' =>  $userId,
+                            'isAllowDownload' => true
+                        ));
+                    }
                 }
-            }
-        } else {
-            $rolePermissions = array_unique($rolePermissionsArray, SORT_REGULAR);
-            foreach ($rolePermissions as $rolePermission) {
-                UserNotifications::create([
-                    'documentId' => $result->id,
-                    'userId' => $rolePermission['userId']
-                ]);
+                
+                if (isset($data['workflowName']) && !empty($data['workflowName'])) {
+                    // 1. Cari definisi workflow yang dipilih
+                    $workflowToStart = Workflow::with('workflowSteps')->find($data['workflowName']); 
+
+                    if ($workflowToStart) {
+                    // 2. Tentukan langkah pertama
+                        $firstStep = $workflowToStart->workflowSteps()->orderBy('id')->first();
+
+                        if ($firstStep) {
+                            // 3. Buat instance workflow untuk dokumen ini
+                            $docWorkflowInstance = DocumentWorkflow::create([
+                                'documentId'    => $result->id,
+                                'workflowName'    => $workflowToStart->id,
+                                'currentStepId' => $firstStep->id,
+                                'createdBy'     => $userId // Menggunakan $userId yang sudah diambil sebelumnya
+                            ]);
+
+                            // 4. Update dokumen dengan ID instance workflow
+                            $model->documentWorkflowId = $docWorkflowInstance->id;
+                            $model->save();
+                        }
+                    }
+                } else {
+                    $rolePermissions = array_unique($rolePermissionsArray, SORT_REGULAR);
+                    foreach ($rolePermissions as $rolePermission) {
+                        UserNotifications::create([
+                            'documentId' => $result->id,
+                            'userId' => $rolePermission['userId']
+                        ]);
+                    }
+                }
+
+                DB::commit();
+                $result->id = (string)$result->id;
+                return response()->json($result);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error($e); // Tambahkan ini agar error tercatat
+                return response()->json([
+                    'message' => 'Error in saving data.',
+                    'error' => $e->getMessage() // Ini akan menunjukkan error asli di frontend
+                ], 409);
             }
         }
-
-            DB::commit();
-            $result->id = (string)$result->id;
-            return response()->json($result);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Error in saving data.',
-            ], 409);
-        }
-    }
-
     public function updateDocument($request, $id)
-    {
+    {   
         try {
             DB::beginTransaction();
             $model = $this->model->find($id);
@@ -524,7 +536,7 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
         $userRoles = UserRoles::select('roleId')
             ->where('userId', $userId)
             ->get();
-        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions', 'documentWorkflow'])->select([
+        $query = Documents::with(['users', 'documentUserPermissions', 'documentRolePermissions', 'documentWorkflow', 'location', 'rack'])->select([
             'documents.id',
             'documents.name',
             'documents.url',
@@ -537,6 +549,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             'documents.location',
             'documents.clientId',
             'documents.statusId',
+            'documents.locationId',
+            'documents.rackId',
+            "locations.name as locationName",
+            "racks.name as rackName",
             'clients.companyName as companyName',
             'documentStatus.name as statusName',
             'documentStatus.colorCode as colorCode',
@@ -560,6 +576,8 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
             ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
+            ->leftJoin("locations", "documents.locationId", "=", "locations.id")
+            ->leftJoin("racks", "documents.rackId", "=", "racks.id")
             ->leftJoin('workflows', 'documentWorkflow.workflowId', '=', 'workflows.id')
             ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id')
             ->where(function ($query) use ($userId, $userRoles) {
@@ -824,6 +842,10 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             'documents.location',
             'documents.clientId',
             'documents.statusId',
+            'documents.locationId',
+            'documents.rackId',
+            "locations.name as locationName",
+            "racks.name as rackName",
             'clients.companyName as companyName',
             'documentStatus.name as statusName',
             'documentStatus.colorCode as colorCode',
@@ -836,6 +858,8 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
             ->leftJoin('documentWorkflow', 'documents.documentWorkflowId', '=', 'documentWorkflow.id')
+            ->leftJoin("locations", "documents.locationId", "=", "locations.id")
+            ->leftJoin("racks", "documents.rackId", "=", "racks.id")
             ->leftJoin('workflowSteps', 'documentWorkflow.currentStepId', '=', 'workflowSteps.id')
             ->where('documents.id',  '=', $id);
 

@@ -18,13 +18,13 @@ import { AddDocumentComponent } from '../add-document/add-document.component';
 import { ReminderListComponent } from '../reminder-list/reminder-list.component';
 import { DocumentCommentComponent } from 'src/app/document/document-comment/document-comment.component';
 import { ClonerService } from '@core/services/clone.service';
+import { CommonService, Location, Rack } from '@core/services/common.service';
 import { DocumentVersion } from '@core/domain-classes/documentVersion';
 import { DocumentVersionHistoryComponent } from 'src/app/document/document-version-history/document-version-history.component';
 import { DocumentService } from 'src/app/document/document.service';
 import { DocumentAuditTrail } from '@core/domain-classes/document-audit-trail';
 import { DocumentOperation } from '@core/domain-classes/document-operation';
 import { TranslationService } from '@core/services/translation.service';
-import { CommonService } from '@core/services/common.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
@@ -63,7 +63,8 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     'createdDate',
     'workflowName',
     'workflowStatus',
-    'location',
+    'locationName',
+    'rackName',
     'companyName',
     'expiredDate',
     'createdBy',
@@ -114,6 +115,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     );
 
     this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
     this.getResourceParameter();
     this.getLangDir();
   }
@@ -138,6 +140,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
           this.documentResource.orderBy =
             this.sort.active + ' ' + this.sort.direction;
           this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
         })
       )
       .subscribe();
@@ -151,6 +154,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
           this.documentResource.skip = 0;
           this.documentResource.name = this.input.nativeElement.value;
           this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
         })
       )
       .subscribe();
@@ -164,6 +168,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
           this.documentResource.skip = 0;
           this.documentResource.metaTags = this.metatag.nativeElement.value;
           this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
         })
       )
       .subscribe();
@@ -194,6 +199,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
   }
 
   onStorageChange(filtervalue: string) {
@@ -205,6 +211,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
   }
 
   onClientChange(filterValue: string) {
@@ -216,6 +223,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
   }
 
   onDocumentStatusChange(selectedStatus: string): void {
@@ -223,6 +231,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
   }
 
   applyFilter(filterValue: string): void {
@@ -345,6 +354,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.sub$.sink = dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
       }
     });
   }
@@ -390,6 +400,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.sub$.sink = dialogRef.afterClosed().subscribe((isCommentChanged: boolean) => {
       if (isCommentChanged) {
         this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
       }
     });
   }
@@ -408,6 +419,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.sub$.sink = dialogRef.afterClosed().subscribe((result: string) => {
       if (result === 'loaded') {
         this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
       }
     });
   }
@@ -445,6 +457,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     this.sub$.sink = dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
       }
     });
   }
@@ -478,6 +491,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
                 )
               );
               this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
             });
         }
       });
@@ -502,6 +516,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
               this.translationService.getValue('DOCUMENT_DELETED_SUCCESSFULLY')
             );
             this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
           });
       }
     });
@@ -533,6 +548,7 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
       .subscribe((result: DocumentWorkflow) => {
         if (result && result?.workflowId) {
           this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
         }
       });
   }
@@ -559,4 +575,47 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
         error: (error) => { },
       });
   }
+  locations: Location[] = [];
+  racks: Rack[] = [];
+
+      loadDropdownData(): void {
+    // Load locations data
+    this.commonService.getLocations().subscribe({
+      next: (locations) => {
+        console.log('Locations response:', locations);
+        if (Array.isArray(locations)) {
+          this.locations = locations;
+          console.log('Locations loaded:', this.locations.length, 'items');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading locations:', error);
+      }
+    });
+
+    // Load racks data
+    this.commonService.getRacks().subscribe({
+      next: (racks) => {
+        if (Array.isArray(racks)) {
+          this.racks = racks;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading racks:', error);
+      }
+    });
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

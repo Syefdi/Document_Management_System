@@ -601,5 +601,9 @@
   "DELETE_WORKFLOW": "删除工作流程",
   "VIEW_WORKFLOW_LOGS": "查看工作流程日志",
   "VIEW_MY_WORKFLOW": "查看我的工作流程",
-  "MY_WORKFLOWS": "我的工作流程"
+  "MY_WORKFLOWS": "我的工作流程",
+  "LOCATION": "位置",
+  "RACK": "货架",
+  "SELECT_LOCATION": "选择位置",
+  "SELECT_RACK": "选择货架"
 }

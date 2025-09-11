@@ -602,5 +602,9 @@
   "DELETE_WORKFLOW": "Eliminar flujo de trabajo",
   "VIEW_WORKFLOW_LOGS": "Ver registros del flujo de trabajo",
   "VIEW_MY_WORKFLOW": "Ver mi flujo de trabajo",
-  "MY_WORKFLOWS": "Mis flujos de trabajo"
+  "MY_WORKFLOWS": "Mis flujos de trabajo",
+  "LOCATION": "Ubicación",
+  "RACK": "Estantería",
+  "SELECT_LOCATION": "Seleccionar ubicación",
+  "SELECT_RACK": "Seleccionar estantería"
 }

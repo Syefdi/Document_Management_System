@@ -26,7 +26,7 @@ import { FileInfo } from '@core/domain-classes/file-info';
 import { Role } from '@core/domain-classes/role';
 import { User } from '@core/domain-classes/user';
 import { SecurityService } from '@core/security/security.service';
-import { CommonService } from '@core/services/common.service';
+import { CommonService, Location, Rack } from '@core/services/common.service';
 import { TranslationService } from '@core/services/translation.service';
 import { ToastrService } from 'ngx-toastr';
 import { BaseComponent } from 'src/app/base.component';
@@ -65,6 +65,9 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
 
   workflowStore = inject(WorkflowStore);
   filteredWorkflows$: Observable<Workflow[]>;
+  locations: Location[] = [];
+  racks: Rack[] = [];
+
 
   get documentMetaTagsArray(): FormArray {
     return <FormArray>this.documentForm.get('documentMetaTags');
@@ -94,6 +97,7 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
     this.getCompanyProfile();
     this.getLangDir();
     this.getAllAllowFileExtension();
+    this.getDropdownData();
 
 
     this.workflowStore.loadWorkflows();
@@ -102,6 +106,20 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
       map(value => this._filter(value || ''))
     );
   }
+
+  getDropdownData(): void {
+    this.sub$.sink = this.commonService.getLocations().subscribe(res => {
+        if(res){
+             this.locations = res as Location[];
+        }
+    });
+    this.sub$.sink = this.commonService.getRacks().subscribe(res => {
+        if(res){
+            this.racks = res as Rack[];
+        }
+    });
+  }
+
 
   createDocumentForm() {
     this.documentForm = this.fb.group({
@@ -114,9 +132,10 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
       selectedRoles: [],
       selectedUsers: [],
       location: [],
+      locationId: [''],
+      rackId: [''],
       clientId: [''],
       statusId: [''],
-      // Form control BARU
       workflowId: [''],
       workflowName: [''],
       rolePermissionForm: this.fb.group({
@@ -209,6 +228,8 @@ export class AddDocumentComponent extends BaseComponent implements OnInit {
       fileData: this.fileData,
       extension: this.extension,
       location: this.documentForm.get('location').value,
+      locationId: this.documentForm.get('locationId').value,
+      rackId: this.documentForm.get('rackId').value,
       clientId: this.documentForm.get('clientId').value ?? '',
       workflowId: this.documentForm.get('workflowId').value,
     };

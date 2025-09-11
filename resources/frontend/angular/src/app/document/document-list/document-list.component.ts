@@ -75,6 +75,8 @@ export class DocumentListComponent
     'workflowName',
     'workflowStatus',
     'location',
+    'locationName',
+    'rackName',
     'companyName',
     'createdBy',
   ];

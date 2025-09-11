@@ -88,6 +88,26 @@
                   </div>
                 </div>
                 <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label">{{ 'LOCATION' | translate }}</label>
+                    <ng-select formControlName="physicalLocationId" placeholder="{{'LOCATION' | translate}}">
+                      <ng-option *ngFor="let location of locations" [value]="location.id">
+                        <span> {{ location.name }} </span>
+                      </ng-option>
+                    </ng-select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="form-label">{{ 'RACK' | translate }}</label>
+                    <ng-select formControlName="rackId" placeholder="{{'RACK' | translate}}">
+                      <ng-option *ngFor="let rack of racks" [value]="rack.id">
+                        <span> {{ rack.name }} </span>
+                      </ng-option>
+                    </ng-select>
+                  </div>
+                </div>
+                <div class="col-md-3">
                   <ng-container formArrayName="documentMetaTags"
                     *ngFor="let documentmetatag of documentMetaTagsArray.controls; let i=index">
                     <ng-container [formGroupName]="i">

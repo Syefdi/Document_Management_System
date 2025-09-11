@@ -602,5 +602,7 @@
   "DELETE_WORKFLOW": "워크플로우 삭제",
   "VIEW_WORKFLOW_LOGS": "워크플로우 로그 보기",
   "VIEW_MY_WORKFLOW": "내 워크플로우 보기",
-  "MY_WORKFLOWS": "내 워크플로우"
+  "MY_WORKFLOWS": "내 워크플로우",
+  "LOCATION": "위치",
+  "RACK": "랙"
 }

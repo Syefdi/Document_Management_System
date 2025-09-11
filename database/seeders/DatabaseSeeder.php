@@ -39,6 +39,8 @@ class DatabaseSeeder extends Seeder
             'resetPasswordCode' => null,
         ]);
         $this->call([
+            LocationSeeder::class,
+            RackSeeder::class,
             RoleSeeder::class,
             PermissionSeeder::class,
             LanguageSeeder::class,

@@ -606,5 +606,7 @@
   "DELETE_WORKFLOW": "Hapus Alur Kerja",
   "VIEW_WORKFLOW_LOGS": "Lihat Log Alur Kerja",
   "VIEW_MY_WORKFLOW": "Lihat Alur Kerja Saya",
-  "MY_WORKFLOWS": "Alur Kerja Saya"
+  "MY_WORKFLOWS": "Alur Kerja Saya",
+  "LOCATION": "Lokasi",
+  "RACK": "Rak"
 }

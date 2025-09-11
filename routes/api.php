@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MasterDataController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PagesController;
@@ -71,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/debug/reindex/{documentId}', [DocumentController::class, 'forceReindexDocument']);
     Route::post('/debug/populate-index', [DocumentController::class, 'manuallyPopulateIndex']);
     
+    Route::get('locations', [MasterDataController::class, 'getLocations']);
+    Route::get('racks', [MasterDataController::class, 'getRacks']);
     Route::get('/clients', [ClientController::class, 'index']);
     Route::get('/document-status', [DocumentStatusController::class, 'index']);
     Route::get('/aIPromptTemplate', [AIPromptTemplateController::class, 'index']);

@@ -602,5 +602,7 @@
   "DELETE_WORKFLOW": "ワークフローを削除",
   "VIEW_WORKFLOW_LOGS": "ワークフローのログを見る",
   "VIEW_MY_WORKFLOW": "自分のワークフローを見る",
-  "MY_WORKFLOWS": "自分のワークフロー"
+  "MY_WORKFLOWS": "自分のワークフロー",
+  "LOCATION": "場所",
+  "RACK": "ラック"
 }

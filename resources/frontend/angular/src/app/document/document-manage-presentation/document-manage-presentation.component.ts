@@ -27,7 +27,7 @@ import { FileInfo } from '@core/domain-classes/file-info';
 import { Role } from '@core/domain-classes/role';
 import { User } from '@core/domain-classes/user';
 import { SecurityService } from '@core/security/security.service';
-import { CommonService } from '@core/services/common.service';
+import { CommonService, Location, Rack } from '@core/services/common.service';
 import { TranslationService } from '@core/services/translation.service';
 import { BaseComponent } from 'src/app/base.component';
 import { CategoryStore } from 'src/app/category/store/category-store';
@@ -62,6 +62,8 @@ export class DocumentManagePresentationComponent
   users: User[];
   roles: Role[];
   allowFileExtension: AllowFileExtension[] = [];
+  locations: Location[] = [];
+  racks: Rack[] = [];
   minDate: Date;
   isS3Supported = false;
   direction: Direction;
@@ -98,6 +100,8 @@ export class DocumentManagePresentationComponent
     this.getCompanyProfile();
     this.getLangDir();
     this.getAllAllowFileExtension();
+    this.getLocations();
+    this.getRacks();
 
     this.workflowStore.loadWorkflows();
     this.filteredWorkflows$ = this.documentForm.get('workflowName').valueChanges.pipe(
@@ -119,6 +123,8 @@ export class DocumentManagePresentationComponent
       location: [''],
       clientId: [''],
       statusId: [''],
+      physicalLocationId: [''],
+      rackId: [''],
 
       // PERBAIKAN #2: Tambahkan form control untuk workflow
       workflowId: [''],
@@ -176,6 +182,8 @@ private _filter(value: string | Workflow): Workflow[] {
       extension: this.extension,
       location: this.documentForm.get('location').value,
       clientId: this.documentForm.get('clientId').value ?? '',
+      locationId: this.documentForm.get('physicalLocationId').value,
+      rackId: this.documentForm.get('rackId').value,
 
       // PERBAIKAN #3: Tambahkan workflowId di sini
       workflowId: this.documentForm.get('workflowId').value,
@@ -239,6 +247,22 @@ private _filter(value: string | Workflow): Workflow[] {
     this.sub$.sink = this.commonService
       .getRolesForDropdown()
       .subscribe((roles: Role[]) => (this.roles = roles));
+  }
+
+  getLocations() {
+    this.sub$.sink = this.commonService.getLocations().subscribe(res => {
+        if(res){
+             this.locations = res as Location[];
+        }
+    });
+  }
+
+  getRacks() {
+    this.sub$.sink = this.commonService.getRacks().subscribe(res => {
+        if(res){
+            this.racks = res as Rack[];
+        }
+    });
   }
 
   getAllAllowFileExtension() {

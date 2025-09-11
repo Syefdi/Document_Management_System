@@ -23,6 +23,16 @@ import { PageHelper } from '@core/domain-classes/page-helper';
 import { AllowFileExtension } from '@core/domain-classes/allow-file-extension';
 import { ClonerService } from './clone.service';
 
+export interface Location {
+  id: number;
+  name: string;
+}
+
+export interface Rack {
+  id: number;
+  name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CommonService {
   constructor(
@@ -80,6 +90,19 @@ export class CommonService {
       .get<Reminder>(url)
       .pipe(catchError(this.commonHttpErrorService.handleError));
   }
+
+  getLocations(): Observable<Location[] | CommonError> {
+    const url = `locations`; 
+    return this.httpClient.get<Location[]>(url)
+      .pipe(catchError(this.commonHttpErrorService.handleError));
+  }
+
+  getRacks(): Observable<Rack[]| CommonError> {
+    const url = `racks`; 
+    return this.httpClient.get<Rack[]>(url)
+      .pipe(catchError(this.commonHttpErrorService.handleError));
+  }
+
 
   getReminder(id: string): Observable<Reminder | CommonError> {
     const url = `reminder/${id}`;

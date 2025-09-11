@@ -602,5 +602,9 @@
   "DELETE_WORKFLOW": "حذف سير العمل",
   "VIEW_WORKFLOW_LOGS": "عرض سجلات سير العمل",
   "VIEW_MY_WORKFLOW": "عرض سير العمل الخاص بي",
-  "MY_WORKFLOWS": "سير العمل الخاص بي"
+  "MY_WORKFLOWS": "سير العمل الخاص بي",
+  "LOCATION": "موقع",
+  "RACK": "فيل",
+  "SELECT_LOCATION": "اختر موقع",
+  "SELECT_RACK": "اختر فيل"
 }

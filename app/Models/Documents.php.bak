@@ -63,10 +63,36 @@ class Documents extends Model
     }
 
     public function users()
+    public function location()
     {
-        return $this->belongsTo(Users::class, 'createdBy', 'id');
+        return $this->belongsTo(Location::class, 'locationId', 'id');
     }
 
+    public function rack()
+    {
+        return $this->belongsTo(Rack::class, 'rackId', 'id');
+    }
+    {
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'locationId', 'id');
+    }
+
+    public function rack()
+    {
+        return $this->belongsTo(Rack::class, 'rackId', 'id');
+    }
+        return $this->belongsTo(Users::class, 'createdBy', 'id');
+    public function location()
+    {
+        return $this->belongsTo(Location::class, 'locationId', 'id');
+    }
+
+    public function rack()
+    {
+        return $this->belongsTo(Rack::class, 'rackId', 'id');
+    }
+    }
     public function location()
     {
         return $this->belongsTo(Location::class, 'locationId', 'id');

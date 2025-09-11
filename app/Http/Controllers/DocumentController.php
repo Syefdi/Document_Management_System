@@ -283,7 +283,7 @@ class DocumentController extends Controller
                 'message' => 'Error in storing document in ' . $location,
             ], 409);
         }
-        return $this->documentRepository->saveDocument($request, $path, $fileSize);
+        return $this->documentRepository->saveDocument($request->all(), $path, $fileSize);
     }
 
     public function updateDocument(Request $request, $id)
