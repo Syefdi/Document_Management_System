@@ -297,12 +297,17 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
                 'categories.name as categoryName',
                 'clients.companyName as companyName',
                 'documentStatus.name as statusName',
+                'documentStatus.colorCode as colorCode',
+                'locations.name as locationName',
+                'racks.name as rackName',
                 DB::raw("CONCAT(users.firstName,' ', users.lastName) as createdByName"),
             ])
             ->join('categories', 'documents.categoryId', '=', 'categories.id')
             ->join('users', 'documents.createdBy', '=', 'users.id')
             ->leftJoin('clients', 'documents.clientId', '=', 'clients.id')
             ->leftJoin('documentStatus', 'documents.statusId', '=', 'documentStatus.id')
+            ->leftJoin('locations', 'documents.locationId', '=', 'locations.id')
+            ->leftJoin('racks', 'documents.rackId', '=', 'racks.id')
             ->whereIn('documents.id', $documentIds)
             ->where(function ($query) use ($userId, $userRoles) {
                 $query->where('documents.createdBy', '=', $userId)

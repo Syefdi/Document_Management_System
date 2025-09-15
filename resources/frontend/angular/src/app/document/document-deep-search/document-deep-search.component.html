@@ -178,6 +178,17 @@
                                             <td mat-cell *matCellDef="let document"> {{document?.companyName |
                                                 translate}} </td>
                                         </ng-container>
+                                        <ng-container matColumnDef="locationName">
+                                            <th mat-header-cell *matHeaderCellDef>{{'LOCATION' |
+                                                translate}}</th>
+                                            <td mat-cell *matCellDef="let document"> {{document?.locationName}} </td>
+                                        </ng-container>
+                                        <ng-container matColumnDef="rackName">
+                                            <th mat-header-cell *matHeaderCellDef>{{'RACK' |
+                                                translate}}</th>
+                                            <td mat-cell *matCellDef="let document"> {{document?.rackName}} </td>
+                                        </ng-container>
+                                        <!-- Status column - commented out, can be re-enabled if needed
                                         <ng-container matColumnDef="statusName">
                                             <th mat-header-cell *matHeaderCellDef>{{'STATUS' |
                                                 translate}}</th>
@@ -185,6 +196,7 @@
                                                     [ngStyle]="{'color': document?.colorCode}">
                                                     {{document?.statusName | translate}} </span> </td>
                                         </ng-container>
+                                        -->
                                         <ng-container matColumnDef="createdDate">
                                             <th mat-header-cell *matHeaderCellDef> {{'CREATED_DATE'
                                                 | translate}} </th>
@@ -199,7 +211,7 @@
                                             </td>
                                         </ng-container>
                                         <tr *matNoDataRow>
-                                            <td colspan="8">
+                                            <td colspan="9">
                                                 <div class="m-2">
                                                     <b> {{ "NO_DATA_FOUND" | translate }}</b>
                                                 </div>
