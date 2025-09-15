@@ -78,6 +78,30 @@
                 </ng-select>
 
               </div>
+              <div class="col-md-3">
+                <ng-select
+                  [clearable]="true"
+                  [searchable]="true"
+                  placeholder="{{ 'SELECT_LOCATION' | translate }}"
+                  (change)="onLocationChange($event)"
+                >
+                  <ng-option [value]="location.id" *ngFor="let location of locationStore.locations()">
+                     {{ location.name }}
+                   </ng-option>
+                </ng-select>
+              </div>
+              <div class="col-md-3">
+                <ng-select
+                  [clearable]="true"
+                  [searchable]="true"
+                  placeholder="{{ 'SELECT_RACK' | translate }}"
+                  (change)="onRackChange($event)"
+                >
+                  <ng-option [value]="rack.id" *ngFor="let rack of rackStore.racks$ | async">
+                      {{ rack.name }}
+                    </ng-option>
+                </ng-select>
+              </div>
             </div>
             <div class="row">
               <div class="col">

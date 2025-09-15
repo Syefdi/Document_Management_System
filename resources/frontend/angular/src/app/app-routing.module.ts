@@ -190,6 +190,20 @@ const routes: Routes = [
               ),
           },
           {
+            path: 'locations',
+            canLoad: [AuthGuard],
+            loadChildren: () =>
+              import('./location/location.module').then(
+                (m) => m.LocationModule
+              ),
+          },
+          {
+            path: 'racks',
+            canActivate: [AuthGuard],
+            data: { claimType: 'RACK_MANAGE_RACKS' },
+            loadChildren: () => import('./rack/rack.module').then(m => m.RackModule)
+          },
+          {
             path: 'file-request',
             data: { claimType: 'FILE_REQUEST_VIEW_FILE_REQUEST' },
             canActivate: [AuthGuard],

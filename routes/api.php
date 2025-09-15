@@ -73,7 +73,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/debug/populate-index', [DocumentController::class, 'manuallyPopulateIndex']);
     
     Route::get('locations', [MasterDataController::class, 'getLocations']);
+    Route::get('locations/{id}', [MasterDataController::class, 'getLocation']);
+    Route::post('locations', [MasterDataController::class, 'createLocation']);
+    Route::put('locations/{id}', [MasterDataController::class, 'updateLocation']);
+    Route::delete('locations/{id}', [MasterDataController::class, 'deleteLocation']);
     Route::get('racks', [MasterDataController::class, 'getRacks']);
+    Route::get('racks/{id}', [MasterDataController::class, 'getRack']);
+    Route::post('racks', [MasterDataController::class, 'createRack']);
+    Route::put('racks/{id}', [MasterDataController::class, 'updateRack']);
+    Route::delete('racks/{id}', [MasterDataController::class, 'deleteRack']);
     Route::get('/clients', [ClientController::class, 'index']);
     Route::get('/document-status', [DocumentStatusController::class, 'index']);
     Route::get('/aIPromptTemplate', [AIPromptTemplateController::class, 'index']);

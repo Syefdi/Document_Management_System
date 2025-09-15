@@ -150,6 +150,14 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             $query = $query->where('documents.location', '=',  $attributes->location);
         }
 
+        if (isset($attributes->locationId) && $attributes->locationId) {
+            $query = $query->where('documents.locationId', '=',  $attributes->locationId);
+        }
+
+        if (isset($attributes->rackId) && $attributes->rackId) {
+            $query = $query->where('documents.rackId', '=',  $attributes->rackId);
+        }
+
         if ($attributes->metaTags) {
             $metaTags = $attributes->metaTags;
             $query = $query->whereExists(function ($query) use ($metaTags) {
@@ -197,6 +205,14 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
         if ($attributes->location) {
             $query = $query->where('documents.location', '=',  $attributes->location);
+        }
+
+        if (isset($attributes->locationId) && $attributes->locationId) {
+            $query = $query->where('documents.locationId', '=',  $attributes->locationId);
+        }
+
+        if (isset($attributes->rackId) && $attributes->rackId) {
+            $query = $query->where('documents.rackId', '=',  $attributes->rackId);
         }
 
         if ($attributes->clientId) {
@@ -664,6 +680,14 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
             $query = $query->where('documents.location', '=',  $attributes->location);
         }
 
+        if (isset($attributes->locationId) && $attributes->locationId) {
+            $query = $query->where('documents.locationId', '=',  $attributes->locationId);
+        }
+
+        if (isset($attributes->rackId) && $attributes->rackId) {
+            $query = $query->where('documents.rackId', '=',  $attributes->rackId);
+        }
+
         if ($attributes->clientId) {
             $query = $query->where(function ($query) use ($attributes) {
                 $query->where('clientId', $attributes->clientId);
@@ -734,6 +758,14 @@ class DocumentRepository extends BaseRepository implements DocumentRepositoryInt
 
         if ($attributes->location) {
             $query = $query->where('documents.location', '=',  $attributes->location);
+        }
+
+        if (isset($attributes->locationId) && $attributes->locationId) {
+            $query = $query->where('documents.locationId', '=',  $attributes->locationId);
+        }
+
+        if (isset($attributes->rackId) && $attributes->rackId) {
+            $query = $query->where('documents.rackId', '=',  $attributes->rackId);
         }
 
         if ($attributes->clientId) {

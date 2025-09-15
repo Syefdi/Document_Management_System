@@ -111,6 +111,8 @@ export class DocumentService {
       .set('metaTags', resource.metaTags)
       .set('id', resource.id.toString())
       .set('location', resource.location)
+      .set('locationId', resource.locationId)
+      .set('rackId', resource.rackId)
       .set('clientId', resource.clientId)
       .set('status', resource.status)
       .set('statusId', resource.statusId)

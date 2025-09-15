@@ -26,6 +26,11 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     private securityService: SecurityService
 
   ) { }
+
+  private getCsrfToken(): string | null {
+    const metaTag = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement;
+    return metaTag ? metaTag.content : null;
+  }
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
@@ -41,8 +46,18 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       url = url.substring(0, url.length - 1);
     }
     if (token || token !== 'undefined') {
+      let headers = req.headers.set('Authorization', 'Bearer ' + token);
+      
+      // Add CSRF token for state-changing operations
+      if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+        const csrfToken = this.getCsrfToken();
+        if (csrfToken) {
+          headers = headers.set('X-CSRF-TOKEN', csrfToken);
+        }
+      }
+      
       const newReq = req.clone({
-        headers: req.headers.set('Authorization', 'Bearer ' + token),
+        headers: headers,
         url: `${baseUrl}${url}`,
       });
       return next.handle(newReq).pipe(
@@ -103,7 +118,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
                 ) {
                   this.toastrService.error(err.error.messages[0]);
                 } else {
-                  this.toastrService.error(err.error.message);
+                  this.toastrService.error(err.error['message'] || 'An error occurred');
                 }
               }
             }

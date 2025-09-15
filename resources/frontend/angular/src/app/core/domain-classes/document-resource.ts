@@ -15,5 +15,6 @@ export class DocumentResource extends ResourceParameter {
   status?: string = '';
   locationId?: string = '';
   rack?: string = '';
+  rackId?: string = '';
 
 }

@@ -124,6 +124,7 @@ export class DocumentManagePresentationComponent
       clientId: [''],
       statusId: [''],
       physicalLocationId: [''],
+      locatiodId: [''],
       rackId: [''],
 
       // PERBAIKAN #2: Tambahkan form control untuk workflow

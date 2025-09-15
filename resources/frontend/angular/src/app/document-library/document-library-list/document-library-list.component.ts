@@ -46,6 +46,9 @@ import { DocumentWorkflowDialogComponent } from 'src/app/document/document-workf
 import { VisualWorkflowInstance } from '@core/domain-classes/visual-workflow-instance';
 import { VisualWorkflowGraphComponent } from 'src/app/workflows/visual-workflow-graph/visual-workflow-graph.component';
 import { DocumentWorkflowService } from 'src/app/workflows/manage-workflow/document-workflow.service';
+import { LocationStore } from 'src/app/location/location-store';
+import { RackStore } from 'src/app/rack/rack-store';
+import { RackService } from 'src/app/rack/rack.service';
 
 @Component({
   selector: 'app-document-library-list',
@@ -80,6 +83,8 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
   // documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
   public clientStore = inject(ClientStore);
+  locationStore = inject(LocationStore);
+  rackStore = inject(RackStore);
   filteredDocuments: DocumentInfo[] = [];
   sourceDocuments: DocumentInfo[] = [];
   currentStatusFilter = '';
@@ -101,7 +106,8 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
     private toastrService: ToastrService,
     private dialog: MatDialog,
     private commonDialogService: CommonDialogService,
-    private documentWorkflowService: DocumentWorkflowService
+    private documentWorkflowService: DocumentWorkflowService,
+    private rackService: RackService
   ) {
     super();
     this.documentResource = new DocumentResource();
@@ -228,6 +234,31 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
 
   onDocumentStatusChange(selectedStatus: string): void {
     this.documentResource.status = selectedStatus || null;
+    this.documentResource.skip = 0;
+    this.paginator.pageIndex = 0;
+    this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
+  }
+
+  onLocationChange(filterValue: string) {
+    if (filterValue) {
+      this.documentResource.locationId = filterValue;
+    } else {
+      this.documentResource.locationId = '';
+    }
+    this.documentResource.skip = 0;
+    this.paginator.pageIndex = 0;
+    this.dataSource.loadDocuments(this.documentResource);
+    this.loadDropdownData();
+    this.loadRacks();
+  }
+
+  onRackChange(filterValue: string) {
+    if (filterValue) {
+      this.documentResource.rackId = filterValue;
+    } else {
+      this.documentResource.rackId = '';
+    }
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
@@ -595,6 +626,19 @@ export class DocumentLibraryListComponent extends BaseComponent implements OnIni
 
     // Load racks data
     this.commonService.getRacks().subscribe({
+      next: (racks) => {
+        if (Array.isArray(racks)) {
+          this.racks = racks;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading racks:', error);
+      }
+    });
+  }
+
+  loadRacks(): void {
+    this.sub$.sink = this.commonService.getRacks().subscribe({
       next: (racks) => {
         if (Array.isArray(racks)) {
           this.racks = racks;

@@ -111,7 +111,9 @@ export class DocumentDeepSearchComponent
 
   getCategories(): void {
     this.categoryService.getAllCategoriesForDropDown().subscribe((c) => {
-      this.categories = [...c];
+      if (Array.isArray(c)) {
+        this.categories = [...c];
+      }
     });
   }
 

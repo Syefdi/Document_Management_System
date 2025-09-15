@@ -1,0 +1,83 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-md-6 mb-2">
+        <span *ngIf="!isEditMode" class="mb-0 page-title">{{
+          "ADD_RACK" | translate
+        }}</span>
+        <span *ngIf="isEditMode" class="mb-0 page-title">{{
+          "EDIT_RACK" | translate
+        }}</span>
+        <app-page-help-text [code]="'MANAGE_RACK'"></app-page-help-text>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="body">
+        <form [formGroup]="rackForm">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ "NAME" | translate }}</label>
+                <input
+                  formControlName="name"
+                  class="form-control"
+                  type="text"
+                />
+                <div
+                  *ngIf="
+                    rackForm.get('name').touched &&
+                    rackForm.get('name').errors
+                  "
+                >
+                  <div
+                    class="text-danger"
+                    *ngIf="rackForm.get('name').errors?.['required']"
+                  >
+                    {{ "NAME_IS_REQUIRED" | translate }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>{{ "DESCRIPTION" | translate }}</label>
+                <input
+                  formControlName="description"
+                  class="form-control"
+                  type="text"
+                />
+              </div>
+            </div>
+
+            <!-- Status toggle removed to fix edit error -->
+            <div class="m-top-10 col-md-12">
+              <button
+                class="btn btn-success btn-sm me-2"
+                (click)="saveRack()"
+                [disabled]="loading || rackForm.invalid"
+                cdkFocusInitial
+              >
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <i-feather *ngIf="!loading" name="save" class="small-icon"></i-feather>
+                <span *ngIf="loading">{{ "SAVING" | translate }}...</span>
+                <span *ngIf="!loading">{{ "SAVE" | translate }}</span>
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                [routerLink]="['/racks']"
+                [disabled]="loading"
+              >
+                <i-feather name="x-circle" class="small-icon"></i-feather>
+                {{ "CANCEL" | translate }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

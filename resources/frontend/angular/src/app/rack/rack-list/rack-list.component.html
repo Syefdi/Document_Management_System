@@ -1,0 +1,66 @@
+<section class="content">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col mb-2">
+        <span class="mb-0 page-title">
+          {{ "RACKS" | translate }}
+          <app-page-help-text code="RACKS"></app-page-help-text>
+        </span>
+      </div>
+      <div class="col-auto d-flex justify-content-end mb-2">
+        <button class="btn btn-primary btn-sm me-2" (click)="refresh()">
+          <i-feather name="refresh-cw" class="small-icon me-1"></i-feather>
+          <span>{{ "REFRESH" | translate }}</span>
+        </button>
+        <button [routerLink]="['/racks/manage']" class="btn btn-success btn-sm me-2">
+          <i-feather name="plus" class="small-icon"></i-feather>
+          <span class="d-none d-sm-inline">{{"ADD_RACK" | translate}}</span>
+        </button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="body">
+        <div class="table-responsive">
+          <div class="grid-height-large">
+            <table mat-table [dataSource]="racks">
+              <ng-container matColumnDef="action">
+                <th class="table-column-fix-188" mat-header-cell *matHeaderCellDef>{{"ACTION" |
+                  translate}} </th>
+                <td mat-cell *matCellDef="let rack">
+                  <button [routerLink]="['/racks/manage', rack.id]" class="btn btn-success btn-sm me-2"
+                    routerLinkActive="active">
+                    <i-feather name="edit" class="small-icon"></i-feather>
+                    <span class="d-none d-sm-inline"> {{"EDIT" | translate}}</span>
+                  </button>
+                  <button (click)="deleteRack(rack)" class="btn btn-danger btn-sm" type="button">
+                    <i-feather name="trash" class="small-icon"></i-feather>
+                    <span class="d-none d-sm-inline"> {{"DELETE" | translate}}</span>
+                  </button>
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>{{ "NAME" | translate }}</th>
+                <td mat-cell *matCellDef="let rack">{{ rack.name }}</td>
+              </ng-container>
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{"DESCRIPTION" | translate}} </th>
+                <td mat-cell *matCellDef="let rack"> {{rack.description}} </td>
+              </ng-container>
+
+
+              <tr *matNoDataRow>
+                  <td colspan="3">
+                  <div class="m-2">
+                    <b> {{"NO_DATA_FOUND" | translate}}</b>
+                  </div>
+                </td>
+              </tr>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

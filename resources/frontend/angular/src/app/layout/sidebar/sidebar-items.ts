@@ -174,6 +174,24 @@ export const ROUTES: RouteInfo[] = [
     submenu: [],
   },
   {
+    path: 'locations',
+    title: 'LOCATIONS',
+    icon: 'map-pin',
+    class: '',
+    groupTitle: false,
+    claims: ['LOCATION_MANAGE_LOCATIONS'],
+    submenu: [],
+  },
+  {
+    path: 'racks',
+    title: 'RACKS',
+    icon: 'server',
+    class: '',
+    groupTitle: false,
+    claims: ['RACK_MANAGE_RACKS'],
+    submenu: [],
+  },
+  {
     path: 'archived-documents',
     title: 'ARCHIVED_DOCUMENTS',
     icon: 'archive',
@@ -194,7 +212,7 @@ export const ROUTES: RouteInfo[] = [
   {
     path: 'users',
     title: 'USERS',
-    icon: 'user',
+    icon: 'user-plus',
     class: '',
     groupTitle: false,
     claims: ['USER_VIEW_USERS'],

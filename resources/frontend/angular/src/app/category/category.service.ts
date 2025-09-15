@@ -14,12 +14,14 @@ export class CategoryService {
 
   delete(id) {
     const url = `category/${id}`;
-    return this.httpClient.delete<void>(url);
+    return this.httpClient.delete<void>(url)
+      .pipe(catchError(this.commonHttpErrorService.handleError));
   }
 
   update(category: Category) {
     const url = `category/${category.id}`;
-    return this.httpClient.put<Category>(url, category);
+    return this.httpClient.put<Category>(url, category)
+      .pipe(catchError(this.commonHttpErrorService.handleError));
   }
 
   add(category: Category) {
@@ -31,6 +33,7 @@ export class CategoryService {
 
   getAllCategoriesForDropDown() {
     const url = `category/dropdown`;
-    return this.httpClient.get<Category[]>(url);
+    return this.httpClient.get<Category[]>(url)
+      .pipe(catchError(this.commonHttpErrorService.handleError));
   }
 }

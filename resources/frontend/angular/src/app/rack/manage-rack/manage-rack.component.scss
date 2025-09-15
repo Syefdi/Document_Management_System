@@ -1,0 +1,52 @@
+// Manage Rack Component Styles
+
+.w-100 {
+  width: 100%;
+}
+
+.form-field-wrapper {
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+}
+
+.form-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  
+  mat-spinner {
+    margin-bottom: 1rem;
+  }
+}
+
+mat-card-header {
+  margin-bottom: 1rem;
+}
+
+mat-card-title {
+  margin: 0;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+      margin-left: 0 !important;
+    }
+  }
+}

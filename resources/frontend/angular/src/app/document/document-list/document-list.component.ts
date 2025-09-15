@@ -48,6 +48,9 @@ import { DocumentShareableLink } from '@core/domain-classes/document-shareable-l
 import { ClientStore } from 'src/app/client/client-store';
 import { DocumentStatusStore } from 'src/app/document-status/store/document-status.store';
 import { CategoryStore } from 'src/app/category/store/category-store';
+import { LocationStore } from 'src/app/location/location-store';
+import { RackStore } from 'src/app/rack/rack-store';
+import { RackService } from 'src/app/rack/rack.service';
 import { DocumentWorkflowDialogComponent } from '../document-workflow-dialog/document-workflow-dialog.component';
 import { DocumentWorkflow } from '@core/domain-classes/document-workflow';
 import { VisualWorkflowInstance } from '@core/domain-classes/visual-workflow-instance';
@@ -93,6 +96,8 @@ export class DocumentListComponent
   public clientStore = inject(ClientStore);
   // documentStatusStore = inject(DocumentStatusStore);
   categoryStore = inject(CategoryStore);
+  locationStore = inject(LocationStore);
+  rackStore = inject(RackStore);
   filteredDocuments: DocumentInfo[] = [];
   sourceDocuments: DocumentInfo[] = [];
   currentStatusFilter = '';
@@ -113,17 +118,20 @@ export class DocumentListComponent
     private translationService: TranslationService,
     private commonService: CommonService,
     private toastrService: ToastrService,
-    private documentWorkflowService: DocumentWorkflowService
+    private documentWorkflowService: DocumentWorkflowService,
+    private rackService: RackService
   ) {
     super();
-    this.documentResource = new DocumentResource();
-    this.documentResource.pageSize = 10;
-    this.documentResource.orderBy = 'createdDate desc';
   }
 
   ngOnInit(): void {
+    this.documentResource = new DocumentResource();
+    this.documentResource.pageSize = 15;
+    this.documentResource.orderBy = 'createdDate desc';
     this.dataSource = new DocumentDataSource(this.documentService);
     this.dataSource.loadDocuments(this.documentResource);
+    this.locationStore.loadLocations();
+    this.loadRacks();
     this.getResourceParameter();
     this.getLangDir();
   }
@@ -282,6 +290,46 @@ export class DocumentListComponent
     this.documentResource.skip = 0;
     this.paginator.pageIndex = 0;
     this.dataSource.loadDocuments(this.documentResource);
+  }
+
+  onLocationChange(filterValue: string) {
+    if (filterValue) {
+      this.documentResource.locationId = filterValue;
+    } else {
+      this.documentResource.locationId = '';
+    }
+    this.documentResource.skip = 0;
+    this.paginator.pageIndex = 0;
+    this.dataSource.loadDocuments(this.documentResource);
+  }
+
+  onRackChange(filterValue: string) {
+    if (filterValue) {
+      this.documentResource.rackId = filterValue;
+    } else {
+      this.documentResource.rackId = '';
+    }
+    this.documentResource.skip = 0;
+    this.paginator.pageIndex = 0;
+    this.dataSource.loadDocuments(this.documentResource);
+  }
+
+  private loadRacks(): void {
+    this.rackStore.setLoading(true);
+    this.sub$.sink = this.rackService.getRacks().subscribe({
+      next: (result) => {
+        if (result && typeof result === 'object' && 'message' in result) {
+          this.toastrService.error('Failed to load racks', 'Error');
+        } else {
+          this.rackStore.setRacks(result as any[]);
+        }
+        this.rackStore.setLoading(false);
+      },
+      error: () => {
+        this.toastrService.error('Failed to load racks', 'Error');
+        this.rackStore.setLoading(false);
+      }
+    });
   }
 
   applyFilter(filterValue: string): void {
