@@ -8,6 +8,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ActionsController;
 use App\Http\Controllers\AIPromptTemplateController;
 use App\Http\Controllers\AllowFileExtensionController;
+use App\Http\Controllers\AngularController;
 use App\Http\Controllers\ArchiveDocumentController;
 use App\Http\Controllers\CompanyProfileController;
 use App\Http\Controllers\DashboardController;
@@ -51,6 +52,8 @@ use App\Http\Controllers\WorkflowLogController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/', [AngularController::class, 'index']);
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('auth/login', 'login');
