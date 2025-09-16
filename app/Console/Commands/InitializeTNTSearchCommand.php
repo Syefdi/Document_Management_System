@@ -42,10 +42,10 @@ class InitializeTNTSearchCommand extends Command
             $this->info("Found {$documentsCount} documents marked for indexing.");
             
             if ($documentsCount > 0) {
-                $this->info('Adding sample documents to index...');
+                $this->info('Adding all documents to index...');
                 
-                // Get first few documents to test indexing
-                $documents = Documents::where('isIndexed', true)->limit(5)->get();
+                // Get all documents for indexing
+                $documents = Documents::where('isIndexed', true)->get();
                 
                 foreach ($documents as $document) {
                     try {
