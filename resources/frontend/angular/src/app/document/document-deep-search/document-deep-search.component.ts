@@ -47,7 +47,9 @@ export class DocumentDeepSearchComponent
     'categoryName',
     'location',
     'companyName',
-    'statusName',
+    'locationName',
+    'rackName',
+    // 'statusName', 
     'createdDate',
     'createdBy',
   ];
