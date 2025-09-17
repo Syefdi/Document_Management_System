@@ -29,7 +29,7 @@ class MasterDataController extends Controller
     public function createLocation(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:' . (new Location())->getTable() . ',name,NULL,id,isDeleted,0',
             'description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:1000'
         ]);
@@ -38,18 +38,6 @@ class MasterDataController extends Controller
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // Check for duplicate name only among non-deleted records
-        $existingLocation = Location::where('name', $request->name)
-                                  ->where('isDeleted', 0)
-                                  ->whereNull('deleted_at')
-                                  ->first();
-        if ($existingLocation) {
-            return response()->json([
-                'message' => 'Location name already exists',
-                'errors' => ['name' => ['Location name already exists']]
             ], 422);
         }
 
@@ -71,7 +59,7 @@ class MasterDataController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:' . (new Location())->getTable() . ',name,' . $id . ',id,isDeleted,0',
             'description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:1000'
         ]);
@@ -80,19 +68,6 @@ class MasterDataController extends Controller
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // Check for duplicate name only among non-deleted records (excluding current location)
-        $existingLocation = Location::where('name', $request->name)
-                                  ->where('id', '!=', $id)
-                                  ->where('isDeleted', 0)
-                                  ->whereNull('deleted_at')
-                                  ->first();
-        if ($existingLocation) {
-            return response()->json([
-                'message' => 'Location name already exists',
-                'errors' => ['name' => ['Location name already exists']]
             ], 422);
         }
 
