@@ -29,7 +29,7 @@ class MasterDataController extends Controller
     public function createLocation(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:' . (new Location())->getTable() . ',name,NULL,id,isDeleted,0',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:1000'
         ]);
@@ -59,7 +59,7 @@ class MasterDataController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:' . (new Location())->getTable() . ',name,' . $id . ',id,isDeleted,0',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:1000'
         ]);
@@ -112,7 +112,7 @@ class MasterDataController extends Controller
     public function createRack(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:racks,name,NULL,id,isDeleted,0',
             'description' => 'nullable|string|max:500'
         ]);
 
@@ -120,17 +120,6 @@ class MasterDataController extends Controller
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // Check for duplicate name (only among active records)
-        $existingRack = Rack::where('name', $request->name)
-                           ->where('isDeleted', false)
-                           ->first();
-        if ($existingRack) {
-            return response()->json([
-                'message' => 'Rack name already exists',
-                'errors' => ['name' => ['Rack name already exists']]
             ], 422);
         }
 
@@ -151,7 +140,7 @@ class MasterDataController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:racks,name,' . $id . ',id,isDeleted,0',
             'description' => 'nullable|string|max:500'
         ]);
 
@@ -159,18 +148,6 @@ class MasterDataController extends Controller
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
-            ], 422);
-        }
-
-        // Check for duplicate name (excluding current rack and only among active records)
-        $existingRack = Rack::where('name', $request->name)
-                           ->where('id', '!=', $id)
-                           ->where('isDeleted', false)
-                           ->first();
-        if ($existingRack) {
-            return response()->json([
-                'message' => 'Rack name already exists',
-                'errors' => ['name' => ['Rack name already exists']]
             ], 422);
         }
 
