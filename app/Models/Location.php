@@ -13,37 +13,19 @@ use Illuminate\Database\Eloquent\Builder;
 
 class Location extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     use Notifiable, Uuids;
     protected $primaryKey = "id";
 
-    const CREATED_AT = 'createdDate';
-    const UPDATED_AT = 'modifiedDate';
-
     protected $fillable = [
-        'name', 'description', 'address', 'createdBy', 'modifiedBy', 'isDeleted'
-    ];
-
-    protected $casts = [
-        'createdDate' => 'date',
+        'name', 'description', 'address'
     ];
 
     protected static function boot()
     {
         parent::boot();
         static::creating(function (Model $model) {
-            $userId = Auth::parseToken()->getPayload()->get('userId');
-            $model->createdBy = $userId;
-            $model->modifiedBy = $userId;
             $model->setAttribute($model->getKeyName(), Uuid::uuid4());
-        });
-        static::updating(function (Model $model) {
-            $userId = Auth::parseToken()->getPayload()->get('userId');
-            $model->modifiedBy = $userId;
-        });
-
-        static::addGlobalScope('isDeleted', function (Builder $builder) {
-            $builder->where('isDeleted', '=', 0);
         });
     }
 }

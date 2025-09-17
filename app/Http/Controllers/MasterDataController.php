@@ -29,7 +29,7 @@ class MasterDataController extends Controller
     public function createLocation(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:locations,name',
             'description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:1000'
         ]);
@@ -59,7 +59,7 @@ class MasterDataController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:locations,name,' . $id,
             'description' => 'nullable|string|max:500',
             'address' => 'nullable|string|max:1000'
         ]);
