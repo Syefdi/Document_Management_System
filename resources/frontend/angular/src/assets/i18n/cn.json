@@ -605,5 +605,11 @@
   "LOCATION": "位置",
   "RACK": "货架",
   "SELECT_LOCATION": "选择位置",
-  "SELECT_RACK": "选择货架"
+  "SELECT_RACK": "选择货架",
+  "LOCATION_NAME_ALREADY_EXISTS": "位置名称已存在",
+  "RACK_NAME_ALREADY_EXISTS": "货架名称已存在",
+  "LOCATION_ADDED_SUCCESSFULLY": "位置已成功添加",
+  "RACK_ADDED_SUCCESSFULLY": "货架已成功添加",
+  "LOCATION_UPDATE_SUCCESSFULLY": "位置已成功更新",
+  "RACK_UPDATE_SUCCESSFULLY": "货架已成功更新"
 }

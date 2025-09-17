@@ -607,5 +607,11 @@
   "LOCATION": "Emplacement",
   "RACK": "Rangier",
   "SELECT_LOCATION": "Sélectionner l'emplacement",
-  "SELECT_RACK": "Sélectionner le rangier"
+  "SELECT_RACK": "Sélectionner le rangier",
+  "LOCATION_NAME_ALREADY_EXISTS": "Le nom de l'emplacement existe déjà",
+  "RACK_NAME_ALREADY_EXISTS": "Le nom du rangier existe déjà",
+  "LOCATION_ADDED_SUCCESSFULLY": "Emplacement ajouté avec succès",
+  "RACK_ADDED_SUCCESSFULLY": "Rangier ajouté avec succès",
+  "LOCATION_UPDATE_SUCCESSFULLY": "Emplacement mis à jour avec succès",
+  "RACK_UPDATE_SUCCESSFULLY": "Rangier mis à jour avec succès"
 }

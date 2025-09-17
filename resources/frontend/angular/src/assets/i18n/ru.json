@@ -604,5 +604,13 @@
   "VIEW_MY_WORKFLOW": "Просмотреть мой рабочий процесс",
   "MY_WORKFLOWS": "Мои рабочие процессы",
   "LOCATION": "Локация",
-  "RACK": "Рак"
+  "RACK": "Рак",
+  "SELECT_LOCATION": "Выберите локацию",
+  "SELECT_RACK": "Выберите рак",
+  "LOCATION_NAME_ALREADY_EXISTS": "Имя локации уже существует",
+  "RACK_NAME_ALREADY_EXISTS": "Имя рака уже существует",
+  "LOCATION_ADDED_SUCCESSFULLY": "Локация успешно добавлена",
+  "RACK_ADDED_SUCCESSFULLY": "Рак успешно добавлен",
+  "LOCATION_UPDATE_SUCCESSFULLY": "Локация успешно обновлена",
+  "RACK_UPDATE_SUCCESSFULLY": "Рак успешно обновлен"
 }

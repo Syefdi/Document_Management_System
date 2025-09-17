@@ -608,5 +608,13 @@
   "VIEW_MY_WORKFLOW": "Lihat Alur Kerja Saya",
   "MY_WORKFLOWS": "Alur Kerja Saya",
   "LOCATION": "Lokasi",
-  "RACK": "Rak"
+  "RACK": "Rak",
+  "SELECT_LOCATION": "Pilih Lokasi",
+  "SELECT_RACK": "Pilih Rak",
+  "LOCATION_NAME_ALREADY_EXISTS": "Nama Lokasi sudah ada",
+  "RACK_NAME_ALREADY_EXISTS": "Nama Rak sudah ada",
+  "LOCATION_ADDED_SUCCESSFULLY": "Lokasi berhasil ditambahkan",
+  "RACK_ADDED_SUCCESSFULLY": "Rak berhasil ditambahkan",
+  "LOCATION_UPDATE_SUCCESSFULLY": "Lokasi berhasil diperbarui",
+  "RACK_UPDATE_SUCCESSFULLY": "Rak berhasil diperbarui"
 }

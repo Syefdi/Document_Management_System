@@ -604,5 +604,13 @@
   "VIEW_MY_WORKFLOW": "내 워크플로우 보기",
   "MY_WORKFLOWS": "내 워크플로우",
   "LOCATION": "위치",
-  "RACK": "랙"
+  "RACK": "랙",
+  "SELECT_LOCATION": "위치 선택",
+  "SELECT_RACK": "랙 선택",
+  "LOCATION_NAME_ALREADY_EXISTS": "위치 이름이 이미 존재합니다",
+  "RACK_NAME_ALREADY_EXISTS": "랙 이름이 이미 존재합니다",
+  "LOCATION_ADDED_SUCCESSFULLY": "위치가 성공적으로 추가되었습니다",
+  "RACK_ADDED_SUCCESSFULLY": "랙이 성공적으로 추가되었습니다",
+  "LOCATION_UPDATE_SUCCESSFULLY": "위치가 성공적으로 업데이트되었습니다",
+  "RACK_UPDATE_SUCCESSFULLY": "랙이 성공적으로 업데이트되었습니다"
 }

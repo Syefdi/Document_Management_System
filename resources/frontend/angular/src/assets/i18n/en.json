@@ -632,5 +632,11 @@
   "RACK_DELETED_SUCCESSFULLY": "Rack Deleted Successfully",
   "MANAGE_RACK": "Manage Rack",
   "VIEW_RACKS": "View Racks",
-  "RACKS": "Racks"
+  "RACKS": "Racks",
+  "LOCATION_NAME_ALREADY_EXISTS": "Location name already exists",
+  "RACK_NAME_ALREADY_EXISTS": "Rack name already exists",
+  "LOCATION_ADDED_SUCCESSFULLY": "Location added successfully",
+  "RACK_ADDED_SUCCESSFULLY": "Rack added successfully",
+  "LOCATION_UPDATE_SUCCESSFULLY": "Location updated successfully",
+  "RACK_UPDATE_SUCCESSFULLY": "Rack updated successfully"
 }

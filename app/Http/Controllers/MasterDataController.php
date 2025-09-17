@@ -41,8 +41,11 @@ class MasterDataController extends Controller
             ], 422);
         }
 
-        // Check for duplicate name
-        $existingLocation = Location::where('name', $request->name)->first();
+        // Check for duplicate name only among non-deleted records
+        $existingLocation = Location::where('name', $request->name)
+                                  ->where('isDeleted', 0)
+                                  ->whereNull('deleted_at')
+                                  ->first();
         if ($existingLocation) {
             return response()->json([
                 'message' => 'Location name already exists',
@@ -80,9 +83,11 @@ class MasterDataController extends Controller
             ], 422);
         }
 
-        // Check for duplicate name (excluding current location)
+        // Check for duplicate name only among non-deleted records (excluding current location)
         $existingLocation = Location::where('name', $request->name)
                                   ->where('id', '!=', $id)
+                                  ->where('isDeleted', 0)
+                                  ->whereNull('deleted_at')
                                   ->first();
         if ($existingLocation) {
             return response()->json([
@@ -143,8 +148,10 @@ class MasterDataController extends Controller
             ], 422);
         }
 
-        // Check for duplicate name
-        $existingRack = Rack::where('name', $request->name)->first();
+        // Check for duplicate name (only among active records)
+        $existingRack = Rack::where('name', $request->name)
+                           ->where('isDeleted', false)
+                           ->first();
         if ($existingRack) {
             return response()->json([
                 'message' => 'Rack name already exists',
@@ -180,9 +187,10 @@ class MasterDataController extends Controller
             ], 422);
         }
 
-        // Check for duplicate name (excluding current rack)
+        // Check for duplicate name (excluding current rack and only among active records)
         $existingRack = Rack::where('name', $request->name)
                            ->where('id', '!=', $id)
+                           ->where('isDeleted', false)
                            ->first();
         if ($existingRack) {
             return response()->json([

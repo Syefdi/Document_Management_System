@@ -604,5 +604,13 @@
   "VIEW_MY_WORKFLOW": "自分のワークフローを見る",
   "MY_WORKFLOWS": "自分のワークフロー",
   "LOCATION": "場所",
-  "RACK": "ラック"
+  "RACK": "ラック",
+  "SELECT_LOCATION": "場所を選択",
+  "SELECT_RACK": "ラックを選択",
+  "LOCATION_NAME_ALREADY_EXISTS": "場所名は既に存在します",
+  "RACK_NAME_ALREADY_EXISTS": "ラック名は既に存在します",
+  "LOCATION_ADDED_SUCCESSFULLY": "場所が正常に追加されました",
+  "RACK_ADDED_SUCCESSFULLY": "ラックが正常に追加されました",
+  "LOCATION_UPDATE_SUCCESSFULLY": "場所が正常に更新されました",
+  "RACK_UPDATE_SUCCESSFULLY": "ラックが正常に更新されました"
 }

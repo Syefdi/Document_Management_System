@@ -606,5 +606,11 @@
   "LOCATION": "Ubicación",
   "RACK": "Estantería",
   "SELECT_LOCATION": "Seleccionar ubicación",
-  "SELECT_RACK": "Seleccionar estantería"
+  "SELECT_RACK": "Seleccionar estantería",
+  "LOCATION_NAME_ALREADY_EXISTS": "El nombre de la ubicación ya existe",
+  "RACK_NAME_ALREADY_EXISTS": "El nombre de la estantería ya existe",
+  "LOCATION_ADDED_SUCCESSFULLY": "Ubicación agregada exitosamente",
+  "RACK_ADDED_SUCCESSFULLY": "Estantería agregada exitosamente",
+  "LOCATION_UPDATE_SUCCESSFULLY": "Ubicación actualizada exitosamente",
+  "RACK_UPDATE_SUCCESSFULLY": "Estantería actualizada exitosamente"
 }

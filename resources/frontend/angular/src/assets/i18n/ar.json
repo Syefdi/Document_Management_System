@@ -606,5 +606,11 @@
   "LOCATION": "موقع",
   "RACK": "فيل",
   "SELECT_LOCATION": "اختر موقع",
-  "SELECT_RACK": "اختر فيل"
+  "SELECT_RACK": "اختر فيل",
+  "LOCATION_NAME_ALREADY_EXISTS": "اسم الموقع موجود بالفعل",
+  "RACK_NAME_ALREADY_EXISTS": "اسم الفيل موجود بالفعل",
+  "LOCATION_ADDED_SUCCESSFULLY": "تم إضافة الموقع بنجاح",
+  "RACK_ADDED_SUCCESSFULLY": "تم إضافة الفيل بنجاح",
+  "LOCATION_UPDATE_SUCCESSFULLY": "تم تحديث الموقع بنجاح",
+  "RACK_UPDATE_SUCCESSFULLY": "تم تحديث الفيل بنجاح"
 }
