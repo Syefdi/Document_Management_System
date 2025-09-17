@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,8 +13,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('locations', function (Blueprint $table) {
-            // Add simple unique constraint to name
-            $table->unique('name');
+            // Check if unique constraint doesn't exist before adding it
+            $indexExists = DB::select("SHOW INDEX FROM locations WHERE Key_name = 'locations_name_unique'");
+            if (empty($indexExists)) {
+                $table->unique('name');
+            }
         });
     }
 
