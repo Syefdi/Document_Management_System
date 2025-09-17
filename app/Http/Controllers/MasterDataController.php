@@ -86,11 +86,7 @@ class MasterDataController extends Controller
             return response()->json(['message' => 'Location not found'], 404);
         }
 
-        $userId = Auth::parseToken()->getPayload()->get('userId');
-        $location->isDeleted = true;
-        $location->deletedBy = $userId;
-        $location->deleted_at = now();
-        $location->save();
+        $location->delete();
         
         return response()->json(['message' => 'Location deleted successfully']);
     }
